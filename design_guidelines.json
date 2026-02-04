@@ -1,0 +1,152 @@
+{
+  "brand_identity": {
+    "name": "Bohania Renault - CR Appointment System",
+    "tone": "Industrial, Precision, High-Utility, Swiss-Automotive",
+    "persona": "The Anti-AI Designer (E1)",
+    "core_philosophy": "Function is beauty. Grid is law. No decoration without purpose."
+  },
+  "typography": {
+    "primary_font": "Archivo",
+    "secondary_font": "Manrope",
+    "mono_font": "JetBrains Mono",
+    "scale": {
+      "h1": "text-4xl md:text-5xl font-black tracking-tighter uppercase",
+      "h2": "text-2xl md:text-3xl font-bold tracking-tight uppercase",
+      "h3": "text-xl font-semibold tracking-tight",
+      "body": "text-sm md:text-base font-medium leading-relaxed",
+      "caption": "text-xs font-mono text-muted-foreground uppercase tracking-widest",
+      "data": "text-sm font-mono tracking-tight"
+    },
+    "usage": {
+      "headings": "Use Archivo for all page titles and section headers. Always uppercase for H1/H2.",
+      "body": "Use Manrope for all general text, descriptions, and form labels.",
+      "data": "Use JetBrains Mono for dates, times, VIN numbers, and appointment IDs."
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": "#FFFFFF",
+      "foreground": "#09090B",
+      "card": "#FFFFFF",
+      "card_foreground": "#09090B",
+      "popover": "#FFFFFF",
+      "popover_foreground": "#09090B",
+      "primary": "#09090B",
+      "primary_foreground": "#FFFFFF",
+      "secondary": "#F4F4F5",
+      "secondary_foreground": "#18181B",
+      "muted": "#F4F4F5",
+      "muted_foreground": "#71717A",
+      "accent": "#F4F4F5",
+      "accent_foreground": "#18181B",
+      "destructive": "#000000",
+      "destructive_foreground": "#FFFFFF",
+      "border": "#E4E4E7",
+      "input": "#E4E4E7",
+      "ring": "#09090B"
+    },
+    "status_indicators": {
+      "description": "Since color is forbidden for status, use shape and contrast.",
+      "confirmed": {
+        "visual": "Solid Black Badge",
+        "class": "bg-black text-white border border-black",
+        "icon": "CheckCircle"
+      },
+      "pending": {
+        "visual": "White Badge with Black Border",
+        "class": "bg-white text-black border border-black border-dashed",
+        "icon": "Circle"
+      },
+      "cancelled": {
+        "visual": "Strikethrough text with gray badge",
+        "class": "bg-gray-100 text-gray-500 line-through border border-transparent",
+        "icon": "XCircle"
+      },
+      "completed": {
+        "visual": "Black/White Pattern",
+        "class": "bg-[url('/pattern-striped.svg')] bg-gray-100 text-black border border-black",
+        "icon": "CheckCheck"
+      }
+    }
+  },
+  "layout": {
+    "grid_system": "Bento Grid - Mode B (High Density)",
+    "container": "w-full max-w-[1920px] mx-auto p-4 md:p-6 lg:p-8",
+    "spacing": {
+      "section_gap": "gap-8",
+      "widget_gap": "gap-4",
+      "internal_padding": "p-6"
+    },
+    "structure": {
+      "sidebar": "Fixed width (280px) or Collapsible. High contrast border-r.",
+      "header": "Minimal height (64px). Sticky. Border-b. White bg/80 backdrop blur.",
+      "main": "Flex-1 overflow-auto bg-gray-50/50"
+    }
+  },
+  "components": {
+    "shadcn_customization": {
+      "radius": "rounded-sm (0.125rem) or rounded-none. NO LARGE ROUNDED CORNERS.",
+      "shadows": "shadow-none or shadow-sm. Use borders for separation.",
+      "borders": "border-gray-200. Focus states must use border-black.",
+      "cards": "Flat, 1px border. No elevation shadows. Hover: border-gray-400 transition-colors."
+    },
+    "specific_components": {
+      "buttons": {
+        "primary": "bg-black text-white hover:bg-gray-800 rounded-sm font-mono text-xs uppercase tracking-wider",
+        "secondary": "bg-white text-black border border-gray-200 hover:bg-gray-50 rounded-sm font-mono text-xs uppercase tracking-wider",
+        "ghost": "hover:bg-gray-100 text-black"
+      },
+      "inputs": {
+        "style": "bg-white border-gray-200 focus:border-black focus:ring-0 rounded-sm font-medium",
+        "label": "uppercase text-[10px] font-bold tracking-widest text-gray-500 mb-1.5"
+      },
+      "tables": {
+        "style": "w-full text-sm",
+        "header": "border-b border-black text-black font-bold uppercase text-xs tracking-wider",
+        "row": "border-b border-gray-100 hover:bg-gray-50 transition-colors"
+      },
+      "calendar_appointment_card": {
+        "style": "bg-white border-l-4 p-3 mb-2 shadow-sm hover:translate-x-1 transition-transform cursor-pointer",
+        "variants": {
+          "confirmed": "border-l-black",
+          "pending": "border-l-gray-400 border-l-dashed",
+          "cancelled": "border-l-gray-200 opacity-60"
+        }
+      }
+    }
+  },
+  "visual_enhancers": {
+    "textures": "Use subtle noise/grain on the dashboard background to reduce sterility.",
+    "empty_states": "Do not use illustrations. Use ASCII art or a simple, large geometric shape (like a wireframe box) with centered monospaced text.",
+    "icons": "Lucide React. Stroke width: 1.5px (Fine) or 2px (Medium). DO NOT use filled icons except for specific status indicators."
+  },
+  "motion": {
+    "hover": "Duration 200ms, Ease-out. Minimal movements (translate-y-0.5).",
+    "page_transition": "Opacity fade (0.3s). No complex slides.",
+    "interaction": "Buttons scale down slightly (0.98) on click."
+  },
+  "image_assets": {
+    "logo": {
+        "type": "text",
+        "content": "BOHANIA RENAULT",
+        "style": "font-black text-xl tracking-tighter"
+    },
+    "placeholders": "https://placehold.co/600x400/eeeeee/000000?text=No+Image"
+  },
+  "instructions_to_main_agent": [
+    "STRICT MONOCHROME: If you add color (blue, red, green), you FAIL. Status must be conveyed via form/shape/shade.",
+    "FONT LOADING: Ensure Archivo, Manrope, and JetBrains Mono are imported via Google Fonts in index.html or CSS.",
+    "GRID BORDERS: In the dashboard, consider using 'divide-x divide-y divide-gray-200' for a structured, table-like grid view.",
+    "DENSITY: This is a tool for pros. Don't waste space. Use tight spacing in tables and lists.",
+    "DATA-TESTID: Every interactive element must have a data-testid attribute.",
+    "ROLE-BASED UI: Ensure the 'New Appointment' button is prominent for Receptionist/CRE, but Settings is hidden/disabled.",
+    "OVERRIDE SHADCN: The default Shadcn radius is 0.5rem. Change it to 0.125rem or 0 in the theme config or utility classes."
+  ],
+   "universal_guidelines": [
+    "Do not use generic centered layouts.",
+    "Create depth through layered z-index, not shadows.",
+    "Use 2-3x more spacing than feels comfortable in layout containers, but tight spacing in data tables.",
+    "Every interaction needs micro-animations.",
+    "Don't use AI assistant Emoji characters."
+  ]
+}
