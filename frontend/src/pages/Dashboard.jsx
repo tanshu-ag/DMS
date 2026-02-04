@@ -77,7 +77,7 @@ const Dashboard = () => {
         <Card className="border border-gray-200 rounded-sm shadow-none hover:border-gray-400 transition-colors">
           <CardContent className="p-6">
             <p className="text-[10px] font-mono uppercase tracking-widest text-gray-500 mb-2">
-              Today's Total
+              Today Total
             </p>
             <p className="font-heading font-black text-4xl tracking-tighter">
               {stats?.today_total || 0}
