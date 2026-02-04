@@ -95,26 +95,51 @@ class CRAppointmentAPITester:
         return True
 
     def test_authentication(self):
-        """Test authentication endpoints"""
+        """Test authentication endpoints with username/password"""
         print("\n🔐 Testing Authentication")
         
-        # Test auth/me with CRM token
-        success, crm_user = self.run_test(
-            "Auth Me (CRM)", "GET", "auth/me", 200, 
-            token=self.crm_token, description="CRM user authentication"
+        # Test login with admin credentials
+        success, _ = self.run_test(
+            "Login Admin", "POST", "auth/login", 200,
+            data={"username": "admin", "password": "admin"}, 
+            description="Login with admin credentials"
         )
-        
-        if success and crm_user:
-            print(f"   CRM User: {crm_user.get('name')} - Role: {crm_user.get('role')}")
+        if success:
+            self.session, self.crm_user = self.login_user("admin", "admin")
             
-        # Test auth/me with CRE token
-        success, cre_user = self.run_test(
-            "Auth Me (CRE)", "GET", "auth/me", 200, 
-            token=self.cre_token, description="CRE user authentication"
+        # Test login with CRE credentials  
+        success, _ = self.run_test(
+            "Login CRE", "POST", "auth/login", 200,
+            data={"username": "cre1", "password": "cre123"}, 
+            description="Login with CRE credentials"
+        )
+        if success:
+            cre_session, self.cre_user = self.login_user("cre1", "cre123")
+            
+        # Test login with Reception credentials
+        success, _ = self.run_test(
+            "Login Reception", "POST", "auth/login", 200,
+            data={"username": "reception", "password": "reception123"}, 
+            description="Login with reception credentials"
+        )
+        if success:
+            reception_session, self.reception_user = self.login_user("reception", "reception123")
+            
+        # Test invalid credentials
+        self.run_test(
+            "Invalid Login", "POST", "auth/login", 401,
+            data={"username": "admin", "password": "wrong"}, 
+            description="Should fail with wrong password"
         )
         
-        if success and cre_user:
-            print(f"   CRE User: {cre_user.get('name')} - Role: {cre_user.get('role')}")
+        # Test auth/me with logged in session
+        if self.session and self.crm_user:
+            success, user_data = self.run_test(
+                "Auth Me (CRM)", "GET", "auth/me", 200, 
+                use_session=self.session, description="Get current user info"
+            )
+            if success and user_data:
+                print(f"   CRM User: {user_data.get('name')} - Role: {user_data.get('role')}")
             
         return True
 
