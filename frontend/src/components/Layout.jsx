@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth, API } from "@/App";
 import axios from "axios";
@@ -19,51 +19,23 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-const Layout = () => {
-  const { user, setUser } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [pendingTasks, setPendingTasks] = useState(0);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+const navItems = [
+  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/day", label: "Today", icon: CalendarDays },
+  { path: "/month", label: "Month View", icon: CalendarRange },
+  { path: "/year", label: "Year View", icon: Calendar },
+  { path: "/new-appointment", label: "New Appointment", icon: Plus, highlight: true },
+];
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await axios.get(`${API}/tasks?status=pending`, { withCredentials: true });
-        setPendingTasks(response.data.length);
-      } catch (error) {
-        console.error("Failed to fetch tasks:", error);
-      }
-    };
-    fetchTasks();
-  }, []);
+const adminItems = [
+  { path: "/settings", label: "Settings", icon: Settings, roles: ["CRM"] },
+  { path: "/users", label: "Users", icon: Users, roles: ["CRM"] },
+];
 
-  const handleLogout = async () => {
-    try {
-      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-    setUser(null);
-    navigate("/login", { replace: true });
-  };
+const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
+  const isActive = (path) => currentPath === path;
 
-  const navItems = [
-    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/day", label: "Today", icon: CalendarDays },
-    { path: "/month", label: "Month View", icon: CalendarRange },
-    { path: "/year", label: "Year View", icon: Calendar },
-    { path: "/new-appointment", label: "New Appointment", icon: Plus, highlight: true },
-  ];
-
-  const adminItems = [
-    { path: "/settings", label: "Settings", icon: Settings, roles: ["CRM"] },
-    { path: "/users", label: "Users", icon: Users, roles: ["CRM"] },
-  ];
-
-  const isActive = (path) => location.pathname === path;
-
-  const NavContent = ({ onNavigate }) => (
+  return (
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
@@ -89,10 +61,7 @@ const Layout = () => {
                   ? "bg-gray-100 hover:bg-gray-200"
                   : "hover:bg-gray-100"
               }`}
-              onClick={() => {
-                navigate(item.path);
-                onNavigate?.();
-              }}
+              onClick={() => onNavigate(item.path)}
               data-testid={`nav-${item.path.slice(1) || "home"}`}
             >
               <item.icon className="w-4 h-4 mr-3" strokeWidth={1.5} />
@@ -122,10 +91,7 @@ const Layout = () => {
                         ? "bg-black text-white hover:bg-gray-800"
                         : "hover:bg-gray-100"
                     }`}
-                    onClick={() => {
-                      navigate(item.path);
-                      onNavigate?.();
-                    }}
+                    onClick={() => onNavigate(item.path)}
                     data-testid={`nav-${item.path.slice(1)}`}
                   >
                     <item.icon className="w-4 h-4 mr-3" strokeWidth={1.5} />
@@ -157,7 +123,7 @@ const Layout = () => {
         <Button
           variant="ghost"
           className="w-full justify-start h-9 px-3 rounded-sm text-sm text-gray-500 hover:text-black hover:bg-gray-100"
-          onClick={handleLogout}
+          onClick={onLogout}
           data-testid="logout-button"
         >
           <LogOut className="w-4 h-4 mr-2" strokeWidth={1.5} />
@@ -166,12 +132,52 @@ const Layout = () => {
       </div>
     </div>
   );
+};
+
+const Layout = () => {
+  const { user, setUser } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [pendingTasks, setPendingTasks] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get(`${API}/tasks?status=pending`, { withCredentials: true });
+        setPendingTasks(response.data.length);
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error);
+      }
+    };
+    fetchTasks();
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+    setUser(null);
+    navigate("/login", { replace: true });
+  }, [setUser, navigate]);
+
+  const handleNavigate = useCallback((path) => {
+    navigate(path);
+    setSidebarOpen(false);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50/50 noise-bg" data-testid="app-layout">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:block fixed left-0 top-0 h-full w-[260px] bg-white border-r border-gray-200 z-40">
-        <NavContent />
+        <NavContent 
+          user={user} 
+          onNavigate={handleNavigate} 
+          onLogout={handleLogout}
+          currentPath={location.pathname}
+        />
       </aside>
 
       {/* Mobile Header */}
@@ -183,7 +189,12 @@ const Layout = () => {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-[280px] p-0">
-            <NavContent onNavigate={() => setSidebarOpen(false)} />
+            <NavContent 
+              user={user} 
+              onNavigate={handleNavigate} 
+              onLogout={handleLogout}
+              currentPath={location.pathname}
+            />
           </SheetContent>
         </Sheet>
 
