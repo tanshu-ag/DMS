@@ -470,7 +470,7 @@ async def log_activity(appointment_id: str, user_id: str, user_name: str,
     }
     await db.activity_logs.insert_one(log)
 
-@api_router.post("/appointments")
+@api_router.post("/appointments", status_code=201)
 async def create_appointment(request: Request, appt_data: AppointmentCreate):
     """Create new appointment"""
     user = await require_role(request, ["CRE", "CRM", "Receptionist"])
