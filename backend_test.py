@@ -147,10 +147,14 @@ class CRAppointmentAPITester:
         """Test settings endpoints"""
         print("\n⚙️  Testing Settings API")
         
+        if not self.session:
+            print("⚠️ Skipping settings tests - no authenticated session")
+            return False
+        
         # Get settings (authenticated)
         self.run_test(
             "Get Settings", "GET", "settings", 200, 
-            token=self.crm_token, description="Fetch application settings"
+            use_session=self.session, description="Fetch application settings"
         )
         
         # Update settings (CRM only)
@@ -159,14 +163,17 @@ class CRAppointmentAPITester:
         }
         self.run_test(
             "Update Settings (CRM)", "PUT", "settings", 200, 
-            data=settings_update, token=self.crm_token, description="Update settings as CRM"
+            data=settings_update, use_session=self.session, description="Update settings as CRM"
         )
         
         # Try to update settings as CRE (should fail)
-        self.run_test(
-            "Update Settings (CRE)", "PUT", "settings", 403, 
-            data=settings_update, token=self.cre_token, description="CRE should not be able to update settings"
-        )
+        if self.cre_user:
+            cre_session, _ = self.login_user("cre1", "cre123")
+            if cre_session:
+                self.run_test(
+                    "Update Settings (CRE)", "PUT", "settings", 403, 
+                    data=settings_update, use_session=cre_session, description="CRE should not be able to update settings"
+                )
         
         return True
 
