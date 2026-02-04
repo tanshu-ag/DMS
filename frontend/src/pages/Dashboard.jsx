@@ -141,7 +141,7 @@ const Dashboard = () => {
             {tasks.length === 0 ? (
               <div className="p-8 text-center">
                 <CheckCircle className="w-12 h-12 mx-auto mb-3 text-gray-300" strokeWidth={1} />
-                <p className="text-sm text-gray-500">All caught up!</p>
+                <p className="text-sm text-gray-500">All caught up</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
@@ -253,7 +253,7 @@ const Dashboard = () => {
           data-testid="quick-day-view"
         >
           <CalendarDays className="w-6 h-6" strokeWidth={1.5} />
-          <span className="text-xs font-mono uppercase tracking-wider">Today's View</span>
+          <span className="text-xs font-mono uppercase tracking-wider">Today View</span>
         </Button>
         <Button
           variant="outline"

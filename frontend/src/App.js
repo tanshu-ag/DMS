@@ -79,13 +79,12 @@ const AuthCallback = () => {
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(location.state?.user ? true : null);
-  const [user, setUser] = useState(location.state?.user || null);
+  const initialUser = location.state?.user || null;
+  const [isAuthenticated, setIsAuthenticated] = useState(initialUser ? true : null);
+  const [user, setUser] = useState(initialUser);
 
   useEffect(() => {
-    if (location.state?.user) {
-      setUser(location.state.user);
-      setIsAuthenticated(true);
+    if (initialUser) {
       return;
     }
 
