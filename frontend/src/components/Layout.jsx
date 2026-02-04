@@ -17,6 +17,7 @@ import {
   Menu,
   Bell,
   ChevronRight,
+  Car,
 } from "lucide-react";
 
 const navItems = [
@@ -43,8 +44,18 @@ const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
           BOHANIA<br />RENAULT
         </h1>
         <p className="text-[10px] font-mono uppercase tracking-widest text-gray-400 mt-1">
-          CR Department
+          Dealer Management System
         </p>
+      </div>
+
+      {/* Module Label */}
+      <div className="px-6 py-3 border-b border-gray-100 bg-gray-50">
+        <div className="flex items-center gap-2">
+          <Car className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
+          <span className="text-xs font-mono uppercase tracking-wider text-gray-500">
+            CR Appointments
+          </span>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -106,13 +117,9 @@ const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
       {/* User Info */}
       <div className="border-t border-gray-200 p-4">
         <div className="flex items-center gap-3 mb-3">
-          {user?.picture ? (
-            <img src={user.picture} alt="" className="w-8 h-8 rounded-sm object-cover" />
-          ) : (
-            <div className="w-8 h-8 bg-gray-200 rounded-sm flex items-center justify-center">
-              <span className="text-xs font-bold">{user?.name?.[0] || "U"}</span>
-            </div>
-          )}
+          <div className="w-8 h-8 bg-gray-200 rounded-sm flex items-center justify-center">
+            <span className="text-xs font-bold">{user?.name?.[0] || "U"}</span>
+          </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{user?.name}</p>
             <p className="text-[10px] font-mono uppercase tracking-wider text-gray-500">
