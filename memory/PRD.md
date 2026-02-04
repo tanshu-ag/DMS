@@ -1,15 +1,16 @@
-# CR Department Appointment System - PRD
+# Dealer Management System - PRD
 
 ## Original Problem Statement
-Build a "CR Department → Appointment System" web module for Bohania Renault with role-based access.
+Build a "Dealer Management System" for Bohania Renault with CR Appointments as one module. Role-based access with username/password authentication.
 Team structure: 1 Receptionist + multiple CRE + 1 CRM (manager).
 
 ## User Personas
 1. **CRE (Customer Relationship Executive)** - Creates appointments, manages their own appointments, updates N-1 confirmation status
 2. **Receptionist** - Views all appointments, updates day outcomes on appointment day, assigns Service Advisors
-3. **CRM (Manager)** - Full admin access, manages settings, reassigns appointments, exports reports
+3. **CRM (Admin/Manager)** - Full admin access, manages settings, reassigns appointments, exports reports, manages users
 
 ## Core Requirements
+- Username/password authentication (no Google OAuth)
 - Role-based access control (CRE, Receptionist, CRM)
 - Appointment CRUD with activity logging
 - Day/Month/Year views with filtering
@@ -21,9 +22,10 @@ Team structure: 1 Receptionist + multiple CRE + 1 CRM (manager).
 ## What's Been Implemented (Feb 4, 2026)
 
 ### Backend (FastAPI)
-- [x] Emergent Google OAuth integration
-- [x] Role-based authentication & authorization
-- [x] User management (CRUD)
+- [x] Username/Password authentication with secure hashing
+- [x] Session-based authorization with cookies
+- [x] Role-based permissions
+- [x] User management (CRUD with password reset)
 - [x] Settings management (configurable dropdowns)
 - [x] Appointments CRUD with permissions
 - [x] Activity logging for all changes
@@ -34,22 +36,24 @@ Team structure: 1 Receptionist + multiple CRE + 1 CRM (manager).
 - [x] Seed data endpoint
 
 ### Frontend (React)
-- [x] Login page with Google Sign In
+- [x] Login page with username/password form
+- [x] "Dealer Management System" branding
 - [x] Dashboard with widgets (today stats, pending tasks, source funnel)
+- [x] Sidebar with "CR Appointments" module label
 - [x] Day View (appointments grouped by branch, quick actions)
 - [x] Month View (table with filters, export)
 - [x] Year View (table with filters, export)
 - [x] New Appointment form (with duplicate warning)
 - [x] Appointment Detail page (role-based editing, activity log)
 - [x] Settings page (CRM only)
-- [x] User Management page (CRM only)
+- [x] User Management page (CRM only, with password management)
 - [x] Responsive sidebar navigation
 
-### Design
-- Minimalist White/Black/Grey theme
-- Archivo/Manrope/JetBrains Mono fonts
-- Swiss-industrial aesthetic
-- Status indicators via shapes (not colors)
+### Default Credentials
+- **Admin**: username=admin, password=admin
+- **Receptionist**: username=reception, password=reception123
+- **CRE 1**: username=cre1, password=cre123
+- **CRE 2**: username=cre2, password=cre123
 
 ## Prioritized Backlog
 
