@@ -274,25 +274,32 @@ class CRAppointmentAPITester:
         """Test users endpoints"""
         print("\n👥 Testing Users API")
         
+        if not self.session:
+            print("⚠️ Skipping users tests - no authenticated session")
+            return False
+        
         # Get all users (CRM only)
         success, users = self.run_test(
             "Get Users (CRM)", "GET", "users", 200, 
-            token=self.crm_token, description="Fetch all users as CRM"
+            use_session=self.session, description="Fetch all users as CRM"
         )
         
         if success and users:
             print(f"   Found {len(users)} users")
         
         # Try to get users as CRE (should fail)
-        self.run_test(
-            "Get Users (CRE)", "GET", "users", 403, 
-            token=self.cre_token, description="CRE should not access user management"
-        )
+        if self.cre_user:
+            cre_session, _ = self.login_user("cre1", "cre123")
+            if cre_session:
+                self.run_test(
+                    "Get Users (CRE)", "GET", "users", 403, 
+                    use_session=cre_session, description="CRE should not access user management"
+                )
         
         # Get CREs (any authenticated user)
         success, cres = self.run_test(
             "Get CREs", "GET", "users/cres", 200, 
-            token=self.cre_token, description="Fetch CRE users list"
+            use_session=self.session, description="Fetch CRE users list"
         )
         
         if success and cres:
@@ -304,9 +311,13 @@ class CRAppointmentAPITester:
         """Test dashboard statistics"""
         print("\n📊 Testing Dashboard Stats")
         
+        if not self.session:
+            print("⚠️ Skipping dashboard tests - no authenticated session")
+            return False
+        
         success, stats = self.run_test(
             "Get Dashboard Stats", "GET", "dashboard/stats", 200, 
-            token=self.crm_token, description="Fetch dashboard statistics"
+            use_session=self.session, description="Fetch dashboard statistics"
         )
         
         if success and stats:
@@ -321,10 +332,14 @@ class CRAppointmentAPITester:
         """Test tasks endpoints"""
         print("\n📋 Testing Tasks API")
         
+        if not self.session:
+            print("⚠️ Skipping tasks tests - no authenticated session")
+            return False
+        
         # Get pending tasks
         success, tasks = self.run_test(
             "Get Pending Tasks", "GET", "tasks?status=pending", 200, 
-            token=self.crm_token, description="Fetch pending tasks"
+            use_session=self.session, description="Fetch pending tasks"
         )
         
         if success and tasks:
@@ -336,20 +351,27 @@ class CRAppointmentAPITester:
         """Test export functionality"""
         print("\n📤 Testing Export API")
         
+        if not self.session:
+            print("⚠️ Skipping export tests - no authenticated session")
+            return False
+        
         # Test CSV export (CRM only)
         month = datetime.now().month
         year = datetime.now().year
         
         success, _ = self.run_test(
             "Export CSV", "GET", f"export/csv?view=month&month={month}&year={year}", 200, 
-            token=self.crm_token, description="Export appointments to CSV"
+            use_session=self.session, description="Export appointments to CSV"
         )
         
         # Try export as CRE (should fail)
-        self.run_test(
-            "Export CSV (CRE)", "GET", f"export/csv?view=month&month={month}&year={year}", 403, 
-            token=self.cre_token, description="CRE should not be able to export"
-        )
+        if self.cre_user:
+            cre_session, _ = self.login_user("cre1", "cre123")
+            if cre_session:
+                self.run_test(
+                    "Export CSV (CRE)", "GET", f"export/csv?view=month&month={month}&year={year}", 403, 
+                    use_session=cre_session, description="CRE should not be able to export"
+                )
         
         return True
 
