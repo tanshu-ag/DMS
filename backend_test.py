@@ -16,26 +16,25 @@ class CRAppointmentAPITester:
         self.tests_passed = 0
         self.failed_tests = []
 
-    def run_test(self, name, method, endpoint, expected_status, data=None, token=None, description=""):
+    def run_test(self, name, method, endpoint, expected_status, data=None, use_session=None, description=""):
         """Run a single API test"""
         url = f"{self.base_url}/api/{endpoint}"
         headers = {'Content-Type': 'application/json'}
-        
-        if token:
-            headers['Authorization'] = f'Bearer {token}'
 
         self.tests_run += 1
         print(f"\n🔍 Testing {name} ({description})")
         
         try:
+            session_to_use = use_session if use_session else requests
+            
             if method == 'GET':
-                response = requests.get(url, headers=headers, timeout=10)
+                response = session_to_use.get(url, headers=headers, timeout=10)
             elif method == 'POST':
-                response = requests.post(url, json=data, headers=headers, timeout=10)
+                response = session_to_use.post(url, json=data, headers=headers, timeout=10)
             elif method == 'PUT':
-                response = requests.put(url, json=data, headers=headers, timeout=10)
+                response = session_to_use.put(url, json=data, headers=headers, timeout=10)
             elif method == 'DELETE':
-                response = requests.delete(url, headers=headers, timeout=10)
+                response = session_to_use.delete(url, headers=headers, timeout=10)
 
             success = response.status_code == expected_status
             
@@ -63,6 +62,25 @@ class CRAppointmentAPITester:
             self.failed_tests.append(f"{name}: {error_msg}")
             print(f"❌ Failed - {error_msg}")
             return False, {}
+            
+    def login_user(self, username, password):
+        """Login a user and return session"""
+        session = requests.Session()
+        url = f"{self.base_url}/api/auth/login"
+        data = {"username": username, "password": password}
+        
+        try:
+            response = session.post(url, json=data, timeout=10)
+            if response.status_code == 200:
+                user_data = response.json()
+                print(f"✅ Logged in as {user_data['name']} ({user_data['role']})")
+                return session, user_data
+            else:
+                print(f"❌ Login failed: {response.status_code}")
+                return None, None
+        except Exception as e:
+            print(f"❌ Login error: {str(e)}")
+            return None, None
 
     def test_basic_endpoints(self):
         """Test basic API endpoints"""
