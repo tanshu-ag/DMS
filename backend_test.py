@@ -181,10 +181,14 @@ class CRAppointmentAPITester:
         """Test appointments endpoints"""
         print("\n📅 Testing Appointments API")
         
+        if not self.session:
+            print("⚠️ Skipping appointments tests - no authenticated session")
+            return False
+        
         # Get appointments
         success, appointments = self.run_test(
             "Get Appointments", "GET", "appointments", 200, 
-            token=self.crm_token, description="Fetch all appointments"
+            use_session=self.session, description="Fetch all appointments"
         )
         
         if success and appointments:
@@ -194,7 +198,7 @@ class CRAppointmentAPITester:
         today = datetime.now().strftime("%Y-%m-%d")
         self.run_test(
             "Get Today Appointments", "GET", f"appointments?view=day&date={today}", 200, 
-            token=self.crm_token, description="Fetch today's appointments"
+            use_session=self.session, description="Fetch today's appointments"
         )
         
         # Get month appointments
@@ -202,7 +206,7 @@ class CRAppointmentAPITester:
         year = datetime.now().year
         self.run_test(
             "Get Month Appointments", "GET", f"appointments?view=month&month={month}&year={year}", 200, 
-            token=self.crm_token, description="Fetch current month appointments"
+            use_session=self.session, description="Fetch current month appointments"
         )
         
         # Create new appointment
@@ -228,7 +232,7 @@ class CRAppointmentAPITester:
         
         success, created_appt = self.run_test(
             "Create Appointment", "POST", "appointments", 201, 
-            data=new_appointment, token=self.crm_token, description="Create new appointment"
+            data=new_appointment, use_session=self.session, description="Create new appointment"
         )
         
         appointment_id = None
@@ -239,7 +243,7 @@ class CRAppointmentAPITester:
             # Get specific appointment
             self.run_test(
                 "Get Single Appointment", "GET", f"appointments/{appointment_id}", 200, 
-                token=self.crm_token, description="Fetch specific appointment details"
+                use_session=self.session, description="Fetch specific appointment details"
             )
             
             # Update appointment
@@ -249,19 +253,19 @@ class CRAppointmentAPITester:
             }
             self.run_test(
                 "Update Appointment", "PUT", f"appointments/{appointment_id}", 200, 
-                data=update_data, token=self.crm_token, description="Update appointment status"
+                data=update_data, use_session=self.session, description="Update appointment status"
             )
             
             # Get appointment activity log
             self.run_test(
                 "Get Activity Log", "GET", f"appointments/{appointment_id}/activity", 200, 
-                token=self.crm_token, description="Fetch appointment activity history"
+                use_session=self.session, description="Fetch appointment activity history"
             )
         
         # Test duplicate check
         self.run_test(
             "Check Duplicates", "GET", "appointments/duplicates/check?phone=9999888877", 200, 
-            token=self.crm_token, description="Check for duplicate customer records"
+            use_session=self.session, description="Check for duplicate customer records"
         )
         
         return True
