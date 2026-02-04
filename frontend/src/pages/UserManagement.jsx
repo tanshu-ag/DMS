@@ -37,6 +37,8 @@ import {
   Trash2,
   UserCheck,
   UserX,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 const UserManagement = () => {
@@ -46,10 +48,13 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
+    password: "",
     name: "",
     role: "CRE",
+    email: "",
   });
 
   useEffect(() => {
@@ -75,14 +80,27 @@ const UserManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.name || !formData.role) {
-      toast.error("Please fill all fields");
+    if (!formData.name || !formData.role) {
+      toast.error("Please fill required fields");
+      return;
+    }
+
+    if (!editingUser && (!formData.username || !formData.password)) {
+      toast.error("Username and password are required for new users");
       return;
     }
 
     try {
       if (editingUser) {
-        await axios.put(`${API}/users/${editingUser.user_id}`, formData, {
+        const updateData = {
+          name: formData.name,
+          role: formData.role,
+          email: formData.email || null,
+        };
+        if (formData.password) {
+          updateData.password = formData.password;
+        }
+        await axios.put(`${API}/users/${editingUser.user_id}`, updateData, {
           withCredentials: true,
         });
         toast.success("User updated");
@@ -101,15 +119,17 @@ const UserManagement = () => {
   const handleEdit = (u) => {
     setEditingUser(u);
     setFormData({
-      email: u.email,
+      username: u.username,
+      password: "",
       name: u.name,
       role: u.role,
+      email: u.email || "",
     });
     setDialogOpen(true);
   };
 
   const handleDeactivate = async (userId) => {
-    if (!confirm("Are you sure you want to deactivate this user?")) return;
+    if (!window.confirm("Are you sure you want to deactivate this user?")) return;
 
     try {
       await axios.delete(`${API}/users/${userId}`, { withCredentials: true });
@@ -122,7 +142,8 @@ const UserManagement = () => {
 
   const resetForm = () => {
     setEditingUser(null);
-    setFormData({ email: "", name: "", role: "CRE" });
+    setFormData({ username: "", password: "", name: "", role: "CRE", email: "" });
+    setShowPassword(false);
   };
 
   const getRoleBadgeClass = (role) => {
@@ -156,7 +177,7 @@ const UserManagement = () => {
             <h1 className="font-heading font-black text-3xl md:text-4xl tracking-tighter uppercase">
               Users
             </h1>
-            <p className="text-sm text-gray-500 mt-1">Manage team members and roles</p>
+            <p className="text-sm text-gray-500 mt-1">Manage team members and credentials</p>
           </div>
         </div>
 
@@ -181,22 +202,54 @@ const UserManagement = () => {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 pt-4">
               <div>
-                <Label className="form-label">Email</Label>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
+                  Username *
+                </Label>
                 <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="user@bohania.com"
-                  className="rounded-sm"
+                  type="text"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  placeholder="username"
+                  className="rounded-sm font-mono"
                   disabled={!!editingUser}
-                  data-testid="input-email"
+                  data-testid="input-username"
                 />
                 {editingUser && (
-                  <p className="text-[10px] text-gray-400 mt-1">Email cannot be changed</p>
+                  <p className="text-[10px] text-gray-400 mt-1">Username cannot be changed</p>
                 )}
               </div>
               <div>
-                <Label className="form-label">Name</Label>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
+                  Password {editingUser ? "(leave blank to keep)" : "*"}
+                </Label>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder={editingUser ? "New password" : "Password"}
+                    className="rounded-sm pr-10"
+                    data-testid="input-password"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3 rounded-sm"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                    ) : (
+                      <Eye className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+                    )}
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
+                  Full Name *
+                </Label>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -206,7 +259,22 @@ const UserManagement = () => {
                 />
               </div>
               <div>
-                <Label className="form-label">Role</Label>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
+                  Email
+                </Label>
+                <Input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="email@bohania.com"
+                  className="rounded-sm"
+                  data-testid="input-email"
+                />
+              </div>
+              <div>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
+                  Role *
+                </Label>
                 <Select
                   value={formData.role}
                   onValueChange={(v) => setFormData({ ...formData, role: v })}
@@ -250,7 +318,7 @@ const UserManagement = () => {
             <p className="font-heading font-black text-3xl">
               {users.filter((u) => u.role === "CRM").length}
             </p>
-            <p className="text-xs font-mono uppercase tracking-wider text-gray-500">CRM</p>
+            <p className="text-xs font-mono uppercase tracking-wider text-gray-500">Admin</p>
           </CardContent>
         </Card>
         <Card className="border border-gray-200 rounded-sm shadow-none">
@@ -277,6 +345,7 @@ const UserManagement = () => {
           <TableHeader>
             <TableRow className="table-header bg-gray-50">
               <TableHead className="text-xs">Name</TableHead>
+              <TableHead className="text-xs">Username</TableHead>
               <TableHead className="text-xs">Email</TableHead>
               <TableHead className="text-xs">Role</TableHead>
               <TableHead className="text-xs">Status</TableHead>
@@ -288,17 +357,14 @@ const UserManagement = () => {
               <TableRow key={u.user_id} className="hover:bg-gray-50" data-testid={`user-row-${u.user_id}`}>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    {u.picture ? (
-                      <img src={u.picture} alt="" className="w-8 h-8 rounded-sm object-cover" />
-                    ) : (
-                      <div className="w-8 h-8 bg-gray-200 rounded-sm flex items-center justify-center">
-                        <span className="text-xs font-bold">{u.name?.[0] || "U"}</span>
-                      </div>
-                    )}
+                    <div className="w-8 h-8 bg-gray-200 rounded-sm flex items-center justify-center">
+                      <span className="text-xs font-bold">{u.name?.[0] || "U"}</span>
+                    </div>
                     <span className="font-medium">{u.name}</span>
                   </div>
                 </TableCell>
-                <TableCell className="font-mono text-sm">{u.email}</TableCell>
+                <TableCell className="font-mono text-sm">{u.username}</TableCell>
+                <TableCell className="text-sm">{u.email || "-"}</TableCell>
                 <TableCell>
                   <Badge className={`rounded-sm text-xs ${getRoleBadgeClass(u.role)}`}>
                     {u.role}
@@ -351,19 +417,18 @@ const UserManagement = () => {
       <Card className="border border-dashed border-gray-300 rounded-sm shadow-none">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-mono uppercase tracking-wider text-gray-500">
-            Demo Login Info
+            Default Login Credentials
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          <p className="text-xs text-gray-500">
-            Users can sign in with their Google account. The first login assigns them as CRE by default.
-            CRM can then update their role from this page. Pre-seeded users will be available after running seed endpoint.
+          <p className="text-xs text-gray-500 mb-3">
+            Users sign in with their username and password. Default accounts created during setup:
           </p>
-          <div className="mt-3 space-y-1 text-xs font-mono">
-            <p><span className="text-gray-400">CRM:</span> crm@bohania.com</p>
-            <p><span className="text-gray-400">Receptionist:</span> reception@bohania.com</p>
-            <p><span className="text-gray-400">CRE 1:</span> cre1@bohania.com</p>
-            <p><span className="text-gray-400">CRE 2:</span> cre2@bohania.com</p>
+          <div className="space-y-1 text-xs font-mono bg-gray-50 p-3 rounded-sm">
+            <p><span className="text-gray-400">Admin:</span> admin / admin</p>
+            <p><span className="text-gray-400">Receptionist:</span> reception / reception123</p>
+            <p><span className="text-gray-400">CRE 1:</span> cre1 / cre123</p>
+            <p><span className="text-gray-400">CRE 2:</span> cre2 / cre123</p>
           </div>
         </CardContent>
       </Card>
