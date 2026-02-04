@@ -8,8 +8,10 @@ from datetime import datetime, timedelta
 class CRAppointmentAPITester:
     def __init__(self, base_url="https://service-scheduler-cr.preview.emergentagent.com"):
         self.base_url = base_url
-        self.crm_token = "test_session_1770231747768"  # CRM user token
-        self.cre_token = "test_session_cre_1770231753719"  # CRE user token
+        self.session = requests.Session()  # Use session to maintain cookies
+        self.crm_user = None  # Will store CRM user data after login
+        self.cre_user = None  # Will store CRE user data after login
+        self.reception_user = None  # Will store Receptionist user data after login
         self.tests_run = 0
         self.tests_passed = 0
         self.failed_tests = []
