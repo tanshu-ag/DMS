@@ -10,9 +10,10 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Any
 import uuid
 from datetime import datetime, timezone, timedelta
-import httpx
 import io
 import csv
+import hashlib
+import secrets
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -35,21 +36,48 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# ============== PASSWORD HELPERS ==============
+
+def hash_password(password: str) -> str:
+    """Hash password with salt"""
+    salt = secrets.token_hex(16)
+    pwd_hash = hashlib.sha256((password + salt).encode()).hexdigest()
+    return f"{salt}:{pwd_hash}"
+
+def verify_password(password: str, stored_hash: str) -> bool:
+    """Verify password against stored hash"""
+    try:
+        salt, pwd_hash = stored_hash.split(":")
+        return hashlib.sha256((password + salt).encode()).hexdigest() == pwd_hash
+    except:
+        return False
+
 # ============== MODELS ==============
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
 class UserCreate(BaseModel):
-    email: str
+    username: str
+    password: str
     name: str
     role: str  # CRE, Receptionist, CRM
-    picture: Optional[str] = None
+    email: Optional[str] = None
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    role: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
 
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
     user_id: str
-    email: str
+    username: str
     name: str
     role: str
-    picture: Optional[str] = None
+    email: Optional[str] = None
     is_active: bool = True
     created_at: datetime
 
@@ -199,7 +227,7 @@ async def get_current_user(request: Request) -> dict:
     
     user = await db.users.find_one(
         {"user_id": session["user_id"]},
-        {"_id": 0}
+        {"_id": 0, "password_hash": 0}
     )
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
@@ -214,62 +242,26 @@ async def require_role(request: Request, allowed_roles: List[str]) -> dict:
 
 # ============== AUTH ROUTES ==============
 
-@api_router.post("/auth/session")
-async def exchange_session(request: Request, response: Response):
-    """Exchange session_id from Emergent Auth for session_token"""
-    body = await request.json()
-    session_id = body.get("session_id")
+@api_router.post("/auth/login")
+async def login(request: Request, response: Response, login_data: LoginRequest):
+    """Login with username and password"""
+    user = await db.users.find_one(
+        {"username": login_data.username, "is_active": True},
+        {"_id": 0}
+    )
     
-    if not session_id:
-        raise HTTPException(status_code=400, detail="session_id required")
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
     
-    # Call Emergent Auth to get user data
-    async with httpx.AsyncClient() as client_http:
-        auth_response = await client_http.get(
-            "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
-            headers={"X-Session-ID": session_id}
-        )
-        
-        if auth_response.status_code != 200:
-            raise HTTPException(status_code=401, detail="Invalid session")
-        
-        auth_data = auth_response.json()
+    if not verify_password(login_data.password, user.get("password_hash", "")):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
     
-    email = auth_data["email"]
-    name = auth_data["name"]
-    picture = auth_data.get("picture", "")
-    session_token = auth_data["session_token"]
-    
-    # Check if user exists
-    existing_user = await db.users.find_one({"email": email}, {"_id": 0})
-    
-    if existing_user:
-        user_id = existing_user["user_id"]
-        # Update name/picture if changed
-        await db.users.update_one(
-            {"user_id": user_id},
-            {"$set": {"name": name, "picture": picture}}
-        )
-        user_role = existing_user["role"]
-    else:
-        # New user - default to CRE role, can be changed by CRM
-        user_id = f"user_{uuid.uuid4().hex[:12]}"
-        new_user = {
-            "user_id": user_id,
-            "email": email,
-            "name": name,
-            "picture": picture,
-            "role": "CRE",
-            "is_active": True,
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }
-        await db.users.insert_one(new_user)
-        user_role = "CRE"
-    
-    # Store session
+    # Create session
+    session_token = secrets.token_urlsafe(32)
     expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+    
     await db.user_sessions.insert_one({
-        "user_id": user_id,
+        "user_id": user["user_id"],
         "session_token": session_token,
         "expires_at": expires_at.isoformat(),
         "created_at": datetime.now(timezone.utc).isoformat()
@@ -287,11 +279,11 @@ async def exchange_session(request: Request, response: Response):
     )
     
     return {
-        "user_id": user_id,
-        "email": email,
-        "name": name,
-        "picture": picture,
-        "role": user_role
+        "user_id": user["user_id"],
+        "username": user["username"],
+        "name": user["name"],
+        "role": user["role"],
+        "email": user.get("email")
     }
 
 @api_router.get("/auth/me")
@@ -316,7 +308,7 @@ async def logout(request: Request, response: Response):
 async def get_users(request: Request):
     """Get all users (CRM only)"""
     await require_role(request, ["CRM"])
-    users = await db.users.find({}, {"_id": 0}).to_list(100)
+    users = await db.users.find({}, {"_id": 0, "password_hash": 0}).to_list(100)
     return users
 
 @api_router.post("/users")
@@ -324,41 +316,51 @@ async def create_user(request: Request, user_data: UserCreate):
     """Create new user (CRM only)"""
     await require_role(request, ["CRM"])
     
-    # Check if email already exists
-    existing = await db.users.find_one({"email": user_data.email}, {"_id": 0})
+    # Check if username already exists
+    existing = await db.users.find_one({"username": user_data.username}, {"_id": 0})
     if existing:
-        raise HTTPException(status_code=400, detail="Email already exists")
+        raise HTTPException(status_code=400, detail="Username already exists")
     
     user_id = f"user_{uuid.uuid4().hex[:12]}"
     new_user = {
         "user_id": user_id,
-        "email": user_data.email,
+        "username": user_data.username,
+        "password_hash": hash_password(user_data.password),
         "name": user_data.name,
         "role": user_data.role,
-        "picture": user_data.picture,
+        "email": user_data.email,
         "is_active": True,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.users.insert_one(new_user)
     
-    return {k: v for k, v in new_user.items() if k != "_id"}
+    # Return without password_hash
+    del new_user["password_hash"]
+    return new_user
 
 @api_router.put("/users/{user_id}")
-async def update_user(request: Request, user_id: str, user_data: UserCreate):
+async def update_user(request: Request, user_id: str, user_data: UserUpdate):
     """Update user (CRM only)"""
     await require_role(request, ["CRM"])
     
-    result = await db.users.update_one(
-        {"user_id": user_id},
-        {"$set": {
-            "name": user_data.name,
-            "role": user_data.role,
-            "picture": user_data.picture
-        }}
-    )
+    update_dict = {}
+    if user_data.name:
+        update_dict["name"] = user_data.name
+    if user_data.role:
+        update_dict["role"] = user_data.role
+    if user_data.email is not None:
+        update_dict["email"] = user_data.email
+    if user_data.password:
+        update_dict["password_hash"] = hash_password(user_data.password)
     
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="User not found")
+    if update_dict:
+        result = await db.users.update_one(
+            {"user_id": user_id},
+            {"$set": update_dict}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="User not found")
     
     return {"message": "User updated"}
 
@@ -383,7 +385,7 @@ async def get_cres(request: Request):
     await get_current_user(request)
     cres = await db.users.find(
         {"role": "CRE", "is_active": True},
-        {"_id": 0}
+        {"_id": 0, "password_hash": 0}
     ).to_list(50)
     return cres
 
@@ -944,59 +946,67 @@ async def export_csv(
 @api_router.post("/seed")
 async def seed_data():
     """Seed initial data for testing"""
-    # Check if already seeded
-    existing_users = await db.users.count_documents({})
-    if existing_users > 0:
+    # Check if admin already exists
+    existing_admin = await db.users.find_one({"username": "admin"}, {"_id": 0})
+    if existing_admin:
         return {"message": "Data already seeded"}
     
     # Create default settings
+    await db.settings.delete_many({})
     await db.settings.insert_one(DEFAULT_SETTINGS.copy())
     
-    # Create users
+    # Create users with username/password
     users = [
         {
-            "user_id": "user_crm_001",
-            "email": "crm@bohania.com",
-            "name": "CRM Manager",
+            "user_id": "user_admin_001",
+            "username": "admin",
+            "password_hash": hash_password("admin"),
+            "name": "Admin Manager",
             "role": "CRM",
-            "picture": None,
+            "email": "admin@bohania.com",
             "is_active": True,
             "created_at": datetime.now(timezone.utc).isoformat()
         },
         {
             "user_id": "user_receptionist_001",
-            "email": "reception@bohania.com",
+            "username": "reception",
+            "password_hash": hash_password("reception123"),
             "name": "Front Desk",
             "role": "Receptionist",
-            "picture": None,
+            "email": "reception@bohania.com",
             "is_active": True,
             "created_at": datetime.now(timezone.utc).isoformat()
         },
         {
             "user_id": "user_cre_001",
-            "email": "cre1@bohania.com",
+            "username": "cre1",
+            "password_hash": hash_password("cre123"),
             "name": "CRE Alex",
             "role": "CRE",
-            "picture": None,
+            "email": "cre1@bohania.com",
             "is_active": True,
             "created_at": datetime.now(timezone.utc).isoformat()
         },
         {
             "user_id": "user_cre_002",
-            "email": "cre2@bohania.com",
+            "username": "cre2",
+            "password_hash": hash_password("cre123"),
             "name": "CRE Jordan",
             "role": "CRE",
-            "picture": None,
+            "email": "cre2@bohania.com",
             "is_active": True,
             "created_at": datetime.now(timezone.utc).isoformat()
         }
     ]
     
+    await db.users.delete_many({})
     await db.users.insert_many(users)
     
     # Create sample appointments
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     tomorrow = (datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%d")
+    
+    await db.appointments.delete_many({})
     
     appointments = [
         {
@@ -1100,6 +1110,7 @@ async def seed_data():
     await db.appointments.insert_many(appointments)
     
     # Create N-1 task for tomorrow's appointment
+    await db.tasks.delete_many({})
     await db.tasks.insert_one({
         "task_id": f"task_{uuid.uuid4().hex[:12]}",
         "task_type": "n_minus_1_reminder",
@@ -1110,13 +1121,13 @@ async def seed_data():
         "completed_at": None
     })
     
-    return {"message": "Data seeded successfully"}
+    return {"message": "Data seeded successfully", "admin_credentials": {"username": "admin", "password": "admin"}}
 
 # ============== ROOT ROUTE ==============
 
 @api_router.get("/")
 async def root():
-    return {"message": "Bohania Renault CR Appointment System API"}
+    return {"message": "Bohania Renault Dealer Management System API"}
 
 # Include the router in the main app
 app.include_router(api_router)
