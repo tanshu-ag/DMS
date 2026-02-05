@@ -14,6 +14,7 @@ import NewAppointment from "@/pages/NewAppointment";
 import AppointmentDetail from "@/pages/AppointmentDetail";
 import Settings from "@/pages/Settings";
 import UserManagement from "@/pages/UserManagement";
+import ComingSoon from "@/pages/ComingSoon";
 import Layout from "@/components/Layout";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -96,6 +97,8 @@ const AppRouter = () => {
         <Route path="appointments/:id" element={<AppointmentDetail />} />
         <Route path="settings" element={<Settings />} />
         <Route path="users" element={<UserManagement />} />
+        {/* Coming Soon module pages */}
+        <Route path="module/:module" element={<ComingSoon />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
