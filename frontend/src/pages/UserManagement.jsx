@@ -149,6 +149,7 @@ const UserManagement = () => {
 
   const getRoleBadgeClass = (role) => {
     switch (role) {
+      case "DP":
       case "CRM":
         return "bg-black text-white";
       case "Receptionist":
@@ -156,6 +157,17 @@ const UserManagement = () => {
       default:
         return "bg-white text-black border border-dashed border-black";
     }
+  };
+
+  // Role display names
+  const getRoleDisplayName = (role) => {
+    const names = {
+      "DP": "Dealer Principal",
+      "CRM": "Customer Relationship Manager",
+      "CRE": "Customer Relationship Executive",
+      "Receptionist": "Receptionist"
+    };
+    return names[role] || role;
   };
 
   if (loading) {
