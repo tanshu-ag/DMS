@@ -769,7 +769,7 @@ async def get_tasks(request: Request, status: str = "pending"):
     
     query = {"status": status}
     
-    # CRE sees only their tasks, CRM sees all
+    # CRE sees only their tasks, CRM/DP sees all
     if user["role"] == "CRE":
         query["assigned_to"] = user["user_id"]
     
