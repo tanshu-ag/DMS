@@ -168,8 +168,8 @@ const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
             </Button>
           ))}
 
-          {/* Admin Section */}
-          {user?.role === "CRM" && (
+          {/* Admin Section - visible to DP and CRM */}
+          {hasAdminAccess(user?.role) && (
             <>
               <div className="pt-4 pb-2 px-3">
                 <p className="text-[10px] font-mono uppercase tracking-widest text-gray-400">
@@ -206,7 +206,7 @@ const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{user?.name}</p>
             <p className="text-[10px] font-mono uppercase tracking-wider text-gray-500">
-              {user?.role}
+              {getRoleDisplayName(user?.role)}
             </p>
           </div>
         </div>
