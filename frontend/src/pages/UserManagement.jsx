@@ -330,7 +330,7 @@ const UserManagement = () => {
         <Card className="border border-gray-200 rounded-sm shadow-none">
           <CardContent className="p-4 text-center">
             <p className="font-heading font-black text-3xl">
-              {users.filter((u) => u.role === "CRM").length}
+              {users.filter((u) => u.role === "DP" || u.role === "CRM").length}
             </p>
             <p className="text-xs font-mono uppercase tracking-wider text-gray-500">Admin</p>
           </CardContent>
