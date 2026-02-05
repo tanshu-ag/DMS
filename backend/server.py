@@ -909,7 +909,7 @@ async def export_csv(
     year: int = None
 ):
     """Export appointments to CSV"""
-    await require_role(request, ["CRM"])
+    await require_role(request, ["CRM", "DP"])
     
     query = {}
     
