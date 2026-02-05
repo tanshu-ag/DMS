@@ -1,4 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap');
+@import url('https://fonts.cdnfonts.com/css/nouvel-r');
+
+/* NouvelR as primary font globally */
+* {
+    font-family: 'NouvelR', 'Manrope', sans-serif;
+}
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +12,7 @@
 
 body {
     margin: 0;
-    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'NouvelR', 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -16,7 +22,7 @@ code, .font-mono {
 }
 
 h1, h2, h3, .font-heading {
-    font-family: 'Archivo', sans-serif;
+    font-family: 'NouvelR', 'Archivo', sans-serif;
 }
 
 @layer base {
