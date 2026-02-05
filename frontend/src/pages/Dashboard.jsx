@@ -13,6 +13,9 @@ import {
   Plus,
 } from "lucide-react";
 
+// Check if user has admin access (DP or CRM)
+const hasAdminAccess = (role) => role === "DP" || role === "CRM";
+
 // Dashboard tabs - internal views only (no navigation)
 const dashboardTabs = [
   { id: "dp-dashboard", label: "DP Dashboard" },
