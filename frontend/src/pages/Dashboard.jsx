@@ -179,8 +179,8 @@ const CustomerRelationsContent = ({ stats, tasks, user, navigate }) => (
       </Card>
     </div>
 
-    {/* Source Funnel */}
-    {user?.role === "CRM" && stats?.source_funnel && (
+    {/* Source Funnel - visible to DP and CRM */}
+    {hasAdminAccess(user?.role) && stats?.source_funnel && (
       <Card className="border border-gray-200 rounded-sm shadow-none">
         <CardHeader className="border-b border-gray-100 pb-4">
           <CardTitle className="font-heading font-bold text-lg tracking-tight uppercase">
