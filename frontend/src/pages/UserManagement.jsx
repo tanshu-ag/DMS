@@ -381,7 +381,7 @@ const UserManagement = () => {
                 <TableCell className="text-sm">{u.email || "-"}</TableCell>
                 <TableCell>
                   <Badge className={`rounded-sm text-xs ${getRoleBadgeClass(u.role)}`}>
-                    {u.role}
+                    {getRoleDisplayName(u.role)}
                   </Badge>
                 </TableCell>
                 <TableCell>
