@@ -19,7 +19,15 @@ Team structure: 1 Receptionist + multiple CRE + 1 CRM (manager).
 - Dashboard with statistics
 - CSV export
 
-## What's Been Implemented (Feb 4, 2026)
+## What's Been Implemented (Feb 5, 2026)
+
+### Navigation Structure (Updated)
+- [x] **Sidebar Menu**: Dashboard, Customer Relations (collapsible), Parts, Bodyshop, Mechanical, Insurance, HR, Customers
+- [x] **Customer Relations Submenu**: Today, Month View, Year View (collapsible dropdown)
+- [x] **Admin Section**: Settings and Users (CRM role only)
+- [x] **Dashboard Top Tabs**: Quick navigation to all modules
+- [x] **Coming Soon Pages**: Parts, Bodyshop, Mechanical, Insurance, HR, Customers
+- [x] **NouvelR Font**: Applied globally throughout the app
 
 ### Backend (FastAPI)
 - [x] Username/Password authentication with secure hashing
