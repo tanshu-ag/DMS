@@ -26,6 +26,20 @@ import {
   Users,
 } from "lucide-react";
 
+// Role display names mapping
+const roleDisplayNames = {
+  "DP": "Dealer Principal",
+  "CRM": "Customer Relationship Manager",
+  "CRE": "Customer Relationship Executive",
+  "Receptionist": "Receptionist"
+};
+
+// Get display name for role
+const getRoleDisplayName = (role) => roleDisplayNames[role] || role;
+
+// Check if user has admin access (DP or CRM)
+const hasAdminAccess = (role) => role === "DP" || role === "CRM";
+
 // Top-level navigation items
 const mainNavItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
