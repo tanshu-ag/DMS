@@ -439,7 +439,7 @@ const UserManagement = () => {
             Users sign in with their username and password. Default accounts created during setup:
           </p>
           <div className="space-y-1 text-xs font-mono bg-gray-50 p-3 rounded-sm">
-            <p><span className="text-gray-400">Admin:</span> admin / admin</p>
+            <p><span className="text-gray-400">Dealer Principal:</span> admin / admin</p>
             <p><span className="text-gray-400">Receptionist:</span> reception / reception123</p>
             <p><span className="text-gray-400">CRE 1:</span> cre1 / cre123</p>
             <p><span className="text-gray-400">CRE 2:</span> cre2 / cre123</p>
