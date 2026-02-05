@@ -284,9 +284,10 @@ const UserManagement = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="CRE">CRE</SelectItem>
+                    <SelectItem value="CRE">CRE (Customer Relationship Executive)</SelectItem>
                     <SelectItem value="Receptionist">Receptionist</SelectItem>
-                    <SelectItem value="CRM">CRM (Admin)</SelectItem>
+                    <SelectItem value="CRM">CRM (Customer Relationship Manager)</SelectItem>
+                    <SelectItem value="DP">DP (Dealer Principal)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
