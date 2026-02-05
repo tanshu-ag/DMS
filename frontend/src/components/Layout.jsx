@@ -5,36 +5,62 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   LayoutDashboard,
   CalendarDays,
   CalendarRange,
   Calendar,
-  Plus,
   Settings,
-  Users,
+  Users as UsersIcon,
   LogOut,
   Menu,
   Bell,
+  ChevronDown,
   ChevronRight,
   Car,
+  Package,
+  Wrench,
+  Shield,
+  UserCog,
+  Users,
 } from "lucide-react";
 
-const navItems = [
+// Top-level navigation items
+const mainNavItems = [
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+];
+
+// Customer Relations submenu items
+const crSubmenuItems = [
   { path: "/day", label: "Today", icon: CalendarDays },
   { path: "/month", label: "Month View", icon: CalendarRange },
   { path: "/year", label: "Year View", icon: Calendar },
-  { path: "/new-appointment", label: "New Appointment", icon: Plus, highlight: true },
 ];
 
+// Other module items (Coming Soon)
+const moduleItems = [
+  { path: "/module/parts", label: "Parts", icon: Package },
+  { path: "/module/bodyshop", label: "Bodyshop", icon: Car },
+  { path: "/module/mechanical", label: "Mechanical", icon: Wrench },
+  { path: "/module/insurance", label: "Insurance", icon: Shield },
+  { path: "/module/hr", label: "HR", icon: UserCog },
+  { path: "/module/customers", label: "Customers", icon: Users },
+];
+
+// Admin-only items
 const adminItems = [
-  { path: "/settings", label: "Settings", icon: Settings, roles: ["CRM"] },
-  { path: "/users", label: "Users", icon: Users, roles: ["CRM"] },
+  { path: "/settings", label: "Settings", icon: Settings },
+  { path: "/users", label: "Users", icon: UsersIcon },
 ];
 
 const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
+  const [crOpen, setCrOpen] = useState(
+    currentPath === "/day" || currentPath === "/month" || currentPath === "/year"
+  );
+  
   const isActive = (path) => currentPath === path;
+  const isCrActive = crSubmenuItems.some(item => currentPath === item.path);
 
   return (
     <div className="flex flex-col h-full">
@@ -48,28 +74,17 @@ const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
         </p>
       </div>
 
-      {/* Module Label */}
-      <div className="px-6 py-3 border-b border-gray-100 bg-gray-50">
-        <div className="flex items-center gap-2">
-          <Car className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
-          <span className="text-xs font-mono uppercase tracking-wider text-gray-500">
-            CR Appointments
-          </span>
-        </div>
-      </div>
-
       {/* Navigation */}
       <ScrollArea className="flex-1 py-4">
         <nav className="px-3 space-y-1">
-          {navItems.map((item) => (
+          {/* Dashboard */}
+          {mainNavItems.map((item) => (
             <Button
               key={item.path}
               variant="ghost"
               className={`w-full justify-start h-10 px-3 rounded-sm font-medium text-sm ${
                 isActive(item.path)
                   ? "bg-black text-white hover:bg-gray-800"
-                  : item.highlight
-                  ? "bg-gray-100 hover:bg-gray-200"
                   : "hover:bg-gray-100"
               }`}
               onClick={() => onNavigate(item.path)}
@@ -77,9 +92,65 @@ const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
             >
               <item.icon className="w-4 h-4 mr-3" strokeWidth={1.5} />
               {item.label}
-              {item.path === "/new-appointment" && (
-                <ChevronRight className="w-4 h-4 ml-auto" strokeWidth={1.5} />
-              )}
+            </Button>
+          ))}
+
+          {/* Customer Relations - Collapsible */}
+          <Collapsible open={crOpen} onOpenChange={setCrOpen}>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className={`w-full justify-start h-10 px-3 rounded-sm font-medium text-sm ${
+                  isCrActive
+                    ? "bg-gray-100"
+                    : "hover:bg-gray-100"
+                }`}
+                data-testid="nav-customer-relations"
+              >
+                <Car className="w-4 h-4 mr-3" strokeWidth={1.5} />
+                Customer Relations
+                {crOpen ? (
+                  <ChevronDown className="w-4 h-4 ml-auto" strokeWidth={1.5} />
+                ) : (
+                  <ChevronRight className="w-4 h-4 ml-auto" strokeWidth={1.5} />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pl-4 space-y-1 mt-1">
+              {crSubmenuItems.map((item) => (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  className={`w-full justify-start h-9 px-3 rounded-sm font-medium text-sm ${
+                    isActive(item.path)
+                      ? "bg-black text-white hover:bg-gray-800"
+                      : "hover:bg-gray-100"
+                  }`}
+                  onClick={() => onNavigate(item.path)}
+                  data-testid={`nav-${item.path.slice(1)}`}
+                >
+                  <item.icon className="w-4 h-4 mr-3" strokeWidth={1.5} />
+                  {item.label}
+                </Button>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Other Modules */}
+          {moduleItems.map((item) => (
+            <Button
+              key={item.path}
+              variant="ghost"
+              className={`w-full justify-start h-10 px-3 rounded-sm font-medium text-sm ${
+                isActive(item.path)
+                  ? "bg-black text-white hover:bg-gray-800"
+                  : "hover:bg-gray-100"
+              }`}
+              onClick={() => onNavigate(item.path)}
+              data-testid={`nav-${item.label.toLowerCase()}`}
+            >
+              <item.icon className="w-4 h-4 mr-3" strokeWidth={1.5} />
+              {item.label}
             </Button>
           ))}
 
@@ -91,24 +162,22 @@ const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
                   Admin
                 </p>
               </div>
-              {adminItems
-                .filter((item) => item.roles.includes(user?.role))
-                .map((item) => (
-                  <Button
-                    key={item.path}
-                    variant="ghost"
-                    className={`w-full justify-start h-10 px-3 rounded-sm font-medium text-sm ${
-                      isActive(item.path)
-                        ? "bg-black text-white hover:bg-gray-800"
-                        : "hover:bg-gray-100"
-                    }`}
-                    onClick={() => onNavigate(item.path)}
-                    data-testid={`nav-${item.path.slice(1)}`}
-                  >
-                    <item.icon className="w-4 h-4 mr-3" strokeWidth={1.5} />
-                    {item.label}
-                  </Button>
-                ))}
+              {adminItems.map((item) => (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  className={`w-full justify-start h-10 px-3 rounded-sm font-medium text-sm ${
+                    isActive(item.path)
+                      ? "bg-black text-white hover:bg-gray-800"
+                      : "hover:bg-gray-100"
+                  }`}
+                  onClick={() => onNavigate(item.path)}
+                  data-testid={`nav-${item.path.slice(1)}`}
+                >
+                  <item.icon className="w-4 h-4 mr-3" strokeWidth={1.5} />
+                  {item.label}
+                </Button>
+              ))}
             </>
           )}
         </nav>
