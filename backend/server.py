@@ -236,7 +236,11 @@ async def get_current_user(request: Request) -> dict:
 
 async def require_role(request: Request, allowed_roles: List[str]) -> dict:
     user = await get_current_user(request)
-    if user["role"] not in allowed_roles:
+    # DP (Dealer Principal) has admin access equivalent to CRM
+    user_role = user["role"]
+    if user_role == "DP":
+        user_role = "CRM"  # DP has CRM-level permissions
+    if user_role not in allowed_roles and user["role"] not in allowed_roles:
         raise HTTPException(status_code=403, detail="Permission denied")
     return user
 
