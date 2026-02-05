@@ -39,7 +39,8 @@ const Settings = () => {
   });
 
   useEffect(() => {
-    if (user?.role !== "CRM") {
+    // DP and CRM have admin access
+    if (user?.role !== "CRM" && user?.role !== "DP") {
       toast.error("Access denied");
       navigate("/dashboard");
       return;
