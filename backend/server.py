@@ -965,9 +965,9 @@ async def seed_data():
             "user_id": "user_admin_001",
             "username": "admin",
             "password_hash": hash_password("admin"),
-            "name": "Admin Manager",
-            "role": "CRM",
-            "email": "admin@bohania.com",
+            "name": "Tanshu Agarwal",
+            "role": "DP",
+            "email": "tanshu@bohania.com",
             "is_active": True,
             "created_at": datetime.now(timezone.utc).isoformat()
         },
