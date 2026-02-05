@@ -7,15 +7,23 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import {
   CalendarDays,
-  Users,
-  AlertTriangle,
-  TrendingUp,
   Phone,
   ChevronRight,
-  Clock,
   CheckCircle,
-  XCircle,
+  Plus,
 } from "lucide-react";
+
+// Dashboard tabs for module navigation
+const dashboardTabs = [
+  { id: "dashboard", label: "Dashboard", path: "/dashboard" },
+  { id: "cr", label: "Customer Relations", path: "/day" },
+  { id: "parts", label: "Parts", path: "/module/parts" },
+  { id: "bodyshop", label: "Bodyshop", path: "/module/bodyshop" },
+  { id: "mechanical", label: "Mechanical", path: "/module/mechanical" },
+  { id: "insurance", label: "Insurance", path: "/module/insurance" },
+  { id: "hr", label: "HR", path: "/module/hr" },
+  { id: "customers", label: "Customers", path: "/module/customers" },
+];
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -23,6 +31,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,6 +51,14 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+  const handleTabClick = (tab) => {
+    if (tab.id === "dashboard") {
+      setActiveTab("dashboard");
+    } else {
+      navigate(tab.path);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -52,7 +69,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6" data-testid="dashboard-page">
-      {/* Header */}
+      {/* Header with New Appointment Button */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="font-heading font-black text-3xl md:text-4xl tracking-tighter uppercase">
@@ -67,9 +84,30 @@ const Dashboard = () => {
           className="bg-black text-white hover:bg-gray-800 rounded-sm font-mono text-xs uppercase tracking-wider"
           data-testid="new-appointment-btn"
         >
-          <CalendarDays className="w-4 h-4 mr-2" strokeWidth={1.5} />
+          <Plus className="w-4 h-4 mr-2" strokeWidth={1.5} />
           New Appointment
         </Button>
+      </div>
+
+      {/* Module Tabs */}
+      <div className="border-b border-gray-200">
+        <div className="flex gap-1 overflow-x-auto pb-px">
+          {dashboardTabs.map((tab) => (
+            <Button
+              key={tab.id}
+              variant="ghost"
+              className={`px-4 py-2 rounded-none border-b-2 font-medium text-sm whitespace-nowrap ${
+                activeTab === tab.id
+                  ? "border-black text-black"
+                  : "border-transparent text-gray-500 hover:text-black hover:border-gray-300"
+              }`}
+              onClick={() => handleTabClick(tab)}
+              data-testid={`tab-${tab.id}`}
+            >
+              {tab.label}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -243,50 +281,6 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       )}
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Button
-          variant="outline"
-          className="h-auto py-6 flex flex-col items-center gap-2 rounded-sm border-gray-200 hover:border-black"
-          onClick={() => navigate("/day")}
-          data-testid="quick-day-view"
-        >
-          <CalendarDays className="w-6 h-6" strokeWidth={1.5} />
-          <span className="text-xs font-mono uppercase tracking-wider">Today View</span>
-        </Button>
-        <Button
-          variant="outline"
-          className="h-auto py-6 flex flex-col items-center gap-2 rounded-sm border-gray-200 hover:border-black"
-          onClick={() => navigate("/month")}
-          data-testid="quick-month-view"
-        >
-          <CalendarDays className="w-6 h-6" strokeWidth={1.5} />
-          <span className="text-xs font-mono uppercase tracking-wider">Month View</span>
-        </Button>
-        {user?.role === "CRM" && (
-          <>
-            <Button
-              variant="outline"
-              className="h-auto py-6 flex flex-col items-center gap-2 rounded-sm border-gray-200 hover:border-black"
-              onClick={() => navigate("/settings")}
-              data-testid="quick-settings"
-            >
-              <TrendingUp className="w-6 h-6" strokeWidth={1.5} />
-              <span className="text-xs font-mono uppercase tracking-wider">Settings</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="h-auto py-6 flex flex-col items-center gap-2 rounded-sm border-gray-200 hover:border-black"
-              onClick={() => navigate("/users")}
-              data-testid="quick-users"
-            >
-              <Users className="w-6 h-6" strokeWidth={1.5} />
-              <span className="text-xs font-mono uppercase tracking-wider">Users</span>
-            </Button>
-          </>
-        )}
-      </div>
     </div>
   );
 };
