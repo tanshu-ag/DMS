@@ -703,13 +703,11 @@ const UserManagement = () => {
                             data-testid={`lock-${u.user_id}`}
                             title={u.is_locked ? "Unlock" : "Lock"}
                           >
-                            {u.is_locked ? (
-                              <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center">
-                                <Lock className="w-3 h-3 text-white" strokeWidth={2} />
-                              </div>
-                            ) : (
-                              <LockOpen className="w-4 h-4" strokeWidth={1.5} />
-                            )}
+                            <Lock 
+                              className={`w-4 h-4 ${u.is_locked ? 'text-black' : 'text-gray-300'}`} 
+                              strokeWidth={u.is_locked ? 2 : 1.5}
+                              fill={u.is_locked ? 'currentColor' : 'none'}
+                            />
                           </Button>
                         )}
                       </div>
