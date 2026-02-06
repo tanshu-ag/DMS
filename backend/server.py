@@ -374,12 +374,26 @@ async def update_user(request: Request, user_id: str, user_data: UserUpdate):
     await require_role(request, ["CRM"])
     
     update_dict = {}
-    if user_data.name:
+    if user_data.name is not None:
         update_dict["name"] = user_data.name
-    if user_data.role:
+    if user_data.role is not None:
         update_dict["role"] = user_data.role
     if user_data.email is not None:
         update_dict["email"] = user_data.email
+    if user_data.mobile is not None:
+        update_dict["mobile"] = user_data.mobile
+    if user_data.department is not None:
+        update_dict["department"] = user_data.department
+    if user_data.designation is not None:
+        update_dict["designation"] = user_data.designation
+    if user_data.branch is not None:
+        update_dict["branch"] = user_data.branch
+    if user_data.is_active is not None:
+        update_dict["is_active"] = user_data.is_active
+    if user_data.is_locked is not None:
+        update_dict["is_locked"] = user_data.is_locked
+    if user_data.module_access is not None:
+        update_dict["module_access"] = user_data.module_access
     if user_data.password:
         update_dict["password_hash"] = hash_password(user_data.password)
     
