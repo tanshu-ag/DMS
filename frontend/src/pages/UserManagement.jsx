@@ -708,7 +708,9 @@ const UserManagement = () => {
                         >
                           <Key className="w-4 h-4" strokeWidth={1.5} />
                         </Button>
-                        {u.username !== "admin" && (
+                        
+                        {/* Show Lock/Unlock only for Active users (except admin) */}
+                        {u.is_active && u.username !== "admin" && (
                           <Button
                             variant="ghost"
                             size="icon"
@@ -730,6 +732,23 @@ const UserManagement = () => {
                                 fill="none"
                               />
                             )}
+                          </Button>
+                        )}
+
+                        {/* Show Delete only for Inactive users */}
+                        {!u.is_active && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-sm text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => {
+                              setDeletingUser(u);
+                              setDeleteDialogOpen(true);
+                            }}
+                            data-testid={`delete-${u.user_id}`}
+                            title="Delete User"
+                          >
+                            <Trash2 className="w-4 h-4" strokeWidth={1.5} />
                           </Button>
                         )}
                       </div>
