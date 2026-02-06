@@ -835,6 +835,40 @@ const UserManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="rounded-sm">
+          <DialogHeader>
+            <DialogTitle className="font-heading font-bold text-xl tracking-tight uppercase">
+              Delete User?
+            </DialogTitle>
+          </DialogHeader>
+          <div className="pt-4">
+            <p className="text-sm text-gray-600">
+              This will permanently delete <strong>{deletingUser?.name}</strong>. This action cannot be undone.
+            </p>
+          </div>
+          <DialogFooter className="pt-4">
+            <Button
+              variant="outline"
+              className="rounded-sm"
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                setDeletingUser(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-black text-white hover:bg-gray-800 rounded-sm"
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
