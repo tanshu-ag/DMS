@@ -467,13 +467,29 @@ async def toggle_lock(request: Request, user_id: str):
 
 @api_router.delete("/users/{user_id}")
 async def delete_user(request: Request, user_id: str):
-    """Deactivate user (CRM only)"""
+    """Permanently delete user (CRM only) - Only for inactive users"""
     await require_role(request, ["CRM"])
     
-    result = await db.users.update_one(
-        {"user_id": user_id},
-        {"$set": {"is_active": False}}
-    )
+    # Get user to check status and username
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Protect primary admin from deletion
+    if user.get("username") == "admin":
+        raise HTTPException(status_code=403, detail="Cannot delete primary admin account")
+    
+    # Only allow deletion of inactive users
+    if user.get("is_active", True):
+        raise HTTPException(status_code=403, detail="Can only delete inactive users. Deactivate the user first.")
+    
+    # Permanently delete the user
+    result = await db.users.delete_one({"user_id": user_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "User permanently deleted"}
     
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
