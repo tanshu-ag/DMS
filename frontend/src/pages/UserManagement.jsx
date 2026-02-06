@@ -694,22 +694,24 @@ const UserManagement = () => {
                         >
                           <Key className="w-4 h-4" strokeWidth={1.5} />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 rounded-sm"
-                          onClick={() => handleToggleLock(u.user_id, u.is_locked)}
-                          data-testid={`lock-${u.user_id}`}
-                          title={u.is_locked ? "Unlock" : "Lock"}
-                        >
-                          {u.is_locked ? (
-                            <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center">
-                              <Lock className="w-3 h-3 text-white" strokeWidth={2} />
-                            </div>
-                          ) : (
-                            <LockOpen className="w-4 h-4" strokeWidth={1.5} />
-                          )}
-                        </Button>
+                        {u.username !== "admin" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-sm"
+                            onClick={() => handleToggleLock(u.user_id, u.is_locked)}
+                            data-testid={`lock-${u.user_id}`}
+                            title={u.is_locked ? "Unlock" : "Lock"}
+                          >
+                            {u.is_locked ? (
+                              <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center">
+                                <Lock className="w-3 h-3 text-white" strokeWidth={2} />
+                              </div>
+                            ) : (
+                              <LockOpen className="w-4 h-4" strokeWidth={1.5} />
+                            )}
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
