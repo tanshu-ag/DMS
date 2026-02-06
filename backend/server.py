@@ -368,9 +368,9 @@ async def create_user(request: Request, user_data: UserCreate):
     }
     await db.users.insert_one(new_user)
     
-    # Return without password_hash
-    del new_user["password_hash"]
-    return new_user
+    # Return without password_hash and _id
+    user_response = {k: v for k, v in new_user.items() if k not in ["password_hash", "_id"]}
+    return user_response
 
 @api_router.put("/users/{user_id}")
 async def update_user(request: Request, user_id: str, user_data: UserUpdate):
