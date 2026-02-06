@@ -64,12 +64,26 @@ class UserCreate(BaseModel):
     name: str
     role: str  # CRE, Receptionist, CRM
     email: Optional[str] = None
+    mobile: Optional[str] = None
+    department: str
+    designation: str
+    branch: Optional[str] = None
+    is_active: bool = True
+    is_locked: bool = False
+    module_access: Optional[List[str]] = None
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
     role: Optional[str] = None
     email: Optional[str] = None
+    mobile: Optional[str] = None
     password: Optional[str] = None
+    department: Optional[str] = None
+    designation: Optional[str] = None
+    branch: Optional[str] = None
+    is_active: Optional[bool] = None
+    is_locked: Optional[bool] = None
+    module_access: Optional[List[str]] = None
 
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -78,7 +92,13 @@ class User(BaseModel):
     name: str
     role: str
     email: Optional[str] = None
+    mobile: Optional[str] = None
+    department: str
+    designation: str
+    branch: Optional[str] = None
     is_active: bool = True
+    is_locked: bool = False
+    module_access: Optional[List[str]] = None
     created_at: datetime
 
 class AppointmentCreate(BaseModel):
