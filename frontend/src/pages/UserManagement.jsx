@@ -39,7 +39,6 @@ import {
   Edit2,
   Key,
   Lock,
-  LockOpen,
 } from "lucide-react";
 
 const DEPARTMENTS = [
