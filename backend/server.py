@@ -440,6 +440,10 @@ async def toggle_lock(request: Request, user_id: str):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
+    # Protect primary admin from being locked
+    if user.get("username") == "admin":
+        raise HTTPException(status_code=403, detail="Cannot lock primary admin account")
+    
     new_lock_status = not user.get("is_locked", False)
     
     await db.users.update_one(
