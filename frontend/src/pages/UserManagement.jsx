@@ -74,8 +74,10 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [resetPasswordUser, setResetPasswordUser] = useState(null);
+  const [deletingUser, setDeletingUser] = useState(null);
   const [newPassword, setNewPassword] = useState("");
   const [activeTab, setActiveTab] = useState("active");
   const [formData, setFormData] = useState({
