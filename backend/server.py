@@ -377,6 +377,18 @@ async def update_user(request: Request, user_id: str, user_data: UserUpdate):
     """Update user (CRM only)"""
     await require_role(request, ["CRM"])
     
+    # Check if user exists and get username
+    existing_user = await db.users.find_one({"user_id": user_id}, {"_id": 0, "username": 1})
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Protect primary admin from being deactivated or locked
+    if existing_user.get("username") == "admin":
+        if user_data.is_active is False:
+            raise HTTPException(status_code=403, detail="Cannot deactivate primary admin account")
+        if user_data.is_locked is True:
+            raise HTTPException(status_code=403, detail="Cannot lock primary admin account")
+    
     update_dict = {}
     if user_data.name is not None:
         update_dict["name"] = user_data.name
