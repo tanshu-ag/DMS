@@ -564,7 +564,7 @@ const UserManagement = () => {
 
               <DialogFooter className="flex justify-between items-center pt-4 border-t">
                 <div>
-                  {editingUser && editingUser.is_active && (
+                  {editingUser && editingUser.is_active && editingUser.username !== "admin" && (
                     <Button
                       type="button"
                       variant="outline"
