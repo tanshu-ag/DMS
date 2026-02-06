@@ -277,6 +277,10 @@ async def login(request: Request, response: Response, login_data: LoginRequest):
     if not user:
         raise HTTPException(status_code=401, detail="Invalid username or password")
     
+    # Check if user is locked
+    if user.get("is_locked", False):
+        raise HTTPException(status_code=403, detail="Account is locked. Contact administrator.")
+    
     if not verify_password(login_data.password, user.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Invalid username or password")
     
