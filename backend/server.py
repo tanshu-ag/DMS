@@ -353,7 +353,13 @@ async def create_user(request: Request, user_data: UserCreate):
         "name": user_data.name,
         "role": user_data.role,
         "email": user_data.email,
-        "is_active": True,
+        "mobile": user_data.mobile,
+        "department": user_data.department,
+        "designation": user_data.designation,
+        "branch": user_data.branch,
+        "is_active": user_data.is_active,
+        "is_locked": user_data.is_locked,
+        "module_access": user_data.module_access or [],
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.users.insert_one(new_user)
