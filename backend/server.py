@@ -1049,7 +1049,13 @@ async def seed_data():
             "name": "Tanshu Agarwal",
             "role": "DP",
             "email": "tanshu@bohania.com",
+            "mobile": "9876543210",
+            "department": "Admin",
+            "designation": "Dealer Principal",
+            "branch": "Main Branch",
             "is_active": True,
+            "is_locked": False,
+            "module_access": ["Dashboard", "Customer Relations", "Parts", "Bodyshop", "Mechanical", "Insurance", "HR", "Customers", "Settings", "Users"],
             "created_at": datetime.now(timezone.utc).isoformat()
         },
         {
@@ -1059,7 +1065,13 @@ async def seed_data():
             "name": "Front Desk",
             "role": "Receptionist",
             "email": "reception@bohania.com",
+            "mobile": "9876543211",
+            "department": "Customer Relations",
+            "designation": "Receptionist",
+            "branch": "Main Branch",
             "is_active": True,
+            "is_locked": False,
+            "module_access": ["Dashboard", "Customer Relations"],
             "created_at": datetime.now(timezone.utc).isoformat()
         },
         {
@@ -1069,7 +1081,13 @@ async def seed_data():
             "name": "CRE Alex",
             "role": "CRE",
             "email": "cre1@bohania.com",
+            "mobile": "9876543212",
+            "department": "Customer Relations",
+            "designation": "Customer Relationship Executive",
+            "branch": "Main Branch",
             "is_active": True,
+            "is_locked": False,
+            "module_access": ["Dashboard", "Customer Relations"],
             "created_at": datetime.now(timezone.utc).isoformat()
         },
         {
@@ -1079,7 +1097,13 @@ async def seed_data():
             "name": "CRE Jordan",
             "role": "CRE",
             "email": "cre2@bohania.com",
+            "mobile": "9876543213",
+            "department": "Customer Relations",
+            "designation": "Customer Relationship Executive",
+            "branch": "North Branch",
             "is_active": True,
+            "is_locked": False,
+            "module_access": ["Dashboard", "Customer Relations"],
             "created_at": datetime.now(timezone.utc).isoformat()
         }
     ]
