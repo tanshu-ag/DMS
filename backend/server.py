@@ -412,6 +412,43 @@ async def update_user(request: Request, user_id: str, user_data: UserUpdate):
     
     return {"message": "User updated"}
 
+@api_router.post("/users/{user_id}/reset-password")
+async def reset_password(request: Request, user_id: str, data: dict):
+    """Reset user password (CRM only)"""
+    await require_role(request, ["CRM"])
+    
+    new_password = data.get("password")
+    if not new_password:
+        raise HTTPException(status_code=400, detail="Password is required")
+    
+    result = await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": {"password_hash": hash_password(new_password)}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "Password reset successfully"}
+
+@api_router.post("/users/{user_id}/toggle-lock")
+async def toggle_lock(request: Request, user_id: str):
+    """Toggle user lock status (CRM only)"""
+    await require_role(request, ["CRM"])
+    
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    new_lock_status = not user.get("is_locked", False)
+    
+    await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": {"is_locked": new_lock_status}}
+    )
+    
+    return {"message": "User lock status updated", "is_locked": new_lock_status}
+
 @api_router.delete("/users/{user_id}")
 async def delete_user(request: Request, user_id: str):
     """Deactivate user (CRM only)"""
