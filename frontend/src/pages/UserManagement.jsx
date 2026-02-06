@@ -234,6 +234,18 @@ const UserManagement = () => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`${API}/users/${deletingUser.user_id}`, { withCredentials: true });
+      toast.success("User permanently deleted");
+      setDeleteDialogOpen(false);
+      setDeletingUser(null);
+      fetchUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to delete user");
+    }
+  };
+
   const resetForm = () => {
     setEditingUser(null);
     setFormData({
