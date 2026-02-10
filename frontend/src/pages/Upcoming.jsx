@@ -119,8 +119,36 @@ const Upcoming = () => {
       return true;
     });
 
-  const tomorrowRows = applyFilters(demoData.filter((r) => r.date === TOMORROW_STR));
-  const futureRows = applyFilters(demoData.filter((r) => r.date > TOMORROW_STR));
+  const tomorrowRows = demoData.filter((r) => r.date === TOMORROW_STR);
+
+  // Filters apply only to future bookings
+  const allFutureRows = demoData.filter((r) => r.date > TOMORROW_STR);
+  const futureRows = allFutureRows.filter((r) => {
+    if (filters.service_type && r.service_type !== filters.service_type) return false;
+    if (filters.sa && r.sa !== filters.sa) return false;
+    if (filters.source && r.source !== filters.source) return false;
+    if (filters.status && r.status !== filters.status) return false;
+    if (filters.branch && r.branch && r.branch !== filters.branch) return false;
+    if (filters.dateRange) {
+      const now = new Date(); now.setHours(0, 0, 0, 0);
+      const rowDate = new Date(r.date + "T00:00:00");
+      const dayAfter = new Date(now); dayAfter.setDate(dayAfter.getDate() + 2);
+      if (filters.dateRange === "day_after") {
+        if (fmtLocal(rowDate) !== fmtLocal(dayAfter)) return false;
+      } else if (filters.dateRange === "3days") {
+        const end = new Date(now); end.setDate(end.getDate() + 3);
+        if (rowDate > end) return false;
+      } else if (filters.dateRange === "7days") {
+        const end = new Date(now); end.setDate(end.getDate() + 7);
+        if (rowDate > end) return false;
+      } else if (filters.dateRange === "14days") {
+        const end = new Date(now); end.setDate(end.getDate() + 14);
+        if (rowDate > end) return false;
+      }
+      // 30days shows all
+    }
+    return true;
+  });
 
   const updateN1 = (id, val) => {
     setDemoData((prev) => prev.map((r) => (r.id === id ? { ...r, n1_status: val } : r)));
