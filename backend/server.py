@@ -615,6 +615,14 @@ async def delete_branch(request: Request, branch_id: str):
     """Delete branch (CRM only)"""
     await require_role(request, ["CRM"])
     
+    # Check if branch is primary
+    branch = await db.branches.find_one({"branch_id": branch_id}, {"_id": 0})
+    if not branch:
+        raise HTTPException(status_code=404, detail="Branch not found")
+    
+    if branch.get("is_primary", False):
+        raise HTTPException(status_code=403, detail="Cannot delete primary branch")
+    
     result = await db.branches.delete_one({"branch_id": branch_id})
     
     if result.deleted_count == 0:
