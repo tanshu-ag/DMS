@@ -36,12 +36,13 @@ const Branches = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [branches, setBranches] = useState([]);
+  const [branchTypes, setBranchTypes] = useState(["Sales", "Aftersales"]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBranch, setEditingBranch] = useState(null);
   const [formData, setFormData] = useState({
     location: "",
-    type: "Service Center",
+    type: "Sales",
     address: "",
     is_primary: false,
   });
@@ -54,6 +55,7 @@ const Branches = () => {
       return;
     }
     fetchBranches();
+    fetchSettings();
   }, [user, navigate]);
 
   const fetchBranches = async () => {
@@ -63,6 +65,20 @@ const Branches = () => {
     } catch (error) {
       toast.error("Failed to load branches");
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get(`${API}/settings`, { withCredentials: true });
+      if (response.data.branch_types && response.data.branch_types.length > 0) {
+        setBranchTypes(response.data.branch_types);
+      }
+    } catch (error) {
+      console.error("Failed to load settings");
+    }
+  };
       setLoading(false);
     }
   };
