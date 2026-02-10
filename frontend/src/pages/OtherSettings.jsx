@@ -20,6 +20,7 @@ import {
   CheckCircle,
   Calendar,
   Target,
+  Car,
 } from "lucide-react";
 
 const OtherSettings = () => {
@@ -34,6 +35,7 @@ const OtherSettings = () => {
     service_advisors: "",
     sources: "",
     service_types: "",
+    vehicle_models: "",
     n_minus_1_confirmation_statuses: "",
     appointment_statuses: "",
     appointment_day_outcomes: "",
@@ -116,6 +118,12 @@ const OtherSettings = () => {
       label: "Service Types",
       icon: Wrench,
       description: "Service categories (1FS, PMS, RR, etc.)",
+    },
+    {
+      key: "vehicle_models",
+      label: "Vehicle Models",
+      icon: Car,
+      description: "Renault vehicle models",
     },
     {
       key: "n_minus_1_confirmation_statuses",
