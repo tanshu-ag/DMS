@@ -596,6 +596,8 @@ async def update_branch(request: Request, branch_id: str, branch_data: BranchUpd
         update_dict["type"] = branch_data.type
     if branch_data.address is not None:
         update_dict["address"] = branch_data.address
+    if branch_data.is_primary is not None:
+        update_dict["is_primary"] = branch_data.is_primary
     
     if update_dict:
         result = await db.branches.update_one(
