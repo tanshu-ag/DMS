@@ -23,6 +23,7 @@ const Roles = () => {
     id: "system_dp",
     name: "Dealer Principal",
     description: "Unrestricted access to all modules",
+    facility: "All Facilities",
     isSystem: true,
   };
 
@@ -32,24 +33,28 @@ const Roles = () => {
       id: "role_001",
       name: "Service Manager",
       description: "Service operations access",
+      facility: "Aftersales",
       isSystem: false,
     },
     {
       id: "role_002",
       name: "Receptionist",
       description: "Appointment & customer handling",
+      facility: "Aftersales",
       isSystem: false,
     },
     {
       id: "role_003",
       name: "CRE",
       description: "Customer relations tasks",
+      facility: "Aftersales",
       isSystem: false,
     },
     {
       id: "role_004",
       name: "Parts Manager",
       description: "Parts & inventory access",
+      facility: "Aftersales",
       isSystem: false,
     },
   ];
