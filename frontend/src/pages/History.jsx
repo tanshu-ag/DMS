@@ -4,12 +4,24 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, History as HistoryIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, History as HistoryIcon, Filter, RefreshCw } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format, addDays, subDays, isAfter, startOfDay } from "date-fns";
-import MonthView from "./MonthView";
-import YearView from "./YearView";
+import { format, addDays, subDays, addMonths, subMonths, addYears, subYears, isAfter, startOfDay, startOfMonth, startOfYear } from "date-fns";
 import axios from "axios";
 import { useAuth, API } from "@/App";
 import { toast } from "sonner";
@@ -27,12 +39,28 @@ const History = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "date");
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [selectedYear, setSelectedYear] = useState(new Date());
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   const [dateAppointments, setDateAppointments] = useState([]);
+  const [monthAppointments, setMonthAppointments] = useState([]);
+  const [yearAppointments, setYearAppointments] = useState([]);
   const [customRangeAppointments, setCustomRangeAppointments] = useState([]);
+  const [customRangeApplied, setCustomRangeApplied] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const { user } = useAuth();
+
+  // Filter states
+  const [filters, setFilters] = useState({
+    cre: "",
+    source: "",
+    serviceAdvisor: "",
+    serviceType: "",
+    status: "",
+  });
+  const [settings, setSettings] = useState({});
 
   const today = startOfDay(new Date());
 
@@ -43,21 +71,74 @@ const History = () => {
   }, [activeTab, setSearchParams]);
 
   useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  useEffect(() => {
     if (activeTab === "date") {
       fetchDateAppointments();
+    } else if (activeTab === "month") {
+      fetchMonthAppointments();
+    } else if (activeTab === "year") {
+      fetchYearAppointments();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDate, activeTab]);
+  }, [selectedDate, selectedMonth, selectedYear, activeTab, filters]);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get(`${API}/settings`, { withCredentials: true });
+      setSettings(response.data);
+    } catch (error) {
+      console.error("Failed to load settings");
+    }
+  };
 
   const fetchDateAppointments = async () => {
     setLoading(true);
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
-      const response = await axios.get(
-        `${API}/appointments?view=day&date=${dateStr}`,
-        { withCredentials: true }
-      );
+      const params = new URLSearchParams({ view: "day", date: dateStr });
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) params.append(key, value);
+      });
+      const response = await axios.get(`${API}/appointments?${params}`, { withCredentials: true });
       setDateAppointments(response.data);
+    } catch (error) {
+      toast.error("Failed to load appointments");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMonthAppointments = async () => {
+    setLoading(true);
+    try {
+      const month = selectedMonth.getMonth() + 1;
+      const year = selectedMonth.getFullYear();
+      const params = new URLSearchParams({ view: "month", month: month.toString(), year: year.toString() });
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) params.append(key, value);
+      });
+      const response = await axios.get(`${API}/appointments?${params}`, { withCredentials: true });
+      setMonthAppointments(response.data);
+    } catch (error) {
+      toast.error("Failed to load appointments");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchYearAppointments = async () => {
+    setLoading(true);
+    try {
+      const year = selectedYear.getFullYear();
+      const params = new URLSearchParams({ view: "year", year: year.toString() });
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) params.append(key, value);
+      });
+      const response = await axios.get(`${API}/appointments?${params}`, { withCredentials: true });
+      setYearAppointments(response.data);
     } catch (error) {
       toast.error("Failed to load appointments");
     } finally {
@@ -71,13 +152,15 @@ const History = () => {
       return;
     }
     setLoading(true);
+    setCustomRangeApplied(true);
     try {
       const fromStr = format(fromDate, "yyyy-MM-dd");
       const toStr = format(toDate, "yyyy-MM-dd");
-      const response = await axios.get(
-        `${API}/appointments?from=${fromStr}&to=${toStr}`,
-        { withCredentials: true }
-      );
+      const params = new URLSearchParams({ from: fromStr, to: toStr });
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) params.append(key, value);
+      });
+      const response = await axios.get(`${API}/appointments?${params}`, { withCredentials: true });
       setCustomRangeAppointments(response.data);
     } catch (error) {
       toast.error("Failed to load appointments");
@@ -86,19 +169,36 @@ const History = () => {
     }
   };
 
-  const handlePrevDate = () => {
-    const newDate = subDays(selectedDate, 1);
-    setSelectedDate(newDate);
+  const handleRefresh = () => {
+    if (activeTab === "date") fetchDateAppointments();
+    else if (activeTab === "month") fetchMonthAppointments();
+    else if (activeTab === "year") fetchYearAppointments();
+    else if (activeTab === "custom") fetchCustomRangeAppointments();
   };
 
+  // Date navigation
+  const handlePrevDate = () => setSelectedDate(subDays(selectedDate, 1));
   const handleNextDate = () => {
     const newDate = addDays(selectedDate, 1);
-    if (!isAfter(newDate, today)) {
-      setSelectedDate(newDate);
-    }
+    if (!isAfter(newDate, today)) setSelectedDate(newDate);
   };
+  const canGoForwardDate = !isAfter(addDays(selectedDate, 1), today);
 
-  const canGoForward = !isAfter(addDays(selectedDate, 1), today);
+  // Month navigation
+  const handlePrevMonth = () => setSelectedMonth(subMonths(selectedMonth, 1));
+  const handleNextMonth = () => {
+    const newMonth = addMonths(selectedMonth, 1);
+    if (!isAfter(startOfMonth(newMonth), startOfMonth(today))) setSelectedMonth(newMonth);
+  };
+  const canGoForwardMonth = !isAfter(startOfMonth(addMonths(selectedMonth, 1)), startOfMonth(today));
+
+  // Year navigation
+  const handlePrevYear = () => setSelectedYear(subYears(selectedYear, 1));
+  const handleNextYear = () => {
+    const newYear = addYears(selectedYear, 1);
+    if (!isAfter(startOfYear(newYear), startOfYear(today))) setSelectedYear(newYear);
+  };
+  const canGoForwardYear = !isAfter(startOfYear(addYears(selectedYear, 1)), startOfYear(today));
 
   const AppointmentTable = ({ appointments }) => (
     <Card className="border border-gray-200 rounded-sm shadow-none overflow-hidden">
@@ -141,57 +241,175 @@ const History = () => {
     </Card>
   );
 
+  const FilterDialog = () => (
+    <Dialog open={filterOpen} onOpenChange={setFilterOpen}>
+      <DialogContent className="rounded-sm max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="font-heading font-bold text-xl tracking-tight uppercase">
+            Filters
+          </DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-4 pt-4">
+          <div>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
+              CRE
+            </Label>
+            <Select value={filters.cre} onValueChange={(v) => setFilters({ ...filters, cre: v })}>
+              <SelectTrigger className="rounded-sm">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All</SelectItem>
+                {settings.service_advisors?.map((sa) => (
+                  <SelectItem key={sa} value={sa}>{sa}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
+              Source
+            </Label>
+            <Select value={filters.source} onValueChange={(v) => setFilters({ ...filters, source: v })}>
+              <SelectTrigger className="rounded-sm">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All</SelectItem>
+                {settings.sources?.map((src) => (
+                  <SelectItem key={src} value={src}>{src}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
+              Service Advisor
+            </Label>
+            <Select value={filters.serviceAdvisor} onValueChange={(v) => setFilters({ ...filters, serviceAdvisor: v })}>
+              <SelectTrigger className="rounded-sm">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All</SelectItem>
+                {settings.service_advisors?.map((sa) => (
+                  <SelectItem key={sa} value={sa}>{sa}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
+              Service Type
+            </Label>
+            <Select value={filters.serviceType} onValueChange={(v) => setFilters({ ...filters, serviceType: v })}>
+              <SelectTrigger className="rounded-sm">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All</SelectItem>
+                {settings.service_types?.map((st) => (
+                  <SelectItem key={st} value={st}>{st}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
+              Status
+            </Label>
+            <Select value={filters.status} onValueChange={(v) => setFilters({ ...filters, status: v })}>
+              <SelectTrigger className="rounded-sm">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All</SelectItem>
+                {settings.appointment_statuses?.map((st) => (
+                  <SelectItem key={st} value={st}>{st}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 pt-4">
+          <Button
+            variant="outline"
+            className="rounded-sm"
+            onClick={() => {
+              setFilters({ cre: "", source: "", serviceAdvisor: "", serviceType: "", status: "" });
+            }}
+          >
+            Clear All
+          </Button>
+          <Button
+            className="bg-black text-white hover:bg-gray-800 rounded-sm"
+            onClick={() => setFilterOpen(false)}
+          >
+            Apply
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-black text-white rounded-sm flex items-center justify-center">
-          <HistoryIcon className="w-6 h-6" strokeWidth={1.5} />
+      {/* Header with Refresh */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-black text-white rounded-sm flex items-center justify-center">
+            <HistoryIcon className="w-6 h-6" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h1 className="font-heading font-black text-3xl md:text-4xl tracking-tighter uppercase">
+              History
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">Appointment History</p>
+          </div>
         </div>
-        <div>
-          <h1 className="font-heading font-black text-3xl md:text-4xl tracking-tighter uppercase">
-            History
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">Appointment History</p>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-10 w-10 rounded-sm"
+            onClick={() => setFilterOpen(true)}
+          >
+            <Filter className="w-4 h-4" strokeWidth={1.5} />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-10 w-10 rounded-sm"
+            onClick={handleRefresh}
+          >
+            <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
+          </Button>
         </div>
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full max-w-2xl grid-cols-4 mb-6">
-          <TabsTrigger value="date" className="rounded-sm">
-            Date
-          </TabsTrigger>
-          <TabsTrigger value="month" className="rounded-sm">
-            Month
-          </TabsTrigger>
-          <TabsTrigger value="year" className="rounded-sm">
-            Year
-          </TabsTrigger>
-          <TabsTrigger value="custom" className="rounded-sm">
-            Custom Range
-          </TabsTrigger>
+          <TabsTrigger value="date" className="rounded-sm">Date</TabsTrigger>
+          <TabsTrigger value="month" className="rounded-sm">Month</TabsTrigger>
+          <TabsTrigger value="year" className="rounded-sm">Year</TabsTrigger>
+          <TabsTrigger value="custom" className="rounded-sm">Custom Range</TabsTrigger>
         </TabsList>
 
         {/* Date Tab */}
         <TabsContent value="date" className="mt-0 space-y-6">
-          {/* Date Navigator */}
           <div className="flex items-center justify-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handlePrevDate}
-              className="h-10 w-10 rounded-sm"
-            >
+            <Button variant="ghost" size="icon" onClick={handlePrevDate} className="h-10 w-10 rounded-sm">
               <ChevronLeft className="w-5 h-5" strokeWidth={1.5} />
             </Button>
-
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="min-w-[200px] rounded-sm font-mono text-sm"
-                >
+                <Button variant="outline" className="min-w-[200px] rounded-sm font-mono text-sm">
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {format(selectedDate, "dd-MM-yyyy")}
                 </Button>
@@ -206,19 +424,10 @@ const History = () => {
                 />
               </PopoverContent>
             </Popover>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleNextDate}
-              disabled={!canGoForward}
-              className="h-10 w-10 rounded-sm"
-            >
+            <Button variant="ghost" size="icon" onClick={handleNextDate} disabled={!canGoForwardDate} className="h-10 w-10 rounded-sm">
               <ChevronRight className="w-5 h-5" strokeWidth={1.5} />
             </Button>
           </div>
-
-          {/* Date Appointments Table */}
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
@@ -229,18 +438,79 @@ const History = () => {
         </TabsContent>
 
         {/* Month Tab */}
-        <TabsContent value="month" className="mt-0">
-          <MonthView />
+        <TabsContent value="month" className="mt-0 space-y-6">
+          <div className="flex items-center justify-center gap-2">
+            <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="h-10 w-10 rounded-sm">
+              <ChevronLeft className="w-5 h-5" strokeWidth={1.5} />
+            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="min-w-[200px] rounded-sm font-mono text-sm">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {format(selectedMonth, "MMMM yyyy")}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 rounded-sm" align="center">
+                <Calendar
+                  mode="single"
+                  selected={selectedMonth}
+                  onSelect={(date) => date && setSelectedMonth(startOfMonth(date))}
+                  disabled={(date) => isAfter(startOfMonth(date), startOfMonth(today))}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <Button variant="ghost" size="icon" onClick={handleNextMonth} disabled={!canGoForwardMonth} className="h-10 w-10 rounded-sm">
+              <ChevronRight className="w-5 h-5" strokeWidth={1.5} />
+            </Button>
+          </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <AppointmentTable appointments={monthAppointments} />
+          )}
         </TabsContent>
 
         {/* Year Tab */}
-        <TabsContent value="year" className="mt-0">
-          <YearView />
+        <TabsContent value="year" className="mt-0 space-y-6">
+          <div className="flex items-center justify-center gap-2">
+            <Button variant="ghost" size="icon" onClick={handlePrevYear} className="h-10 w-10 rounded-sm">
+              <ChevronLeft className="w-5 h-5" strokeWidth={1.5} />
+            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="min-w-[200px] rounded-sm font-mono text-sm">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {format(selectedYear, "yyyy")}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 rounded-sm" align="center">
+                <Calendar
+                  mode="single"
+                  selected={selectedYear}
+                  onSelect={(date) => date && setSelectedYear(startOfYear(date))}
+                  disabled={(date) => isAfter(startOfYear(date), startOfYear(today))}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <Button variant="ghost" size="icon" onClick={handleNextYear} disabled={!canGoForwardYear} className="h-10 w-10 rounded-sm">
+              <ChevronRight className="w-5 h-5" strokeWidth={1.5} />
+            </Button>
+          </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <AppointmentTable appointments={yearAppointments} />
+          )}
         </TabsContent>
 
         {/* Custom Range Tab */}
         <TabsContent value="custom" className="mt-0 space-y-6">
-          {/* Date Range Selectors */}
           <Card className="border border-gray-200 rounded-sm shadow-none p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
               <div>
@@ -249,10 +519,7 @@ const History = () => {
                 </Label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full rounded-sm justify-start font-mono text-sm"
-                    >
+                    <Button variant="outline" className="w-full rounded-sm justify-start font-mono text-sm">
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {fromDate ? format(fromDate, "dd-MM-yyyy") : "Select date"}
                     </Button>
@@ -275,10 +542,7 @@ const History = () => {
                 </Label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full rounded-sm justify-start font-mono text-sm"
-                    >
+                    <Button variant="outline" className="w-full rounded-sm justify-start font-mono text-sm">
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {toDate ? format(toDate, "dd-MM-yyyy") : "Select date"}
                     </Button>
@@ -307,13 +571,18 @@ const History = () => {
             </div>
           </Card>
 
-          {/* Custom Range Appointments Table */}
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
             </div>
-          ) : customRangeAppointments.length > 0 ? (
-            <AppointmentTable appointments={customRangeAppointments} />
+          ) : customRangeApplied ? (
+            customRangeAppointments.length > 0 ? (
+              <AppointmentTable appointments={customRangeAppointments} />
+            ) : (
+              <Card className="border border-gray-200 rounded-sm shadow-none p-12 text-center">
+                <p className="text-gray-400">No data found, select different dates and click on Apply</p>
+              </Card>
+            )
           ) : (
             <Card className="border border-gray-200 rounded-sm shadow-none p-12 text-center">
               <p className="text-gray-400">Select date range and click Apply to view appointments</p>
@@ -321,6 +590,9 @@ const History = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Filter Dialog */}
+      <FilterDialog />
     </div>
   );
 };
