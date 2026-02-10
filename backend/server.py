@@ -179,6 +179,7 @@ class Appointment(BaseModel):
     duplicate_vehicle_last_30_days: bool = False
 
 class SettingsUpdate(BaseModel):
+    branch_types: Optional[List[str]] = None
     branches: Optional[List[str]] = None
     service_advisors: Optional[List[str]] = None
     sources: Optional[List[str]] = None
