@@ -95,9 +95,13 @@ const AppRouter = () => {
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="day" element={<DayView />} />
-        <Route path="month" element={<MonthView />} />
-        <Route path="year" element={<YearView />} />
+        {/* Old routes redirect to new Appointment page */}
+        <Route path="day" element={<Navigate to="/customer-relations/appointment?view=today" replace />} />
+        <Route path="month" element={<Navigate to="/customer-relations/appointment?view=month" replace />} />
+        <Route path="year" element={<Navigate to="/customer-relations/appointment?view=year" replace />} />
+        {/* New Customer Relations routes */}
+        <Route path="customer-relations/appointment" element={<Appointment />} />
+        <Route path="customer-relations/vehicles" element={<Vehicles />} />
         <Route path="new-appointment" element={<NewAppointment />} />
         <Route path="appointments/:id" element={<AppointmentDetail />} />
         <Route path="settings" element={<SettingsOverview />} />
