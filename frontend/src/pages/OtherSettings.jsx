@@ -153,7 +153,7 @@ const Settings = () => {
         </div>
         <div>
           <h1 className="font-heading font-black text-3xl md:text-4xl tracking-tighter uppercase">
-            Settings
+            Other Settings
           </h1>
           <p className="text-sm text-gray-500 mt-1">Manage dropdown options and lists</p>
         </div>
