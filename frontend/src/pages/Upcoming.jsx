@@ -37,13 +37,7 @@ const getN1Color = (val) => {
 };
 
 const getSourceColor = (source) => {
-  const map = {
-    SDR: "bg-blue-100 text-blue-800",
-    "Incoming Call": "bg-green-100 text-green-800",
-    MYR: "bg-purple-100 text-purple-800",
-    Other: "bg-gray-100 text-gray-800",
-  };
-  return map[source] || "bg-gray-100 text-gray-800";
+  return "";
 };
 
 const fmtLocal = (d) => {
@@ -67,17 +61,17 @@ const buildDemoData = () => {
   return [
     // Tomorrow — 5 rows with varied N-1 & Docket
     { id: "u01", date: fmtLocal(d1), time: "10:00 AM", customer_name: "Aarav Mehta", phone: "9012345601", vehicle_reg: "WB74U1001", model: "Kiger", service_type: "1FS", sa: "Arjun", source: "SDR", status: "Scheduled", n1_status: "Confirmed", docket_ready: true },
-    { id: "u02", date: fmtLocal(d1), time: "10:30 AM", customer_name: "Diya Bose", phone: "9012345602", vehicle_reg: "AS01U2002", model: "Triber", service_type: "PMS", sa: "Vivek", source: "Incoming Call", status: "Scheduled", n1_status: "Pending", docket_ready: false },
+    { id: "u02", date: fmtLocal(d1), time: "10:30 AM", customer_name: "Diya Bose", phone: "9012345602", vehicle_reg: "AS01U2002", model: "Triber", service_type: "PMS", sa: "Vivek", source: "Incoming", status: "Scheduled", n1_status: "Pending", docket_ready: false },
     { id: "u03", date: fmtLocal(d1), time: "11:30 AM", customer_name: "Kabir Sinha", phone: "9012345603", vehicle_reg: "WB73U3003", model: "Duster", service_type: "RR", sa: "Arjun", source: "MYR", status: "Confirmed", n1_status: "Not Reachable", docket_ready: true },
     { id: "u04", date: fmtLocal(d1), time: "2:00 PM", customer_name: "Ishita Ghosh", phone: "9012345604", vehicle_reg: "BR01U4004", model: "Kwid", service_type: "2FS", sa: "Vivek", source: "Other", status: "Scheduled", n1_status: "Rescheduled", docket_ready: false },
     { id: "u05", date: fmtLocal(d1), time: "3:30 PM", customer_name: "Priyanka Das", phone: "9012345613", vehicle_reg: "WB72U5013", model: "Kiger", service_type: "BP", sa: "Arjun", source: "SDR", status: "Scheduled", n1_status: "Cancelled", docket_ready: false },
     // Future — day+2 onwards
     { id: "u06", date: fmtLocal(d2), time: "10:00 AM", customer_name: "Rohan Chatterjee", phone: "9012345605", vehicle_reg: "WB72U5005", model: "Kiger", service_type: "BP", sa: "Arjun", source: "SDR", status: "Scheduled" },
-    { id: "u07", date: fmtLocal(d2), time: "11:00 AM", customer_name: "Tanvi Mukherjee", phone: "9012345606", vehicle_reg: "AS01U6006", model: "Triber", service_type: "3FS", sa: "Vivek", source: "Incoming Call", status: "Scheduled" },
+    { id: "u07", date: fmtLocal(d2), time: "11:00 AM", customer_name: "Tanvi Mukherjee", phone: "9012345606", vehicle_reg: "AS01U6006", model: "Triber", service_type: "3FS", sa: "Vivek", source: "Incoming", status: "Scheduled" },
     { id: "u08", date: fmtLocal(d2), time: "3:00 PM", customer_name: "Aditya Rao", phone: "9012345607", vehicle_reg: "WB74U7007", model: "Duster", service_type: "PMS", sa: "Arjun", source: "MYR", status: "Confirmed" },
     { id: "u09", date: fmtLocal(d3), time: "10:30 AM", customer_name: "Neha Verma", phone: "9012345608", vehicle_reg: "BR01U8008", model: "Kwid", service_type: "1FS", sa: "Vivek", source: "SDR", status: "Scheduled" },
     { id: "u10", date: fmtLocal(d3), time: "2:30 PM", customer_name: "Siddharth Pal", phone: "9012345609", vehicle_reg: "WB73U9009", model: "Kiger", service_type: "Others", sa: "Arjun", source: "Other", status: "Scheduled" },
-    { id: "u11", date: fmtLocal(d4), time: "10:00 AM", customer_name: "Pooja Agarwal", phone: "9012345610", vehicle_reg: "WB74U1010", model: "Triber", service_type: "RR", sa: "Vivek", source: "Incoming Call", status: "Scheduled" },
+    { id: "u11", date: fmtLocal(d4), time: "10:00 AM", customer_name: "Pooja Agarwal", phone: "9012345610", vehicle_reg: "WB74U1010", model: "Triber", service_type: "RR", sa: "Vivek", source: "Incoming", status: "Scheduled" },
     { id: "u12", date: fmtLocal(d4), time: "11:30 AM", customer_name: "Manish Tiwari", phone: "9012345611", vehicle_reg: "AS01U1111", model: "Duster", service_type: "BP", sa: "Arjun", source: "SDR", status: "Confirmed" },
     { id: "u13", date: fmtLocal(d5), time: "3:30 PM", customer_name: "Ritika Sen", phone: "9012345612", vehicle_reg: "WB72U1212", model: "Kwid", service_type: "PMS", sa: "Vivek", source: "MYR", status: "Scheduled" },
   ];
