@@ -47,9 +47,8 @@ const mainNavItems = [
 
 // Customer Relations submenu items
 const crSubmenuItems = [
-  { path: "/day", label: "Today", icon: CalendarDays },
-  { path: "/month", label: "Month View", icon: CalendarRange },
-  { path: "/year", label: "Year View", icon: Calendar },
+  { path: "/customer-relations/appointment", label: "Appointment", icon: CalendarDays },
+  { path: "/customer-relations/vehicles", label: "Vehicles", icon: Users },
 ];
 
 // Other module items (Coming Soon)
@@ -59,7 +58,6 @@ const moduleItems = [
   { path: "/module/mechanical", label: "Mechanical", icon: Wrench },
   { path: "/module/insurance", label: "Insurance", icon: Shield },
   { path: "/module/hr", label: "HR", icon: UserCog },
-  { path: "/module/customers", label: "Customers", icon: Users },
 ];
 
 // Admin-only items
