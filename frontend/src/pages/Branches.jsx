@@ -99,6 +99,7 @@ const Branches = () => {
       location: branch.location,
       type: branch.type,
       address: branch.address || "",
+      is_primary: branch.is_primary || false,
     });
     setDialogOpen(true);
   };
