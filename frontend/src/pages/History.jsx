@@ -418,7 +418,7 @@ const History = () => {
                   mode="single"
                   selected={selectedDate}
                   onSelect={(date) => date && setSelectedDate(date)}
-                  disabled={(date) => isAfter(date, today)}
+                  disabled={(date) => isAfter(date, yesterday)}
                   initialFocus
                 />
               </PopoverContent>
@@ -528,7 +528,7 @@ const History = () => {
                       mode="single"
                       selected={fromDate}
                       onSelect={setFromDate}
-                      disabled={(date) => isAfter(date, today)}
+                      disabled={(date) => isAfter(date, yesterday)}
                       initialFocus
                     />
                   </PopoverContent>
