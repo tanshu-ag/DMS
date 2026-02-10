@@ -262,7 +262,7 @@ const NewAppointment = () => {
                     value={formData.vehicle_reg_no}
                     onChange={(e) => setFormData({ ...formData, vehicle_reg_no: e.target.value.toUpperCase() })}
                     placeholder="KA01AB1234"
-                    className="rounded-sm font-mono uppercase pr-9"
+                    className="rounded-sm uppercase pr-9"
                     data-testid="input-vehicle-reg"
                   />
                   <button
@@ -283,7 +283,7 @@ const NewAppointment = () => {
                     value={formData.vin}
                     onChange={(e) => setFormData({ ...formData, vin: e.target.value.toUpperCase() })}
                     placeholder="Vehicle Identification Number"
-                    className="rounded-sm font-mono uppercase pr-9"
+                    className="rounded-sm uppercase pr-9"
                     data-testid="input-vin"
                   />
                   <button
@@ -303,7 +303,7 @@ const NewAppointment = () => {
                   value={formData.engine_number}
                   onChange={(e) => setFormData({ ...formData, engine_number: e.target.value.toUpperCase() })}
                   placeholder="Engine serial number"
-                  className="rounded-sm font-mono uppercase"
+                  className="rounded-sm uppercase"
                   data-testid="input-engine-number"
                 />
               </div>
@@ -326,7 +326,7 @@ const NewAppointment = () => {
                   value={formData.current_km}
                   onChange={(e) => setFormData({ ...formData, current_km: e.target.value })}
                   placeholder="45000"
-                  className="rounded-sm font-mono"
+                  className="rounded-sm"
                   data-testid="input-km"
                 />
               </div>
