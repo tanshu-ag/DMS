@@ -43,6 +43,7 @@ const Branches = () => {
     location: "",
     type: "Service Center",
     address: "",
+    is_primary: false,
   });
 
   useEffect(() => {
