@@ -87,7 +87,6 @@ const SettingsOverview = () => {
             items={[
               { label: "Users", path: "/users", icon: Users },
               { label: "Roles", path: "/roles", icon: Shield },
-              { label: "Permissions", path: null, icon: Shield },
             ]}
           />
           <SettingCard
