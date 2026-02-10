@@ -24,9 +24,11 @@ Import and build out a Dealer Management System (DMS) from GitHub repo `https://
 3. **Other Settings Page** - Dynamic dropdown management (sources, service types, facilities, etc.)
 4. **Branches Page** - Branch CRUD with non-deletable primary branch
 5. **Roles Page** - UI-only display of user roles with Facility column
-6. **Customer Relations Navigation** - Restructured sidebar with Appointment, History, Vehicles sections
+6. **Customer Relations Navigation** - Restructured sidebar with Today, Upcoming, History, Vehicles sections
 7. **History Page** - Tabbed interface (Date, Month, Year, Custom Range) with filter pop-ups
-8. **Appointment (Today) Screen** ✅ (Feb 10, 2026) - Wide 16-column table with horizontal scrolling, "Rescheduled / Cancelled in N-1" secondary table, filters (Branch, Status, Outcome, Source, SA, CRE), all tested at 100%
+8. **Appointment (Today) Screen** - Wide 16-column table with horizontal scrolling, "Rescheduled / Cancelled in N-1" secondary table, filters
+9. **Upcoming Page** - Placeholder page for future scheduled appointments (Feb 10, 2026)
+10. **Sidebar Menu Update** - Renamed "Appointment" to "Today", added "Upcoming" submenu item (Feb 10, 2026)
 
 ### Key Data Models
 - **users**: `{ user_id, username, name, role, department, is_active, is_locked, module_access, ... }`
