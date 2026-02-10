@@ -114,6 +114,9 @@ const Roles = () => {
                   <span className="text-sm text-gray-600">{role.description}</span>
                 </TableCell>
                 <TableCell>
+                  <span className="text-sm text-gray-600">{role.facility || "—"}</span>
+                </TableCell>
+                <TableCell>
                   {role.isSystem ? (
                     <span className="text-gray-300">—</span>
                   ) : (
