@@ -6,7 +6,7 @@ import sys
 from datetime import datetime, timedelta
 
 class CRAppointmentAPITester:
-    def __init__(self, base_url="https://service-scheduler-cr.preview.emergentagent.com"):
+    def __init__(self, base_url="https://appointment-table-ui.preview.emergentagent.com"):
         self.base_url = base_url
         self.session = requests.Session()  # Use session to maintain cookies
         self.crm_user = None  # Will store CRM user data after login
