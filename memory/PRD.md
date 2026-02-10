@@ -27,8 +27,9 @@ Import and build out a Dealer Management System (DMS) from GitHub repo `https://
 6. **Customer Relations Navigation** - Restructured sidebar with Today, Upcoming, History, Vehicles sections
 7. **History Page** - Tabbed interface (Date, Month, Year, Custom Range) with filter pop-ups
 8. **Appointment (Today) Screen** - Wide 16-column table with horizontal scrolling, "Rescheduled / Cancelled in N-1" secondary table, filters
-9. **Upcoming Page** - Placeholder page for future scheduled appointments (Feb 10, 2026)
+9. **Upcoming Page** - Full table UI with date-grouped appointments, 16 columns, New Appointment button, filters (Feb 10, 2026)
 10. **Sidebar Menu Update** - Renamed "Appointment" to "Today", added "Upcoming" submenu item (Feb 10, 2026)
+11. **Today Page Update** - Removed "New Appointment" button (moved to Upcoming) (Feb 10, 2026)
 
 ### Key Data Models
 - **users**: `{ user_id, username, name, role, department, is_active, is_locked, module_access, ... }`
