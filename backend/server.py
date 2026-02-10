@@ -184,6 +184,7 @@ class SettingsUpdate(BaseModel):
     service_advisors: Optional[List[str]] = None
     sources: Optional[List[str]] = None
     service_types: Optional[List[str]] = None
+    vehicle_models: Optional[List[str]] = None
     n_minus_1_confirmation_statuses: Optional[List[str]] = None
     appointment_statuses: Optional[List[str]] = None
     appointment_day_outcomes: Optional[List[str]] = None
@@ -511,6 +512,7 @@ DEFAULT_SETTINGS = {
     "service_advisors": ["SA - John", "SA - Sarah", "SA - Mike"],
     "sources": ["SDR", "Incoming Call", "MYR", "Other"],
     "service_types": ["1FS", "2FS", "3FS", "PMS", "RR", "BP", "Others"],
+    "vehicle_models": ["Kwid", "Triber", "Kiger", "Duster", "Pulse", "Scala", "Lodgy", "Fluence", "Koleos"],
     "n_minus_1_confirmation_statuses": ["Pending", "Confirmed", "Not Reachable", "Rescheduled"],
     "appointment_statuses": ["Booked", "Confirmed", "Closed"],
     "appointment_day_outcomes": ["Reported", "Rescheduled", "Cancelled", "No-show"]
