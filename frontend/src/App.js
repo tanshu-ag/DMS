@@ -13,6 +13,7 @@ import YearView from "@/pages/YearView";
 import Appointment from "@/pages/Appointment";
 import History from "@/pages/History";
 import Vehicles from "@/pages/Vehicles";
+import Upcoming from "@/pages/Upcoming";
 import NewAppointment from "@/pages/NewAppointment";
 import AppointmentDetail from "@/pages/AppointmentDetail";
 import SettingsOverview from "@/pages/SettingsOverview";
