@@ -543,6 +543,80 @@ async def update_settings(request: Request, settings_data: SettingsUpdate):
     settings = await db.settings.find_one({"settings_id": "main"}, {"_id": 0})
     return settings
 
+# ============== BRANCHES ROUTES ==============
+
+class BranchCreate(BaseModel):
+    location: str
+    type: str
+    address: Optional[str] = None
+
+class BranchUpdate(BaseModel):
+    location: Optional[str] = None
+    type: Optional[str] = None
+    address: Optional[str] = None
+
+@api_router.get("/branches")
+async def get_branches(request: Request):
+    """Get all branches"""
+    await get_current_user(request)
+    branches = await db.branches.find({}, {"_id": 0}).to_list(100)
+    return branches
+
+@api_router.post("/branches", status_code=201)
+async def create_branch(request: Request, branch_data: BranchCreate):
+    """Create new branch (CRM only)"""
+    await require_role(request, ["CRM"])
+    
+    branch_id = f"branch_{uuid.uuid4().hex[:12]}"
+    new_branch = {
+        "branch_id": branch_id,
+        "location": branch_data.location,
+        "type": branch_data.type,
+        "address": branch_data.address,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.branches.insert_one(new_branch)
+    
+    # Return without _id
+    branch_response = {k: v for k, v in new_branch.items() if k != "_id"}
+    return branch_response
+
+@api_router.put("/branches/{branch_id}")
+async def update_branch(request: Request, branch_id: str, branch_data: BranchUpdate):
+    """Update branch (CRM only)"""
+    await require_role(request, ["CRM"])
+    
+    update_dict = {}
+    if branch_data.location is not None:
+        update_dict["location"] = branch_data.location
+    if branch_data.type is not None:
+        update_dict["type"] = branch_data.type
+    if branch_data.address is not None:
+        update_dict["address"] = branch_data.address
+    
+    if update_dict:
+        result = await db.branches.update_one(
+            {"branch_id": branch_id},
+            {"$set": update_dict}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Branch not found")
+    
+    return {"message": "Branch updated"}
+
+@api_router.delete("/branches/{branch_id}")
+async def delete_branch(request: Request, branch_id: str):
+    """Delete branch (CRM only)"""
+    await require_role(request, ["CRM"])
+    
+    result = await db.branches.delete_one({"branch_id": branch_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Branch not found")
+    
+    return {"message": "Branch deleted"}
+
 # ============== APPOINTMENTS ROUTES ==============
 
 async def check_duplicates(phone: str, vehicle_reg: Optional[str]) -> tuple:
