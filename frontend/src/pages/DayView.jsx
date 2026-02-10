@@ -132,10 +132,8 @@ const DayView = () => {
                 <TableCell className="text-sm font-medium whitespace-nowrap text-center">
                   {appt.appointment_time}
                 </TableCell>
-                <TableCell className="text-center">
-                  <Badge className={`${getSourceColor(appt.source)} rounded-sm text-xs font-medium border-0`}>
-                    {appt.source}
-                  </Badge>
+                <TableCell className="text-sm whitespace-nowrap text-center">
+                  {appt.source}
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
                   <div className="flex items-center gap-2">
