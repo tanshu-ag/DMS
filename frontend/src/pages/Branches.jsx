@@ -118,7 +118,7 @@ const Branches = () => {
 
   const resetForm = () => {
     setEditingBranch(null);
-    setFormData({ location: "", type: "Service Center", address: "" });
+    setFormData({ location: "", type: "Service Center", address: "", is_primary: false });
   };
 
   if (loading) {
