@@ -130,6 +130,8 @@ const Upcoming = () => {
       } else if (filters.dateRange === "14days") {
         const end = new Date(now); end.setDate(end.getDate() + 14);
         if (rowDate > end) return false;
+      } else if (filters.dateRange === "this_month") {
+        if (rowDate.getMonth() !== now.getMonth() || rowDate.getFullYear() !== now.getFullYear()) return false;
       }
       // 30days shows all
     }
