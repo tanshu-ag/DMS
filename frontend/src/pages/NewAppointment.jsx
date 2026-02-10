@@ -479,7 +479,7 @@ const NewAppointment = () => {
                             formData.appointment_time === slot.value
                               ? "bg-black text-white hover:bg-gray-800"
                               : slot.disabled
-                              ? "opacity-40 line-through"
+                              ? "bg-gray-100 text-gray-300 cursor-not-allowed border-gray-100"
                               : ""
                           }`}
                           onClick={() => setFormData({ ...formData, appointment_time: slot.value })}
