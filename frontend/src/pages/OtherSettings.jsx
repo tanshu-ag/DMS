@@ -229,4 +229,4 @@ const OtherSettings = () => {
   );
 };
 
-export default Settings;
+export default OtherSettings;
