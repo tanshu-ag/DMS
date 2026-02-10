@@ -79,9 +79,6 @@ const Branches = () => {
       console.error("Failed to load settings");
     }
   };
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
