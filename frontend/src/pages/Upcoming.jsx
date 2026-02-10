@@ -185,18 +185,18 @@ const Upcoming = () => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50">
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Time</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Customer Name</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Phone No</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Vehicle Reg No</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Model</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Service Type</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">SA</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Source</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Status</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">N-1 Status</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Docket Ready</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Actions</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Time</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Customer Name</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Phone No</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Vehicle Reg No</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Model</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Service Type</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">SA</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Source</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Status</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">N-1 Status</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Docket Ready</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -337,17 +337,17 @@ const Upcoming = () => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50">
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Date</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Time</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Customer Name</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Phone No</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Vehicle Reg No</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Model</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Service Type</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">SA</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Source</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Status</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Actions</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Date</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Time</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Customer Name</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Phone No</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Vehicle Reg No</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Model</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Service Type</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">SA</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Source</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Status</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

@@ -98,22 +98,22 @@ const DayView = () => {
       <Table>
         <TableHeader>
           <TableRow className="table-header bg-gray-50">
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Time</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Source</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Customer Name</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">PH. No</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Mail ID</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Veh Reg No</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Model</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Current KM</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">OTS No</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Type of Service</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Allocated SA Name</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Docket Readiness</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Status</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">CRE Name</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Lost Customer</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Remarks</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Time</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Source</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Customer Name</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">PH. No</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Mail ID</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Veh Reg No</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Model</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Current KM</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">OTS No</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Type of Service</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Allocated SA Name</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Docket Readiness</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Status</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">CRE Name</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Lost Customer</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Remarks</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
