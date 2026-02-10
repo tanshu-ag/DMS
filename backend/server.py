@@ -505,6 +505,7 @@ async def get_cres(request: Request):
 
 DEFAULT_SETTINGS = {
     "settings_id": "main",
+    "branch_types": ["Sales", "Aftersales"],
     "branches": ["Main Branch", "North Branch", "South Branch"],
     "service_advisors": ["SA - John", "SA - Sarah", "SA - Mike"],
     "sources": ["SDR", "Incoming Call", "MYR", "Other"],
