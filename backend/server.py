@@ -575,6 +575,7 @@ async def create_branch(request: Request, branch_data: BranchCreate):
         "location": branch_data.location,
         "type": branch_data.type,
         "address": branch_data.address,
+        "is_primary": branch_data.is_primary,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.branches.insert_one(new_branch)
