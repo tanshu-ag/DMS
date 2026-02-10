@@ -111,15 +111,6 @@ const Upcoming = () => {
     finally { setLoading(false); }
   };
 
-  const applyFilters = (rows) =>
-    rows.filter((r) => {
-      if (filters.service_type && r.service_type !== filters.service_type) return false;
-      if (filters.sa && r.sa !== filters.sa) return false;
-      if (filters.source && r.source !== filters.source) return false;
-      if (filters.status && r.status !== filters.status) return false;
-      return true;
-    });
-
   const tomorrowRows = demoData.filter((r) => r.date === TOMORROW_STR);
 
   // Filters apply only to future bookings
