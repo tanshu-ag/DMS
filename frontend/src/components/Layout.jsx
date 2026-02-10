@@ -68,7 +68,7 @@ const adminItems = [
 
 const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
   const [crOpen, setCrOpen] = useState(
-    currentPath === "/day" || currentPath === "/month" || currentPath === "/year"
+    currentPath.startsWith("/customer-relations")
   );
   
   const isActive = (path) => currentPath === path;
