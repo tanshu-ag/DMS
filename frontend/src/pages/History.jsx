@@ -63,8 +63,6 @@ const History = () => {
   });
   const [settings, setSettings] = useState({});
 
-  const today = startOfDay(new Date());
-
   useEffect(() => {
     if (activeTab) {
       setSearchParams({ tab: activeTab });
