@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -24,19 +25,40 @@ import {
   User,
   Car,
   Calendar,
-  Phone,
-  Mail,
+  Search,
   Clock,
 } from "lucide-react";
+
+// Time slots 10:00 AM – 4:00 PM, 30-min intervals
+const TIME_SLOTS = [
+  { value: "10:00", label: "10:00 AM", disabled: false },
+  { value: "10:30", label: "10:30 AM", disabled: false },
+  { value: "11:00", label: "11:00 AM", disabled: false },
+  { value: "11:30", label: "11:30 AM", disabled: false },
+  { value: "12:00", label: "12:00 PM", disabled: false },
+  { value: "12:30", label: "12:30 PM", disabled: false },
+  { value: "13:00", label: "1:00 PM", disabled: true },
+  { value: "13:30", label: "1:30 PM", disabled: true },
+  { value: "14:00", label: "2:00 PM", disabled: false },
+  { value: "14:30", label: "2:30 PM", disabled: false },
+  { value: "15:00", label: "3:00 PM", disabled: false },
+  { value: "15:30", label: "3:30 PM", disabled: false },
+  { value: "16:00", label: "4:00 PM", disabled: false },
+];
+
+const BASE_SERVICE_TYPES = ["1FS", "2FS", "3FS", "PMS", "RR", "BP", "Other"];
+const PMS_INTERVALS = ["30K PMS", "40K PMS", "50K PMS", "60K PMS", "70K PMS", "80K PMS", "90K PMS", "100K PMS", "110K PMS", "120K PMS", "130K PMS", "140K PMS", "150K PMS", "160K PMS", "170K PMS", "180K PMS", "190K PMS", "200K PMS"];
 
 const NewAppointment = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [settings, setSettings] = useState(null);
-  const [cres, setCres] = useState([]);
+  const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [duplicates, setDuplicates] = useState([]);
+  const [selectedServiceBase, setSelectedServiceBase] = useState("");
+  const [selectedPmsInterval, setSelectedPmsInterval] = useState("");
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -49,6 +71,8 @@ const NewAppointment = () => {
     customer_phone: "",
     customer_email: "",
     vehicle_reg_no: "",
+    vin: "",
+    engine_number: "",
     model: "",
     current_km: "",
     ots_recall: false,
@@ -56,19 +80,22 @@ const NewAppointment = () => {
     allocated_sa: "",
     specific_repair_request: "",
     priority_customer: false,
-    docket_readiness: false,
     recovered_lost_customer: false,
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [settingsRes, cresRes] = await Promise.all([
+        const [settingsRes, branchesRes] = await Promise.all([
           axios.get(`${API}/settings`, { withCredentials: true }),
-          axios.get(`${API}/users/cres`, { withCredentials: true }),
+          axios.get(`${API}/branches`, { withCredentials: true }),
         ]);
         setSettings(settingsRes.data);
-        setCres(cresRes.data);
+        // Filter branches: only Aftersales facility
+        const aftersalesBranches = branchesRes.data.filter(
+          (b) => b.type === "Aftersales"
+        );
+        setBranches(aftersalesBranches);
       } catch (error) {
         toast.error("Failed to load settings");
       } finally {
@@ -80,12 +107,10 @@ const NewAppointment = () => {
 
   const checkDuplicates = async () => {
     if (!formData.customer_phone && !formData.vehicle_reg_no) return;
-
     try {
       const params = new URLSearchParams();
       if (formData.customer_phone) params.append("phone", formData.customer_phone);
       if (formData.vehicle_reg_no) params.append("vehicle", formData.vehicle_reg_no);
-
       const response = await axios.get(
         `${API}/appointments/duplicates/check?${params}`,
         { withCredentials: true }
@@ -103,28 +128,43 @@ const NewAppointment = () => {
       }
     }, 500);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.customer_phone, formData.vehicle_reg_no]);
+
+  // Sync service type from base + PMS interval
+  useEffect(() => {
+    if (selectedServiceBase === "PMS" && selectedPmsInterval) {
+      setFormData((prev) => ({ ...prev, service_type: selectedPmsInterval }));
+    } else if (selectedServiceBase && selectedServiceBase !== "PMS") {
+      setFormData((prev) => ({ ...prev, service_type: selectedServiceBase }));
+      setSelectedPmsInterval("");
+    }
+  }, [selectedServiceBase, selectedPmsInterval]);
+
+  const handleSearchVin = () => {
+    toast.info("No linked data found.");
+  };
+
+  const handleSearchReg = () => {
+    toast.info("No linked data found.");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!formData.branch || !formData.appointment_time || !formData.source ||
         !formData.customer_name || !formData.customer_phone || !formData.service_type) {
       toast.error("Please fill all required fields");
       return;
     }
-
     setSaving(true);
     try {
       const payload = {
         ...formData,
         current_km: formData.current_km ? parseInt(formData.current_km) : null,
       };
-
       const response = await axios.post(`${API}/appointments`, payload, {
         withCredentials: true,
       });
-
       toast.success("Appointment created successfully");
       navigate(`/appointments/${response.data.appointment_id}`);
     } catch (error) {
@@ -133,6 +173,9 @@ const NewAppointment = () => {
       setSaving(false);
     }
   };
+
+  // Get display label for selected time
+  const selectedTimeLabel = TIME_SLOTS.find((s) => s.value === formData.appointment_time)?.label || "";
 
   if (loading) {
     return (
@@ -183,7 +226,7 @@ const NewAppointment = () => {
                   <div>
                     <p className="font-medium">{d.customer_name}</p>
                     <p className="text-xs text-gray-500 font-mono">
-                      {d.customer_phone} • {d.vehicle_reg_no}
+                      {d.customer_phone} {d.vehicle_reg_no && `• ${d.vehicle_reg_no}`}
                     </p>
                   </div>
                   <Badge variant="outline" className="rounded-sm text-xs font-mono">
@@ -197,110 +240,96 @@ const NewAppointment = () => {
       )}
 
       <form onSubmit={handleSubmit}>
-        {/* Required Fields */}
+        {/* 1. Vehicle Information */}
         <Card className="border border-gray-200 rounded-sm shadow-none mb-6">
           <CardHeader className="border-b border-gray-100 pb-4">
             <CardTitle className="font-heading font-bold text-lg tracking-tight uppercase flex items-center gap-2">
-              <Calendar className="w-5 h-5" strokeWidth={1.5} />
-              Required Information
+              <Car className="w-5 h-5" strokeWidth={1.5} />
+              Vehicle Information
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid md:grid-cols-3 gap-6">
               <div>
-                <Label className="form-label">Branch *</Label>
-                <Select
-                  value={formData.branch}
-                  onValueChange={(v) => setFormData({ ...formData, branch: v })}
-                >
-                  <SelectTrigger className="rounded-sm" data-testid="input-branch">
-                    <SelectValue placeholder="Select branch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {settings?.branches?.map((b) => (
-                      <SelectItem key={b} value={b}>{b}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="form-label">Registration No</Label>
+                <div className="relative">
+                  <Input
+                    value={formData.vehicle_reg_no}
+                    onChange={(e) => setFormData({ ...formData, vehicle_reg_no: e.target.value.toUpperCase() })}
+                    placeholder="KA01AB1234"
+                    className="rounded-sm font-mono uppercase pr-9"
+                    data-testid="input-vehicle-reg"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSearchReg}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
+                    data-testid="search-reg-btn"
+                  >
+                    <Search className="w-4 h-4" strokeWidth={1.5} />
+                  </button>
+                </div>
               </div>
 
               <div>
-                <Label className="form-label">Date *</Label>
+                <Label className="form-label">VIN</Label>
+                <div className="relative">
+                  <Input
+                    value={formData.vin}
+                    onChange={(e) => setFormData({ ...formData, vin: e.target.value.toUpperCase() })}
+                    placeholder="Vehicle Identification Number"
+                    className="rounded-sm font-mono uppercase pr-9"
+                    data-testid="input-vin"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSearchVin}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
+                    data-testid="search-vin-btn"
+                  >
+                    <Search className="w-4 h-4" strokeWidth={1.5} />
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <Label className="form-label">Engine Number</Label>
                 <Input
-                  type="date"
-                  value={formData.appointment_date}
-                  onChange={(e) => setFormData({ ...formData, appointment_date: e.target.value })}
-                  className="rounded-sm"
-                  data-testid="input-date"
+                  value={formData.engine_number}
+                  onChange={(e) => setFormData({ ...formData, engine_number: e.target.value.toUpperCase() })}
+                  placeholder="Engine serial number"
+                  className="rounded-sm font-mono uppercase"
+                  data-testid="input-engine-number"
                 />
               </div>
 
               <div>
-                <Label className="form-label">Time *</Label>
+                <Label className="form-label">Model</Label>
                 <Input
-                  type="time"
-                  value={formData.appointment_time}
-                  onChange={(e) => setFormData({ ...formData, appointment_time: e.target.value })}
+                  value={formData.model}
+                  onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                  placeholder="Kwid, Duster, etc."
                   className="rounded-sm"
-                  data-testid="input-time"
+                  data-testid="input-model"
                 />
               </div>
 
               <div>
-                <Label className="form-label">Source *</Label>
-                <Select
-                  value={formData.source}
-                  onValueChange={(v) => setFormData({ ...formData, source: v })}
-                >
-                  <SelectTrigger className="rounded-sm" data-testid="input-source">
-                    <SelectValue placeholder="Select source" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {settings?.sources?.map((s) => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label className="form-label">Service Type *</Label>
-                <Select
-                  value={formData.service_type}
-                  onValueChange={(v) => setFormData({ ...formData, service_type: v })}
-                >
-                  <SelectTrigger className="rounded-sm" data-testid="input-service-type">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {settings?.service_types?.map((t) => (
-                      <SelectItem key={t} value={t}>{t}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label className="form-label">Service Advisor</Label>
-                <Select
-                  value={formData.allocated_sa}
-                  onValueChange={(v) => setFormData({ ...formData, allocated_sa: v })}
-                >
-                  <SelectTrigger className="rounded-sm" data-testid="input-sa">
-                    <SelectValue placeholder="Assign SA" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {settings?.service_advisors?.map((sa) => (
-                      <SelectItem key={sa} value={sa}>{sa}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="form-label">Current KM</Label>
+                <Input
+                  type="number"
+                  value={formData.current_km}
+                  onChange={(e) => setFormData({ ...formData, current_km: e.target.value })}
+                  placeholder="45000"
+                  className="rounded-sm font-mono"
+                  data-testid="input-km"
+                />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Customer Info */}
+        {/* 2. Customer Information */}
         <Card className="border border-gray-200 rounded-sm shadow-none mb-6">
           <CardHeader className="border-b border-gray-100 pb-4">
             <CardTitle className="font-heading font-bold text-lg tracking-tight uppercase flex items-center gap-2">
@@ -347,54 +376,167 @@ const NewAppointment = () => {
           </CardContent>
         </Card>
 
-        {/* Vehicle Info */}
+        {/* 3. Required Information */}
         <Card className="border border-gray-200 rounded-sm shadow-none mb-6">
           <CardHeader className="border-b border-gray-100 pb-4">
             <CardTitle className="font-heading font-bold text-lg tracking-tight uppercase flex items-center gap-2">
-              <Car className="w-5 h-5" strokeWidth={1.5} />
-              Vehicle Information
+              <Calendar className="w-5 h-5" strokeWidth={1.5} />
+              Required Information
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid md:grid-cols-3 gap-6">
               <div>
-                <Label className="form-label">Registration No</Label>
-                <Input
-                  value={formData.vehicle_reg_no}
-                  onChange={(e) => setFormData({ ...formData, vehicle_reg_no: e.target.value.toUpperCase() })}
-                  placeholder="KA01AB1234"
-                  className="rounded-sm font-mono uppercase"
-                  data-testid="input-vehicle-reg"
-                />
+                <Label className="form-label">Branch *</Label>
+                <Select
+                  value={formData.branch}
+                  onValueChange={(v) => setFormData({ ...formData, branch: v })}
+                >
+                  <SelectTrigger className="rounded-sm" data-testid="input-branch">
+                    <SelectValue placeholder="Select branch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {branches.length === 0 ? (
+                      <div className="px-3 py-2 text-sm text-gray-400">
+                        No Aftersales branches found
+                      </div>
+                    ) : (
+                      branches.map((b) => (
+                        <SelectItem key={b.branch_id} value={b.location}>
+                          {b.location}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
-                <Label className="form-label">Model</Label>
+                <Label className="form-label">Date *</Label>
                 <Input
-                  value={formData.model}
-                  onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                  placeholder="Kwid, Duster, etc."
+                  type="date"
+                  value={formData.appointment_date}
+                  onChange={(e) => setFormData({ ...formData, appointment_date: e.target.value })}
                   className="rounded-sm"
-                  data-testid="input-model"
+                  data-testid="input-date"
                 />
               </div>
 
               <div>
-                <Label className="form-label">Current KM</Label>
-                <Input
-                  type="number"
-                  value={formData.current_km}
-                  onChange={(e) => setFormData({ ...formData, current_km: e.target.value })}
-                  placeholder="45000"
-                  className="rounded-sm font-mono"
-                  data-testid="input-km"
-                />
+                <Label className="form-label">Time Slot *</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full rounded-sm justify-start font-normal text-sm h-10"
+                      data-testid="input-time-slot"
+                    >
+                      <Clock className="w-4 h-4 mr-2 text-gray-400" strokeWidth={1.5} />
+                      {selectedTimeLabel || <span className="text-gray-500">Select time slot</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[280px] p-3 rounded-sm" align="start">
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {TIME_SLOTS.map((slot) => (
+                        <Button
+                          key={slot.value}
+                          type="button"
+                          variant={formData.appointment_time === slot.value ? "default" : "outline"}
+                          size="sm"
+                          disabled={slot.disabled}
+                          className={`rounded-sm text-xs font-mono h-8 ${
+                            formData.appointment_time === slot.value
+                              ? "bg-black text-white hover:bg-gray-800"
+                              : slot.disabled
+                              ? "opacity-40 line-through"
+                              : ""
+                          }`}
+                          onClick={() => setFormData({ ...formData, appointment_time: slot.value })}
+                          data-testid={`slot-${slot.value}`}
+                        >
+                          {slot.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div>
+                <Label className="form-label">Source *</Label>
+                <Select
+                  value={formData.source}
+                  onValueChange={(v) => setFormData({ ...formData, source: v })}
+                >
+                  <SelectTrigger className="rounded-sm" data-testid="input-source">
+                    <SelectValue placeholder="Select source" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {settings?.sources?.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="form-label">Service Type *</Label>
+                <Select
+                  value={selectedServiceBase}
+                  onValueChange={(v) => setSelectedServiceBase(v)}
+                >
+                  <SelectTrigger className="rounded-sm" data-testid="input-service-type">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BASE_SERVICE_TYPES.map((t) => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* PMS Interval sub-dropdown */}
+              {selectedServiceBase === "PMS" && (
+                <div>
+                  <Label className="form-label">PMS Interval *</Label>
+                  <Select
+                    value={selectedPmsInterval}
+                    onValueChange={(v) => setSelectedPmsInterval(v)}
+                  >
+                    <SelectTrigger className="rounded-sm" data-testid="input-pms-interval">
+                      <SelectValue placeholder="Select interval" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PMS_INTERVALS.map((p) => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              <div>
+                <Label className="form-label">Service Advisor</Label>
+                <Select
+                  value={formData.allocated_sa}
+                  onValueChange={(v) => setFormData({ ...formData, allocated_sa: v })}
+                >
+                  <SelectTrigger className="rounded-sm" data-testid="input-sa">
+                    <SelectValue placeholder="Assign SA" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {settings?.service_advisors?.map((sa) => (
+                      <SelectItem key={sa} value={sa}>{sa}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Additional Info */}
+        {/* 4. Additional Details (no DocketReady) */}
         <Card className="border border-gray-200 rounded-sm shadow-none mb-6">
           <CardHeader className="border-b border-gray-100 pb-4">
             <CardTitle className="font-heading font-bold text-lg tracking-tight uppercase">
@@ -414,7 +556,7 @@ const NewAppointment = () => {
                 />
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid md:grid-cols-3 gap-6">
                 <div className="flex items-center justify-between p-4 border border-gray-200 rounded-sm">
                   <div>
                     <p className="text-sm font-medium">OTS/Recall</p>
@@ -436,18 +578,6 @@ const NewAppointment = () => {
                     checked={formData.priority_customer}
                     onCheckedChange={(v) => setFormData({ ...formData, priority_customer: v })}
                     data-testid="switch-priority"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-sm">
-                  <div>
-                    <p className="text-sm font-medium">Docket Ready</p>
-                    <p className="text-xs text-gray-500">Documents prepared</p>
-                  </div>
-                  <Switch
-                    checked={formData.docket_readiness}
-                    onCheckedChange={(v) => setFormData({ ...formData, docket_readiness: v })}
-                    data-testid="switch-docket"
                   />
                 </div>
 
