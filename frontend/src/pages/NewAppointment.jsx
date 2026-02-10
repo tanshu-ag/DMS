@@ -357,13 +357,30 @@ const NewAppointment = () => {
 
               <div>
                 <Label className="form-label">Phone Number *</Label>
-                <Input
-                  value={formData.customer_phone}
-                  onChange={(e) => setFormData({ ...formData, customer_phone: e.target.value })}
-                  placeholder="10-digit mobile"
-                  className="rounded-sm font-mono"
-                  data-testid="input-customer-phone"
-                />
+                <div className="flex gap-1.5">
+                  <Select
+                    value={formData.country_code}
+                    onValueChange={(v) => setFormData({ ...formData, country_code: v })}
+                  >
+                    <SelectTrigger className="rounded-sm w-[88px] shrink-0" data-testid="input-country-code">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COUNTRY_CODES.map((c) => (
+                        <SelectItem key={c.code} value={c.code}>
+                          {c.code}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    value={formData.customer_phone}
+                    onChange={(e) => setFormData({ ...formData, customer_phone: e.target.value })}
+                    placeholder="10-digit mobile"
+                    className="rounded-sm"
+                    data-testid="input-customer-phone"
+                  />
+                </div>
               </div>
 
               <div className="md:col-span-2">
