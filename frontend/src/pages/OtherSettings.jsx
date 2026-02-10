@@ -93,6 +93,12 @@ const OtherSettings = () => {
 
   const settingsConfig = [
     {
+      key: "branch_types",
+      label: "Branch Types",
+      icon: MapPin,
+      description: "Sales, Aftersales, etc.",
+    },
+    {
       key: "service_advisors",
       label: "Service Advisors",
       icon: Users,
