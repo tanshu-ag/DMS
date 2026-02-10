@@ -549,11 +549,13 @@ class BranchCreate(BaseModel):
     location: str
     type: str
     address: Optional[str] = None
+    is_primary: bool = False
 
 class BranchUpdate(BaseModel):
     location: Optional[str] = None
     type: Optional[str] = None
     address: Optional[str] = None
+    is_primary: Optional[bool] = None
 
 @api_router.get("/branches")
 async def get_branches(request: Request):
