@@ -95,9 +95,9 @@ const OtherSettings = () => {
   const settingsConfig = [
     {
       key: "branch_types",
-      label: "Branch Types",
+      label: "Facility",
       icon: MapPin,
-      description: "Sales, Aftersales, etc.",
+      description: "Facilities / locations types for roles",
     },
     {
       key: "service_advisors",
