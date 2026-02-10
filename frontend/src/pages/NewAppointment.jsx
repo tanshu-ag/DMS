@@ -36,7 +36,6 @@ const TIME_SLOTS = [
   { value: "11:00", label: "11:00 AM", disabled: false },
   { value: "11:30", label: "11:30 AM", disabled: false },
   { value: "12:00", label: "12:00 PM", disabled: false },
-  { value: "12:30", label: "12:30 PM", disabled: false },
   { value: "13:00", label: "1:00 PM", disabled: true },
   { value: "13:30", label: "1:30 PM", disabled: true },
   { value: "14:00", label: "2:00 PM", disabled: false },
@@ -48,6 +47,11 @@ const TIME_SLOTS = [
 
 const BASE_SERVICE_TYPES = ["1FS", "2FS", "3FS", "PMS", "RR", "BP", "Other"];
 const PMS_INTERVALS = ["30K PMS", "40K PMS", "50K PMS", "60K PMS", "70K PMS", "80K PMS", "90K PMS", "100K PMS", "110K PMS", "120K PMS", "130K PMS", "140K PMS", "150K PMS", "160K PMS", "170K PMS", "180K PMS", "190K PMS", "200K PMS"];
+const COUNTRY_CODES = [
+  { code: "+91", country: "India" },
+  { code: "+977", country: "Nepal" },
+  { code: "+975", country: "Bhutan" },
+];
 
 const NewAppointment = () => {
   const { user } = useAuth();
