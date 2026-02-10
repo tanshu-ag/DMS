@@ -220,7 +220,7 @@ const History = () => {
             appointments.map((apt) => (
               <TableRow key={apt.appointment_id} className="hover:bg-gray-50">
                 <TableCell className="text-sm">
-                  {format(new Date(apt.appointment_date + "T00:00:00"), "dd MMM yyyy")}
+                  {format(new Date(apt.appointment_date + "T00:00:00"), "dd-MM-yyyy")}
                 </TableCell>
                 <TableCell className="font-medium">{apt.customer_name}</TableCell>
                 <TableCell className="text-sm">{apt.vehicle_reg || apt.vehicle_reg_no || "-"}</TableCell>

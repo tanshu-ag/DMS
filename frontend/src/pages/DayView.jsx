@@ -47,6 +47,7 @@ const DayView = () => {
   const [cres, setCres] = useState([]);
 
   const today = new Date().toISOString().split("T")[0];
+  const todayDisplay = today.split("-").reverse().join("-");
 
   useEffect(() => {
     fetchData();
@@ -252,7 +253,7 @@ const DayView = () => {
           <h1 className="font-heading font-black text-3xl md:text-4xl tracking-tighter uppercase">
             Today
           </h1>
-          <p className="text-sm text-gray-500 font-mono mt-1">{today}</p>
+          <p className="text-sm text-gray-500 font-mono mt-1">{todayDisplay}</p>
         </div>
         <Button
           variant="outline"

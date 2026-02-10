@@ -74,8 +74,8 @@ const getSourceColor = (source) => {
 };
 
 const formatDateDisplay = (dateStr) => {
-  const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  const parts = dateStr.split("-");
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
 };
 
 const Upcoming = () => {
