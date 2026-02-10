@@ -48,6 +48,7 @@ const mainNavItems = [
 // Customer Relations submenu items
 const crSubmenuItems = [
   { path: "/customer-relations/appointment", label: "Appointment", icon: CalendarDays },
+  { path: "/customer-relations/history", label: "History", icon: Calendar },
   { path: "/customer-relations/vehicles", label: "Vehicles", icon: Users },
 ];
 
