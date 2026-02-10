@@ -156,7 +156,8 @@ const NewAppointment = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.branch || !formData.appointment_time || !formData.source ||
+    if (!formData.vehicle_reg_no || !formData.model || !formData.current_km ||
+        !formData.branch || !formData.appointment_time || !formData.source ||
         !formData.customer_name || !formData.customer_phone || !formData.service_type) {
       toast.error("Please fill all required fields");
       return;
