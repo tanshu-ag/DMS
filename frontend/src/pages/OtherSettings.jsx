@@ -29,6 +29,7 @@ const OtherSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [newItems, setNewItems] = useState({
+    branch_types: "",
     branches: "",
     service_advisors: "",
     sources: "",
