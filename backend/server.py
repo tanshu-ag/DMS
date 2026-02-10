@@ -795,6 +795,8 @@ async def get_appointments(
         start = f"{year}-01-01"
         end = f"{year + 1}-01-01"
         query["appointment_date"] = {"$gte": start, "$lt": end}
+    elif view == "custom" and date_from and date_to:
+        query["appointment_date"] = {"$gte": date_from, "$lte": date_to}
     
     # Apply filters
     if branch:
