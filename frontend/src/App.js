@@ -15,6 +15,7 @@ import AppointmentDetail from "@/pages/AppointmentDetail";
 import SettingsOverview from "@/pages/SettingsOverview";
 import OtherSettings from "@/pages/OtherSettings";
 import Branches from "@/pages/Branches";
+import Roles from "@/pages/Roles";
 import UserManagement from "@/pages/UserManagement";
 import ComingSoon from "@/pages/ComingSoon";
 import Layout from "@/components/Layout";
