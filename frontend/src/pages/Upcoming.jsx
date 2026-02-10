@@ -209,24 +209,22 @@ const Upcoming = () => {
                 ) : (
                   tomorrowRows.map((row) => (
                     <TableRow key={row.id} className="hover:bg-gray-50">
-                      <TableCell className="text-sm font-medium whitespace-nowrap">{row.time}</TableCell>
+                      <TableCell className="text-sm font-medium whitespace-nowrap text-center">{row.time}</TableCell>
                       <TableCell className="text-sm font-medium whitespace-nowrap">{row.customer_name}</TableCell>
-                      <TableCell className="text-sm whitespace-nowrap">{row.phone}</TableCell>
-                      <TableCell className="text-sm font-medium whitespace-nowrap">{row.vehicle_reg}</TableCell>
-                      <TableCell className="text-sm whitespace-nowrap">{row.model}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-sm whitespace-nowrap text-center">{row.phone}</TableCell>
+                      <TableCell className="text-sm font-medium whitespace-nowrap text-center">{row.vehicle_reg}</TableCell>
+                      <TableCell className="text-sm whitespace-nowrap text-center">{row.model}</TableCell>
+                      <TableCell className="text-center">
                         <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.service_type}</Badge>
                       </TableCell>
-                      <TableCell className="text-sm whitespace-nowrap">{row.sa}</TableCell>
-                      <TableCell>
-                        <Badge className={`${getSourceColor(row.source)} rounded-sm text-xs font-medium border-0`}>{row.source}</Badge>
-                      </TableCell>
-                      <TableCell>
+                      <TableCell className="text-sm whitespace-nowrap text-center">{row.sa}</TableCell>
+                      <TableCell className="text-sm whitespace-nowrap text-center">{row.source}</TableCell>
+                      <TableCell className="text-center">
                         <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.status}</Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-center">
                         <Select value={row.n1_status || "Pending"} onValueChange={(v) => updateN1(row.id, v)}>
-                          <SelectTrigger className="h-7 w-[130px] rounded-sm text-xs border-0 p-0 pl-2" data-testid={`n1-select-${row.id}`}>
+                          <SelectTrigger className="h-7 w-[130px] rounded-sm text-xs border-0 p-0 pl-2 mx-auto" data-testid={`n1-select-${row.id}`}>
                             <Badge className={`${getN1Color(row.n1_status)} rounded-sm text-xs font-medium border-0 whitespace-nowrap`}>
                               {row.n1_status || "Pending"}
                             </Badge>
