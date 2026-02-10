@@ -176,57 +176,7 @@ const Upcoming = () => {
         </div>
       </div>
 
-      {/* Filters */}
-      <Card className="border border-gray-200 rounded-sm shadow-none">
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Filter className="w-4 h-4 text-gray-500" strokeWidth={1.5} />
-            <span className="text-xs font-mono uppercase tracking-wider text-gray-500">Filters</span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <Select value={filters.service_type || "all"} onValueChange={(v) => setFilters({ ...filters, service_type: v === "all" ? "" : v })}>
-              <SelectTrigger className="rounded-sm h-9 text-sm" data-testid="upcoming-filter-service-type"><SelectValue placeholder="Service Type" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                {settings?.service_types?.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filters.sa || "all"} onValueChange={(v) => setFilters({ ...filters, sa: v === "all" ? "" : v })}>
-              <SelectTrigger className="rounded-sm h-9 text-sm" data-testid="upcoming-filter-sa"><SelectValue placeholder="SA" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All SAs</SelectItem>
-                {settings?.service_advisors?.map((sa) => <SelectItem key={sa} value={sa}>{sa}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filters.source || "all"} onValueChange={(v) => setFilters({ ...filters, source: v === "all" ? "" : v })}>
-              <SelectTrigger className="rounded-sm h-9 text-sm" data-testid="upcoming-filter-source"><SelectValue placeholder="Source" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Sources</SelectItem>
-                {settings?.sources?.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={filters.status || "all"} onValueChange={(v) => setFilters({ ...filters, status: v === "all" ? "" : v })}>
-              <SelectTrigger className="rounded-sm h-9 text-sm" data-testid="upcoming-filter-status"><SelectValue placeholder="Status" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Scheduled">Scheduled</SelectItem>
-                <SelectItem value="Confirmed">Confirmed</SelectItem>
-                <SelectItem value="Rescheduled">Rescheduled</SelectItem>
-                <SelectItem value="Cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={filters.branch || "all"} onValueChange={(v) => setFilters({ ...filters, branch: v === "all" ? "" : v })}>
-              <SelectTrigger className="rounded-sm h-9 text-sm" data-testid="upcoming-filter-branch"><SelectValue placeholder="Branch" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Branches</SelectItem>
-                {settings?.branches?.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </Card>
-
-      {/* Section 1: Tomorrow Prep */}
+      {/* Section 1: Tomorrow Prep — no filters */}
       <div className="space-y-3" data-testid="tomorrow-section">
         <h2 className="font-heading font-bold text-lg tracking-tight uppercase">
           Tomorrow Prep (N-1 &amp; Docket)
