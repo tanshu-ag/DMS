@@ -757,6 +757,8 @@ async def get_appointments(
     date: str = None,
     month: int = None,
     year: int = None,
+    date_from: str = None,
+    date_to: str = None,
     branch: str = None,
     source: str = None,
     service_type: str = None,
