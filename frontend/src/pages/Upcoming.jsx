@@ -94,6 +94,7 @@ const Upcoming = () => {
   const [demoData, setDemoData] = useState(INITIAL_DATA);
   const [filters, setFilters] = useState({
     branch: "",
+    dateRange: "",
     service_type: "",
     sa: "",
     source: "",
