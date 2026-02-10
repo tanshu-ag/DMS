@@ -368,13 +368,16 @@ const NewAppointment = () => {
                     value={formData.country_code}
                     onValueChange={(v) => setFormData({ ...formData, country_code: v })}
                   >
-                    <SelectTrigger className="rounded-sm w-[88px] shrink-0" data-testid="input-country-code">
-                      <SelectValue />
+                    <SelectTrigger className="rounded-sm w-[100px] shrink-0" data-testid="input-country-code">
+                      <SelectValue>
+                        {COUNTRY_CODES.find((c) => c.code === formData.country_code)?.flag}{" "}
+                        {formData.country_code}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {COUNTRY_CODES.map((c) => (
                         <SelectItem key={c.code} value={c.code}>
-                          {c.code}
+                          {c.flag} {c.code}
                         </SelectItem>
                       ))}
                     </SelectContent>
