@@ -1,103 +1,66 @@
-# Dealer Management System - PRD
+# DMS - Dealer Management System PRD
 
 ## Original Problem Statement
-Build a "Dealer Management System" for Bohania Renault with CR Appointments as one module. Role-based access with username/password authentication.
-Team structure: 1 Receptionist + multiple CRE + 1 CRM (manager).
+Import and build out a Dealer Management System (DMS) from GitHub repo `https://github.com/tanshu-ag/DMS`. The application manages dealer operations including appointments, customer relations, user management, settings, and branches.
 
-## User Personas
-1. **CRE (Customer Relationship Executive)** - Creates appointments, manages their own appointments, updates N-1 confirmation status
-2. **Receptionist** - Views all appointments, updates day outcomes on appointment day, assigns Service Advisors
-3. **CRM (Admin/Manager)** - Full admin access, manages settings, reassigns appointments, exports reports, manages users
+## Tech Stack
+- **Frontend**: React, Tailwind CSS, Shadcn UI
+- **Backend**: FastAPI, Python
+- **Database**: MongoDB (async Motor driver)
+- **Architecture**: SPA with RESTful backend API
 
 ## Core Requirements
-- Username/password authentication (no Google OAuth)
-- Role-based access control (CRE, Receptionist, CRM)
-- Appointment CRUD with activity logging
-- Day/Month/Year views with filtering
-- N-1 confirmation workflow
-- Configurable dropdown settings
+- User Management with role-based access (DP, CRM, CRE, Receptionist)
+- Appointment scheduling and tracking with N-1 confirmation workflow
+- Customer Relations module (Appointment, History, Vehicles)
+- Settings management (branches, service types, sources, etc.)
 - Dashboard with statistics
-- CSV export
 
-## What's Been Implemented (Feb 5, 2026)
+## What's Been Implemented
 
-### Navigation Structure (Updated)
-- [x] **Sidebar Menu**: Dashboard, Customer Relations (collapsible), Parts, Bodyshop, Mechanical, Insurance, HR, Customers
-- [x] **Customer Relations Submenu**: Today, Month View, Year View (collapsible dropdown)
-- [x] **Admin Section**: Settings and Users (CRM role only)
-- [x] **Dashboard Top Tabs**: Quick navigation to all modules
-- [x] **Coming Soon Pages**: Parts, Bodyshop, Mechanical, Insurance, HR, Customers
-- [x] **NouvelR Font**: Applied globally throughout the app
+### Completed Features
+1. **User Management Page** - Full CRUD, active/inactive tabs, lock/unlock, password reset, admin protection
+2. **Settings Overview** - Zoho-inspired landing page
+3. **Other Settings Page** - Dynamic dropdown management (sources, service types, facilities, etc.)
+4. **Branches Page** - Branch CRUD with non-deletable primary branch
+5. **Roles Page** - UI-only display of user roles with Facility column
+6. **Customer Relations Navigation** - Restructured sidebar with Appointment, History, Vehicles sections
+7. **History Page** - Tabbed interface (Date, Month, Year, Custom Range) with filter pop-ups
+8. **Appointment (Today) Screen** ✅ (Feb 10, 2026) - Wide 16-column table with horizontal scrolling, "Rescheduled / Cancelled in N-1" secondary table, filters (Branch, Status, Outcome, Source, SA, CRE), all tested at 100%
 
-### Backend (FastAPI)
-- [x] Username/Password authentication with secure hashing
-- [x] Session-based authorization with cookies
-- [x] Role-based permissions
-- [x] User management (CRUD with password reset)
-- [x] Settings management (configurable dropdowns)
-- [x] Appointments CRUD with permissions
-- [x] Activity logging for all changes
-- [x] Dashboard statistics endpoint
-- [x] Tasks/reminders system
-- [x] CSV export
-- [x] Duplicate detection (phone/vehicle)
-- [x] Seed data endpoint
+### Key Data Models
+- **users**: `{ user_id, username, name, role, department, is_active, is_locked, module_access, ... }`
+- **appointments**: `{ appointment_id, branch, appointment_date, appointment_time, source, customer_name, customer_phone, vehicle_reg, vehicle_model, current_km, ots, service_type, allocated_sa, n_minus_1_confirmation, appointment_status, cre_name, lost_customer, rescheduled_in_n1, cancelled_in_n1, ... }`
+- **settings**: Single document with lists for dynamic dropdowns
+- **branches**: `{ branch_id, location, type, address, is_primary }`
 
-### Frontend (React)
-- [x] Login page with username/password form
-- [x] "Dealer Management System" branding
-- [x] Dashboard with widgets (today stats, pending tasks, source funnel)
-- [x] Sidebar with "CR Appointments" module label
-- [x] Day View (appointments grouped by branch, quick actions)
-- [x] Month View (table with filters, export)
-- [x] Year View (table with filters, export)
-- [x] New Appointment form (with duplicate warning)
-- [x] Appointment Detail page (role-based editing, activity log)
-- [x] Settings page (CRM only)
-- [x] User Management page (CRM only, with password management)
-- [x] Responsive sidebar navigation
+### Key API Endpoints
+- Auth: `/api/auth/login`, `/api/auth/me`, `/api/auth/logout`
+- Users: `/api/users` (GET/POST/PUT), `/api/users/{id}` (DELETE), `/api/users/{id}/lock`, `/api/users/{id}/reset-password`, `/api/users/cres`
+- Settings: `/api/settings` (GET/PUT)
+- Branches: `/api/branches` (GET/POST), `/api/branches/{id}` (PUT/DELETE)
+- Appointments: `/api/appointments` (GET/POST), `/api/appointments/{id}` (GET/PUT)
+- Dashboard: `/api/dashboard/stats`
 
-### Default Credentials
-- **Admin**: username=admin, password=admin
-- **Receptionist**: username=reception, password=reception123
-- **CRE 1**: username=cre1, password=cre123
-- **CRE 2**: username=cre2, password=cre123
+## Credentials
+- Admin: `admin` / `admin`
 
 ## Prioritized Backlog
 
-### P0 (Critical) - Done
-- Authentication flow
-- Appointment CRUD
-- Role-based permissions
-- Day/Month views
+### P1 - Next Up
+- Implement full Roles page functionality (backend endpoints + frontend CRUD for New Role, Edit, Clone, Delete)
+- Wire up History page tabs to fetch/display real appointment data
 
-### P1 (High) - Done
-- Activity logging
-- Settings management
-- Dashboard stats
-- CSV export
+### P2 - Medium Priority
+- Build out Vehicles page (define and implement functionality)
+- Verify/fix "Other Settings" page loading error (reported but unconfirmed)
 
-### P2 (Medium) - Partial
-- [x] N-1 reminder tasks
-- [ ] Escalation automation (cutoff time trigger)
-- [ ] PDF export (placeholder added)
+### P3 - Low Priority / Refactoring
+- Refactor `backend/server.py` into modular routers (users, appointments, settings, branches)
+- Clean up dead routes in `App.js` (old `/day-view`, `/month-view`, `/year-view`)
+- Break down `History.jsx` into smaller components
 
-### P3 (Nice to Have)
-- [ ] Email/SMS notifications
-- [ ] Calendar sync
-- [ ] Advanced reporting charts
-- [ ] Bulk import
-
-## Next Tasks
-1. Implement escalation automation for N-1 reminders
-2. Add PDF export functionality
-3. Enhance dashboard with more visualizations
-4. Add appointment rescheduling flow
-5. Implement email notifications (optional)
-
-## Technical Notes
-- Backend: FastAPI + MongoDB (Motor async driver)
-- Frontend: React 19 + Tailwind CSS + Shadcn UI
-- Auth: Emergent-managed Google OAuth
-- All API routes prefixed with `/api`
-- Environment variables in `.env` files
+## Known Issues
+- "Other Settings" page had a reported loading error - fix unconfirmed
+- Roles page is UI-only (no backend functionality)
+- Vehicles page is a "Coming Soon" placeholder
