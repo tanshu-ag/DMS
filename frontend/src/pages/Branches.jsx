@@ -254,7 +254,14 @@ const Branches = () => {
             ) : (
               branches.map((branch) => (
                 <TableRow key={branch.branch_id} className="hover:bg-gray-50">
-                  <TableCell className="font-medium">{branch.location}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      {branch.is_primary && (
+                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" strokeWidth={1.5} />
+                      )}
+                      <span>{branch.location}</span>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <span className="text-sm text-gray-600">{branch.type}</span>
                   </TableCell>
@@ -272,15 +279,17 @@ const Branches = () => {
                       >
                         <Edit2 className="w-4 h-4" strokeWidth={1.5} />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 rounded-sm text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => handleDelete(branch.branch_id)}
-                        data-testid={`delete-${branch.branch_id}`}
-                      >
-                        <Trash2 className="w-4 h-4" strokeWidth={1.5} />
-                      </Button>
+                      {!branch.is_primary && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 rounded-sm text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDelete(branch.branch_id)}
+                          data-testid={`delete-${branch.branch_id}`}
+                        >
+                          <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
