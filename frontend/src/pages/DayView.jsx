@@ -129,10 +129,10 @@ const DayView = () => {
                 key={appt.appointment_id}
                 className="hover:bg-gray-50"
               >
-                <TableCell className="text-sm font-medium whitespace-nowrap">
+                <TableCell className="text-sm font-medium whitespace-nowrap text-center">
                   {appt.appointment_time}
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-center">
                   <Badge className={`${getSourceColor(appt.source)} rounded-sm text-xs font-medium border-0`}>
                     {appt.source}
                   </Badge>
@@ -147,33 +147,33 @@ const DayView = () => {
                     <span className="font-medium">{appt.customer_name}</span>
                   </div>
                 </TableCell>
-                <TableCell className="text-sm font-mono whitespace-nowrap">
+                <TableCell className="text-sm whitespace-nowrap text-center">
                   {appt.customer_phone}
                 </TableCell>
-                <TableCell className="text-sm whitespace-nowrap">
+                <TableCell className="text-sm whitespace-nowrap text-center">
                   {appt.customer_email || "-"}
                 </TableCell>
-                <TableCell className="text-sm font-medium whitespace-nowrap">
+                <TableCell className="text-sm font-medium whitespace-nowrap text-center">
                   {appt.vehicle_reg}
                 </TableCell>
-                <TableCell className="text-sm whitespace-nowrap">
+                <TableCell className="text-sm whitespace-nowrap text-center">
                   {appt.vehicle_model}
                 </TableCell>
-                <TableCell className="text-sm whitespace-nowrap">
+                <TableCell className="text-sm whitespace-nowrap text-center">
                   {appt.current_km || "-"}
                 </TableCell>
-                <TableCell className="text-sm whitespace-nowrap">
+                <TableCell className="text-sm whitespace-nowrap text-center">
                   {appt.ots ? "Yes" : "No"}
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-center">
                   <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">
                     {appt.service_type}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-sm whitespace-nowrap">
+                <TableCell className="text-sm whitespace-nowrap text-center">
                   {appt.allocated_sa}
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-center">
                   <Badge 
                     className={`rounded-sm text-xs font-medium border-0 whitespace-nowrap ${
                       appt.docket_readiness ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
@@ -182,7 +182,7 @@ const DayView = () => {
                     {appt.docket_readiness ? "Yes" : "No"}
                   </Badge>
                 </TableCell>
-                <TableCell className="whitespace-nowrap">
+                <TableCell className="whitespace-nowrap text-center">
                   <div className="text-xs space-y-0.5">
                     <div>
                       <span className="font-medium">N-1:</span> {appt.n_minus_1_confirmation || "Pending"}
@@ -192,10 +192,10 @@ const DayView = () => {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-sm whitespace-nowrap">
+                <TableCell className="text-sm whitespace-nowrap text-center">
                   {appt.cre_name}
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-center">
                   <Badge 
                     className={`rounded-sm text-xs font-medium border-0 whitespace-nowrap ${
                       appt.lost_customer ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800"
@@ -204,7 +204,7 @@ const DayView = () => {
                     {appt.lost_customer ? "Yes" : "No"}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-center">
                   {appt.specific_repair ? (
                     <TooltipProvider>
                       <Tooltip>
