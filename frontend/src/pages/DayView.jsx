@@ -91,15 +91,7 @@ const DayView = () => {
     }
   };
 
-  const getSourceColor = (source) => {
-    const colors = {
-      "SDR": "bg-blue-100 text-blue-800",
-      "Incoming Call": "bg-green-100 text-green-800",
-      "MYR": "bg-purple-100 text-purple-800",
-      "Other": "bg-gray-100 text-gray-800",
-    };
-    return colors[source] || "bg-gray-100 text-gray-800";
-  };
+  const getSourceColor = () => "";
 
   const AppointmentTable = ({ appointments, showEmpty = true }) => (
     <div className="overflow-x-auto">
