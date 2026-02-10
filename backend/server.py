@@ -779,6 +779,8 @@ async def get_appointments(
     
     if view == "day":
         query["appointment_date"] = date or today
+    elif view == "upcoming":
+        query["appointment_date"] = {"$gt": today}
     elif view == "month" and month and year:
         # Get all dates in the month
         start = f"{year}-{month:02d}-01"

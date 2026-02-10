@@ -254,24 +254,15 @@ const DayView = () => {
           </h1>
           <p className="text-sm text-gray-500 font-mono mt-1">{today}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="rounded-sm"
-            onClick={fetchData}
-            data-testid="refresh-btn"
-          >
-            <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
-          </Button>
-          <Button
-            onClick={() => navigate("/new-appointment")}
-            className="bg-black text-white hover:bg-gray-800 rounded-sm font-mono text-xs uppercase tracking-wider"
-            data-testid="new-appointment-btn"
-          >
-            New Appointment
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-sm"
+          onClick={fetchData}
+          data-testid="refresh-btn"
+        >
+          <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
+        </Button>
       </div>
 
       {/* Filters */}
