@@ -97,7 +97,9 @@ const AppRouter = () => {
         <Route path="year" element={<YearView />} />
         <Route path="new-appointment" element={<NewAppointment />} />
         <Route path="appointments/:id" element={<AppointmentDetail />} />
-        <Route path="settings" element={<Settings />} />
+        <Route path="settings" element={<SettingsOverview />} />
+        <Route path="other-settings" element={<OtherSettings />} />
+        <Route path="branches" element={<Branches />} />
         <Route path="users" element={<UserManagement />} />
         {/* Coming Soon module pages */}
         <Route path="module/:module" element={<ComingSoon />} />
