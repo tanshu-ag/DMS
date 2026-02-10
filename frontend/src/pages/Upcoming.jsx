@@ -236,7 +236,7 @@ const Upcoming = () => {
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-center">
                         <button
                           type="button"
                           onClick={() => toggleDocket(row.id)}
@@ -248,7 +248,7 @@ const Upcoming = () => {
                           </Badge>
                         </button>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-center">
                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => toast.info("View appointment details")} data-testid={`view-btn-${row.id}`}>
                           <Eye className="w-4 h-4" strokeWidth={1.5} />
                         </Button>
