@@ -101,6 +101,7 @@ const AppRouter = () => {
         <Route path="settings" element={<SettingsOverview />} />
         <Route path="other-settings" element={<OtherSettings />} />
         <Route path="branches" element={<Branches />} />
+        <Route path="roles" element={<Roles />} />
         <Route path="users" element={<UserManagement />} />
         {/* Coming Soon module pages */}
         <Route path="module/:module" element={<ComingSoon />} />
