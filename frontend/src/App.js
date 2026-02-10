@@ -103,6 +103,7 @@ const AppRouter = () => {
         <Route path="year" element={<Navigate to="/customer-relations/history?tab=year" replace />} />
         {/* Customer Relations routes */}
         <Route path="customer-relations/appointment" element={<Appointment />} />
+        <Route path="customer-relations/upcoming" element={<Upcoming />} />
         <Route path="customer-relations/history" element={<History />} />
         <Route path="customer-relations/vehicles" element={<Vehicles />} />
         <Route path="new-appointment" element={<NewAppointment />} />
