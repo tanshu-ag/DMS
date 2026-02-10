@@ -37,9 +37,12 @@ import { Badge } from "@/components/ui/badge";
 const History = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "date");
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
-  const [selectedYear, setSelectedYear] = useState(new Date());
+  const today = startOfDay(new Date());
+  const yesterday = subDays(today, 1);
+
+  const [selectedDate, setSelectedDate] = useState(yesterday);
+  const [selectedMonth, setSelectedMonth] = useState(yesterday);
+  const [selectedYear, setSelectedYear] = useState(yesterday);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   const [dateAppointments, setDateAppointments] = useState([]);
@@ -169,21 +172,21 @@ const History = () => {
     else if (activeTab === "custom") fetchCustomRangeAppointments();
   };
 
-  // Date navigation
+  // Date navigation — history only goes up to yesterday
   const handlePrevDate = () => setSelectedDate(subDays(selectedDate, 1));
   const handleNextDate = () => {
     const newDate = addDays(selectedDate, 1);
-    if (!isAfter(newDate, today)) setSelectedDate(newDate);
+    if (!isAfter(newDate, yesterday)) setSelectedDate(newDate);
   };
-  const canGoForwardDate = !isAfter(addDays(selectedDate, 1), today);
+  const canGoForwardDate = !isAfter(addDays(selectedDate, 1), yesterday);
 
   // Month navigation
   const handlePrevMonth = () => setSelectedMonth(subMonths(selectedMonth, 1));
   const handleNextMonth = () => {
     const newMonth = addMonths(selectedMonth, 1);
-    if (!isAfter(startOfMonth(newMonth), startOfMonth(today))) setSelectedMonth(newMonth);
+    if (!isAfter(startOfMonth(newMonth), startOfMonth(yesterday))) setSelectedMonth(newMonth);
   };
-  const canGoForwardMonth = !isAfter(startOfMonth(addMonths(selectedMonth, 1)), startOfMonth(today));
+  const canGoForwardMonth = !isAfter(startOfMonth(addMonths(selectedMonth, 1)), startOfMonth(yesterday));
 
   // Year navigation
   const handlePrevYear = () => setSelectedYear(subYears(selectedYear, 1));
