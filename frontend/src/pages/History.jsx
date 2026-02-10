@@ -46,6 +46,7 @@ const History = () => {
     if (activeTab === "date") {
       fetchDateAppointments();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate, activeTab]);
 
   const fetchDateAppointments = async () => {
