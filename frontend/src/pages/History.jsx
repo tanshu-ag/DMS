@@ -192,9 +192,9 @@ const History = () => {
   const handlePrevYear = () => setSelectedYear(subYears(selectedYear, 1));
   const handleNextYear = () => {
     const newYear = addYears(selectedYear, 1);
-    if (!isAfter(startOfYear(newYear), startOfYear(today))) setSelectedYear(newYear);
+    if (!isAfter(startOfYear(newYear), startOfYear(yesterday))) setSelectedYear(newYear);
   };
-  const canGoForwardYear = !isAfter(startOfYear(addYears(selectedYear, 1)), startOfYear(today));
+  const canGoForwardYear = !isAfter(startOfYear(addYears(selectedYear, 1)), startOfYear(yesterday));
 
   const updateFilter = (key, v) => {
     setFilters((prev) => ({ ...prev, [key]: v === "all" ? "" : v }));
