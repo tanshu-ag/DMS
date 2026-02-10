@@ -93,6 +93,7 @@ const Roles = () => {
             <TableRow className="table-header bg-gray-50">
               <TableHead className="text-xs">Role Name</TableHead>
               <TableHead className="text-xs">Description</TableHead>
+              <TableHead className="text-xs">Facility</TableHead>
               <TableHead className="text-xs w-24">Actions</TableHead>
             </TableRow>
           </TableHeader>
