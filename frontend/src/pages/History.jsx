@@ -9,7 +9,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -52,12 +51,11 @@ const History = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const { user } = useAuth();
 
-  // Filter states
+  // Filter state — keys match backend query params
   const [filters, setFilters] = useState({
-    cre: "",
     source: "",
-    serviceAdvisor: "",
-    serviceType: "",
+    sa: "",
+    service_type: "",
     status: "",
   });
   const [settings, setSettings] = useState({});
@@ -94,14 +92,18 @@ const History = () => {
     }
   };
 
+  const buildFilterParams = (params) => {
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) params.append(key, value);
+    });
+    return params;
+  };
+
   const fetchDateAppointments = async () => {
     setLoading(true);
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
-      const params = new URLSearchParams({ view: "day", date: dateStr });
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
-      });
+      const params = buildFilterParams(new URLSearchParams({ view: "day", date: dateStr }));
       const response = await axios.get(`${API}/appointments?${params}`, { withCredentials: true });
       setDateAppointments(response.data);
     } catch (error) {
@@ -116,10 +118,7 @@ const History = () => {
     try {
       const month = selectedMonth.getMonth() + 1;
       const year = selectedMonth.getFullYear();
-      const params = new URLSearchParams({ view: "month", month: month.toString(), year: year.toString() });
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
-      });
+      const params = buildFilterParams(new URLSearchParams({ view: "month", month: month.toString(), year: year.toString() }));
       const response = await axios.get(`${API}/appointments?${params}`, { withCredentials: true });
       setMonthAppointments(response.data);
     } catch (error) {
@@ -133,10 +132,7 @@ const History = () => {
     setLoading(true);
     try {
       const year = selectedYear.getFullYear();
-      const params = new URLSearchParams({ view: "year", year: year.toString() });
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
-      });
+      const params = buildFilterParams(new URLSearchParams({ view: "year", year: year.toString() }));
       const response = await axios.get(`${API}/appointments?${params}`, { withCredentials: true });
       setYearAppointments(response.data);
     } catch (error) {
@@ -156,10 +152,7 @@ const History = () => {
     try {
       const fromStr = format(fromDate, "yyyy-MM-dd");
       const toStr = format(toDate, "yyyy-MM-dd");
-      const params = new URLSearchParams({ from: fromStr, to: toStr });
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, value);
-      });
+      const params = buildFilterParams(new URLSearchParams({ view: "custom", date_from: fromStr, date_to: toStr }));
       const response = await axios.get(`${API}/appointments?${params}`, { withCredentials: true });
       setCustomRangeAppointments(response.data);
     } catch (error) {
@@ -200,6 +193,10 @@ const History = () => {
   };
   const canGoForwardYear = !isAfter(startOfYear(addYears(selectedYear, 1)), startOfYear(today));
 
+  const updateFilter = (key, v) => {
+    setFilters((prev) => ({ ...prev, [key]: v === "all" ? "" : v }));
+  };
+
   const AppointmentTable = ({ appointments }) => (
     <Card className="border border-gray-200 rounded-sm shadow-none overflow-hidden">
       <Table>
@@ -223,10 +220,10 @@ const History = () => {
             appointments.map((apt) => (
               <TableRow key={apt.appointment_id} className="hover:bg-gray-50">
                 <TableCell className="text-sm">
-                  {format(new Date(apt.appointment_date), "dd MMM yyyy")}
+                  {format(new Date(apt.appointment_date + "T00:00:00"), "dd MMM yyyy")}
                 </TableCell>
                 <TableCell className="font-medium">{apt.customer_name}</TableCell>
-                <TableCell className="text-sm">{apt.vehicle_reg || "-"}</TableCell>
+                <TableCell className="text-sm">{apt.vehicle_reg || apt.vehicle_reg_no || "-"}</TableCell>
                 <TableCell className="text-sm">{apt.service_type}</TableCell>
                 <TableCell>
                   <Badge variant="outline" className="rounded-sm">
@@ -252,31 +249,17 @@ const History = () => {
         <div className="grid grid-cols-2 gap-4 pt-4">
           <div>
             <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
-              CRE
-            </Label>
-            <Select value={filters.cre} onValueChange={(v) => setFilters({ ...filters, cre: v })}>
-              <SelectTrigger className="rounded-sm">
-                <SelectValue placeholder="All" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All</SelectItem>
-                {settings.service_advisors?.map((sa) => (
-                  <SelectItem key={sa} value={sa}>{sa}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
               Source
             </Label>
-            <Select value={filters.source} onValueChange={(v) => setFilters({ ...filters, source: v })}>
-              <SelectTrigger className="rounded-sm">
+            <Select
+              value={filters.source || "all"}
+              onValueChange={(v) => updateFilter("source", v)}
+            >
+              <SelectTrigger className="rounded-sm" data-testid="history-filter-source">
                 <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                 {settings.sources?.map((src) => (
                   <SelectItem key={src} value={src}>{src}</SelectItem>
                 ))}
@@ -288,12 +271,15 @@ const History = () => {
             <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
               Service Advisor
             </Label>
-            <Select value={filters.serviceAdvisor} onValueChange={(v) => setFilters({ ...filters, serviceAdvisor: v })}>
-              <SelectTrigger className="rounded-sm">
+            <Select
+              value={filters.sa || "all"}
+              onValueChange={(v) => updateFilter("sa", v)}
+            >
+              <SelectTrigger className="rounded-sm" data-testid="history-filter-sa">
                 <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                 {settings.service_advisors?.map((sa) => (
                   <SelectItem key={sa} value={sa}>{sa}</SelectItem>
                 ))}
@@ -305,12 +291,15 @@ const History = () => {
             <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
               Service Type
             </Label>
-            <Select value={filters.serviceType} onValueChange={(v) => setFilters({ ...filters, serviceType: v })}>
-              <SelectTrigger className="rounded-sm">
+            <Select
+              value={filters.service_type || "all"}
+              onValueChange={(v) => updateFilter("service_type", v)}
+            >
+              <SelectTrigger className="rounded-sm" data-testid="history-filter-service-type">
                 <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                 {settings.service_types?.map((st) => (
                   <SelectItem key={st} value={st}>{st}</SelectItem>
                 ))}
@@ -322,12 +311,15 @@ const History = () => {
             <Label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">
               Status
             </Label>
-            <Select value={filters.status} onValueChange={(v) => setFilters({ ...filters, status: v })}>
-              <SelectTrigger className="rounded-sm">
+            <Select
+              value={filters.status || "all"}
+              onValueChange={(v) => updateFilter("status", v)}
+            >
+              <SelectTrigger className="rounded-sm" data-testid="history-filter-status">
                 <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                 {settings.appointment_statuses?.map((st) => (
                   <SelectItem key={st} value={st}>{st}</SelectItem>
                 ))}
@@ -340,14 +332,16 @@ const History = () => {
             variant="outline"
             className="rounded-sm"
             onClick={() => {
-              setFilters({ cre: "", source: "", serviceAdvisor: "", serviceType: "", status: "" });
+              setFilters({ source: "", sa: "", service_type: "", status: "" });
             }}
+            data-testid="history-filter-clear"
           >
             Clear All
           </Button>
           <Button
             className="bg-black text-white hover:bg-gray-800 rounded-sm"
             onClick={() => setFilterOpen(false)}
+            data-testid="history-filter-apply"
           >
             Apply
           </Button>
@@ -357,7 +351,7 @@ const History = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6" data-testid="history-page">
       {/* Header with Refresh */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -378,6 +372,7 @@ const History = () => {
             size="icon"
             className="h-10 w-10 rounded-sm"
             onClick={() => setFilterOpen(true)}
+            data-testid="history-filter-btn"
           >
             <Filter className="w-4 h-4" strokeWidth={1.5} />
           </Button>
@@ -386,6 +381,7 @@ const History = () => {
             size="icon"
             className="h-10 w-10 rounded-sm"
             onClick={handleRefresh}
+            data-testid="history-refresh-btn"
           >
             <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
           </Button>
@@ -395,21 +391,21 @@ const History = () => {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full max-w-2xl grid-cols-4 mb-6">
-          <TabsTrigger value="date" className="rounded-sm">Date</TabsTrigger>
-          <TabsTrigger value="month" className="rounded-sm">Month</TabsTrigger>
-          <TabsTrigger value="year" className="rounded-sm">Year</TabsTrigger>
-          <TabsTrigger value="custom" className="rounded-sm">Custom Range</TabsTrigger>
+          <TabsTrigger value="date" className="rounded-sm" data-testid="history-tab-date">Date</TabsTrigger>
+          <TabsTrigger value="month" className="rounded-sm" data-testid="history-tab-month">Month</TabsTrigger>
+          <TabsTrigger value="year" className="rounded-sm" data-testid="history-tab-year">Year</TabsTrigger>
+          <TabsTrigger value="custom" className="rounded-sm" data-testid="history-tab-custom">Custom Range</TabsTrigger>
         </TabsList>
 
         {/* Date Tab */}
         <TabsContent value="date" className="mt-0 space-y-6">
           <div className="flex items-center justify-center gap-2">
-            <Button variant="ghost" size="icon" onClick={handlePrevDate} className="h-10 w-10 rounded-sm">
+            <Button variant="ghost" size="icon" onClick={handlePrevDate} className="h-10 w-10 rounded-sm" data-testid="date-prev-btn">
               <ChevronLeft className="w-5 h-5" strokeWidth={1.5} />
             </Button>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="min-w-[200px] rounded-sm font-mono text-sm">
+                <Button variant="outline" className="min-w-[200px] rounded-sm font-mono text-sm" data-testid="date-picker-btn">
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {format(selectedDate, "dd-MM-yyyy")}
                 </Button>
@@ -424,7 +420,7 @@ const History = () => {
                 />
               </PopoverContent>
             </Popover>
-            <Button variant="ghost" size="icon" onClick={handleNextDate} disabled={!canGoForwardDate} className="h-10 w-10 rounded-sm">
+            <Button variant="ghost" size="icon" onClick={handleNextDate} disabled={!canGoForwardDate} className="h-10 w-10 rounded-sm" data-testid="date-next-btn">
               <ChevronRight className="w-5 h-5" strokeWidth={1.5} />
             </Button>
           </div>
@@ -519,7 +515,7 @@ const History = () => {
                 </Label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full rounded-sm justify-start font-mono text-sm">
+                    <Button variant="outline" className="w-full rounded-sm justify-start font-mono text-sm" data-testid="custom-from-btn">
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {fromDate ? format(fromDate, "dd-MM-yyyy") : "Select date"}
                     </Button>
@@ -542,7 +538,7 @@ const History = () => {
                 </Label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full rounded-sm justify-start font-mono text-sm">
+                    <Button variant="outline" className="w-full rounded-sm justify-start font-mono text-sm" data-testid="custom-to-btn">
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {toDate ? format(toDate, "dd-MM-yyyy") : "Select date"}
                     </Button>
@@ -564,6 +560,7 @@ const History = () => {
                   onClick={fetchCustomRangeAppointments}
                   disabled={!fromDate || !toDate || loading}
                   className="w-full bg-black text-white hover:bg-gray-800 rounded-sm font-mono text-xs uppercase tracking-wider"
+                  data-testid="custom-apply-btn"
                 >
                   Apply
                 </Button>
