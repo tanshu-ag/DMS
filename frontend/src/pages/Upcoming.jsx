@@ -279,6 +279,7 @@ const Upcoming = () => {
                 <SelectItem value="7days">Next 7 Days</SelectItem>
                 <SelectItem value="14days">Next 14 Days</SelectItem>
                 <SelectItem value="30days">Next 30 Days</SelectItem>
+                <SelectItem value="this_month">This Month</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filters.service_type || "all"} onValueChange={(v) => setFilters({ ...filters, service_type: v === "all" ? "" : v })}>
