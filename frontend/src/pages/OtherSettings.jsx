@@ -22,7 +22,7 @@ import {
   Target,
 } from "lucide-react";
 
-const Settings = () => {
+const OtherSettings = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [settings, setSettings] = useState(null);
