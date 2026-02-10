@@ -66,6 +66,7 @@ const moduleItems = [
 const adminItems = [
   { path: "/settings", label: "Settings", icon: Settings },
   { path: "/users", label: "Users", icon: UsersIcon },
+  { path: "/other-settings", label: "Other Settings", icon: Settings },
 ];
 
 const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
