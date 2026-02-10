@@ -20,19 +20,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { toast } from "sonner";
 import {
-  Filter,
-  RefreshCw,
-  Eye,
-  CheckCircle,
-  Circle,
-} from "lucide-react";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { toast } from "sonner";
+import { Filter, RefreshCw } from "lucide-react";
 
 const DayView = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
+  const [rescheduledCancelled, setRescheduledCancelled] = useState([]);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -65,7 +66,20 @@ const DayView = () => {
         axios.get(`${API}/users/cres`, { withCredentials: true }),
       ]);
 
-      setAppointments(apptsRes.data);
+      // Separate regular appointments from rescheduled/cancelled in N-1
+      const regular = apptsRes.data.filter(apt => 
+        !apt.rescheduled_in_n1 && !apt.cancelled_in_n1
+      );
+      const reschCanc = apptsRes.data.filter(apt => 
+        apt.rescheduled_in_n1 || apt.cancelled_in_n1
+      );
+
+      // Sort by time ascending
+      regular.sort((a, b) => (a.appointment_time || "").localeCompare(b.appointment_time || ""));
+      reschCanc.sort((a, b) => (a.appointment_time || "").localeCompare(b.appointment_time || ""));
+
+      setAppointments(regular);
+      setRescheduledCancelled(reschCanc);
       setSettings(settingsRes.data);
       setCres(cresRes.data);
     } catch (error) {
@@ -74,6 +88,153 @@ const DayView = () => {
       setLoading(false);
     }
   };
+
+  const getSourceColor = (source) => {
+    const colors = {
+      "SDR": "bg-blue-100 text-blue-800",
+      "Incoming Call": "bg-green-100 text-green-800",
+      "MYR": "bg-purple-100 text-purple-800",
+      "Other": "bg-gray-100 text-gray-800",
+    };
+    return colors[source] || "bg-gray-100 text-gray-800";
+  };
+
+  const AppointmentTable = ({ appointments, showEmpty = true }) => (
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow className="table-header bg-gray-50">
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Time</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Source</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Customer Name</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">PH. No</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Mail ID</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Veh Reg No</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Model</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Current KM</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">OTS No</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Type of Service</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Allocated SA Name</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Docket Readiness</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Status</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">CRE Name</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Lost Customer</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap">Remarks</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {appointments.length === 0 && showEmpty ? (
+            <TableRow>
+              <TableCell colSpan={16} className="text-center text-gray-400 py-8">
+                No appointments
+              </TableCell>
+            </TableRow>
+          ) : (
+            appointments.map((appt) => (
+              <TableRow
+                key={appt.appointment_id}
+                className="hover:bg-gray-50"
+              >
+                <TableCell className="text-sm font-medium whitespace-nowrap">
+                  {appt.appointment_time}
+                </TableCell>
+                <TableCell>
+                  <Badge className={`${getSourceColor(appt.source)} rounded-sm text-xs font-medium border-0`}>
+                    {appt.source}
+                  </Badge>
+                </TableCell>
+                <TableCell className="whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    {appt.priority_customer && (
+                      <div className="w-5 h-5 bg-black text-white rounded-sm flex items-center justify-center text-xs font-bold">
+                        P
+                      </div>
+                    )}
+                    <span className="font-medium">{appt.customer_name}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-sm font-mono whitespace-nowrap">
+                  {appt.customer_phone}
+                </TableCell>
+                <TableCell className="text-sm whitespace-nowrap">
+                  {appt.customer_email || "-"}
+                </TableCell>
+                <TableCell className="text-sm font-medium whitespace-nowrap">
+                  {appt.vehicle_reg}
+                </TableCell>
+                <TableCell className="text-sm whitespace-nowrap">
+                  {appt.vehicle_model}
+                </TableCell>
+                <TableCell className="text-sm whitespace-nowrap">
+                  {appt.current_km || "-"}
+                </TableCell>
+                <TableCell className="text-sm whitespace-nowrap">
+                  {appt.ots ? "Yes" : "No"}
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">
+                    {appt.service_type}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-sm whitespace-nowrap">
+                  {appt.allocated_sa}
+                </TableCell>
+                <TableCell>
+                  <Badge 
+                    className={`rounded-sm text-xs font-medium border-0 whitespace-nowrap ${
+                      appt.docket_readiness ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {appt.docket_readiness ? "Yes" : "No"}
+                  </Badge>
+                </TableCell>
+                <TableCell className="whitespace-nowrap">
+                  <div className="text-xs space-y-0.5">
+                    <div>
+                      <span className="font-medium">N-1:</span> {appt.n_minus_1_confirmation || "Pending"}
+                    </div>
+                    <div>
+                      <span className="font-medium">TD:</span> {appt.appointment_status || "Booked"}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-sm whitespace-nowrap">
+                  {appt.cre_name}
+                </TableCell>
+                <TableCell>
+                  <Badge 
+                    className={`rounded-sm text-xs font-medium border-0 whitespace-nowrap ${
+                      appt.lost_customer ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {appt.lost_customer ? "Yes" : "No"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  {appt.specific_repair ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-xs font-medium cursor-help underline decoration-dotted">
+                            Yes
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">{appt.specific_repair}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    <span className="text-xs text-gray-400">No</span>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -127,7 +288,7 @@ const DayView = () => {
               value={filters.branch}
               onValueChange={(v) => setFilters({ ...filters, branch: v === "all" ? "" : v })}
             >
-              <SelectTrigger className="rounded-sm h-9 text-sm" data-testid="filter-branch">
+              <SelectTrigger className="rounded-sm h-9 text-sm">
                 <SelectValue placeholder="Branch" />
               </SelectTrigger>
               <SelectContent>
@@ -142,7 +303,7 @@ const DayView = () => {
               value={filters.status}
               onValueChange={(v) => setFilters({ ...filters, status: v === "all" ? "" : v })}
             >
-              <SelectTrigger className="rounded-sm h-9 text-sm" data-testid="filter-status">
+              <SelectTrigger className="rounded-sm h-9 text-sm">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -157,7 +318,7 @@ const DayView = () => {
               value={filters.outcome}
               onValueChange={(v) => setFilters({ ...filters, outcome: v === "all" ? "" : v })}
             >
-              <SelectTrigger className="rounded-sm h-9 text-sm" data-testid="filter-outcome">
+              <SelectTrigger className="rounded-sm h-9 text-sm">
                 <SelectValue placeholder="Outcome" />
               </SelectTrigger>
               <SelectContent>
@@ -172,7 +333,7 @@ const DayView = () => {
               value={filters.source}
               onValueChange={(v) => setFilters({ ...filters, source: v === "all" ? "" : v })}
             >
-              <SelectTrigger className="rounded-sm h-9 text-sm" data-testid="filter-source">
+              <SelectTrigger className="rounded-sm h-9 text-sm">
                 <SelectValue placeholder="Source" />
               </SelectTrigger>
               <SelectContent>
@@ -187,7 +348,7 @@ const DayView = () => {
               value={filters.sa}
               onValueChange={(v) => setFilters({ ...filters, sa: v === "all" ? "" : v })}
             >
-              <SelectTrigger className="rounded-sm h-9 text-sm" data-testid="filter-sa">
+              <SelectTrigger className="rounded-sm h-9 text-sm">
                 <SelectValue placeholder="SA" />
               </SelectTrigger>
               <SelectContent>
@@ -202,7 +363,7 @@ const DayView = () => {
               value={filters.cre}
               onValueChange={(v) => setFilters({ ...filters, cre: v === "all" ? "" : v })}
             >
-              <SelectTrigger className="rounded-sm h-9 text-sm" data-testid="filter-cre">
+              <SelectTrigger className="rounded-sm h-9 text-sm">
                 <SelectValue placeholder="CRE" />
               </SelectTrigger>
               <SelectContent>
@@ -216,108 +377,29 @@ const DayView = () => {
         </div>
       </Card>
 
-      {/* Summary */}
-      <div className="text-sm text-gray-600 font-medium">
-        {appointments.length} appointment{appointments.length !== 1 ? 's' : ''}
+      {/* Main Today Section */}
+      <div className="space-y-3">
+        <div className="text-sm text-gray-600 font-medium">
+          {appointments.length} appointment{appointments.length !== 1 ? 's' : ''}
+        </div>
+        <Card className="border border-gray-200 rounded-sm shadow-none overflow-hidden">
+          <AppointmentTable appointments={appointments} />
+        </Card>
       </div>
 
-      {/* Appointments Table */}
-      {appointments.length === 0 ? (
-        <Card className="border border-gray-200 rounded-sm shadow-none">
-          <div className="p-12 text-center">
-            <p className="text-lg font-medium text-gray-500">No appointments for today</p>
-            <p className="text-sm text-gray-400 mt-1">
-              Click "New Appointment" to schedule one
-            </p>
+      {/* Rescheduled / Cancelled in N-1 Section */}
+      {rescheduledCancelled.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="font-heading font-bold text-xl tracking-tight uppercase">
+            Rescheduled / Cancelled in N-1
+          </h2>
+          <div className="text-sm text-gray-600 font-medium">
+            {rescheduledCancelled.length} appointment{rescheduledCancelled.length !== 1 ? 's' : ''}
           </div>
-        </Card>
-      ) : (
-        <Card className="border border-gray-200 rounded-sm shadow-none overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="table-header bg-gray-50">
-                <TableHead className="text-xs font-bold uppercase">Date</TableHead>
-                <TableHead className="text-xs font-bold uppercase">Time</TableHead>
-                <TableHead className="text-xs font-bold uppercase">Customer</TableHead>
-                <TableHead className="text-xs font-bold uppercase">Phone</TableHead>
-                <TableHead className="text-xs font-bold uppercase">Vehicle</TableHead>
-                <TableHead className="text-xs font-bold uppercase">Branch</TableHead>
-                <TableHead className="text-xs font-bold uppercase">Service</TableHead>
-                <TableHead className="text-xs font-bold uppercase">SA</TableHead>
-                <TableHead className="text-xs font-bold uppercase">Status</TableHead>
-                <TableHead className="text-xs font-bold uppercase">N-1</TableHead>
-                <TableHead className="text-xs font-bold uppercase">Outcome</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {appointments.map((appt) => (
-                <TableRow
-                  key={appt.appointment_id}
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => navigate(`/appointments/${appt.appointment_id}`)}
-                >
-                  <TableCell className="text-sm">{appt.appointment_date}</TableCell>
-                  <TableCell className="text-sm font-medium">{appt.appointment_time}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {appt.priority_customer && (
-                        <div className="w-5 h-5 bg-black text-white rounded-sm flex items-center justify-center text-xs font-bold">
-                          P
-                        </div>
-                      )}
-                      <span className="font-medium">{appt.customer_name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm font-mono">{appt.customer_phone}</TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      <div className="font-medium">{appt.vehicle_reg}</div>
-                      <div className="text-gray-500 text-xs">{appt.vehicle_model}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm">{appt.branch || "-"}</TableCell>
-                  <TableCell className="text-sm">{appt.service_type}</TableCell>
-                  <TableCell className="text-sm">{appt.allocated_sa}</TableCell>
-                  <TableCell>
-                    {appt.appointment_status === "Confirmed" ? (
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black text-white rounded-sm text-xs font-medium">
-                        <CheckCircle className="w-3.5 h-3.5" strokeWidth={2} />
-                        Confirmed
-                      </div>
-                    ) : (
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 border-2 border-dashed border-gray-400 rounded-sm text-xs font-medium text-gray-700">
-                        <Circle className="w-3.5 h-3.5" strokeWidth={2} />
-                        {appt.appointment_status}
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {appt.n_minus_1_confirmation || "-"}
-                  </TableCell>
-                  <TableCell>
-                    {appt.appointment_day_outcome ? (
-                      <Badge variant="outline" className="rounded-sm text-xs">
-                        {appt.appointment_day_outcome}
-                      </Badge>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 rounded-sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/appointments/${appt.appointment_id}`);
-                        }}
-                      >
-                        <Eye className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+          <Card className="border border-gray-200 rounded-sm shadow-none overflow-hidden">
+            <AppointmentTable appointments={rescheduledCancelled} showEmpty={false} />
+          </Card>
+        </div>
       )}
     </div>
   );
