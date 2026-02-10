@@ -96,15 +96,17 @@ const AppRouter = () => {
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
-        {/* Old routes redirect to new Appointment page */}
-        <Route path="day" element={<Navigate to="/customer-relations/appointment?view=today" replace />} />
-        <Route path="month" element={<Navigate to="/customer-relations/appointment?view=month" replace />} />
-        <Route path="year" element={<Navigate to="/customer-relations/appointment?view=year" replace />} />
-        {/* New Customer Relations routes */}
+        {/* Old routes redirect to new structure */}
+        <Route path="day" element={<Navigate to="/customer-relations/appointment" replace />} />
+        <Route path="month" element={<Navigate to="/customer-relations/history?tab=month" replace />} />
+        <Route path="year" element={<Navigate to="/customer-relations/history?tab=year" replace />} />
+        {/* Customer Relations routes */}
         <Route path="customer-relations/appointment" element={<Appointment />} />
+        <Route path="customer-relations/history" element={<History />} />
         <Route path="customer-relations/vehicles" element={<Vehicles />} />
         <Route path="new-appointment" element={<NewAppointment />} />
         <Route path="appointments/:id" element={<AppointmentDetail />} />
+        {/* Settings routes */}
         <Route path="settings" element={<SettingsOverview />} />
         <Route path="other-settings" element={<OtherSettings />} />
         <Route path="branches" element={<Branches />} />
