@@ -48,9 +48,9 @@ const TIME_SLOTS = [
 const BASE_SERVICE_TYPES = ["1FS", "2FS", "3FS", "PMS", "RR", "BP", "Other"];
 const PMS_INTERVALS = ["30K PMS", "40K PMS", "50K PMS", "60K PMS", "70K PMS", "80K PMS", "90K PMS", "100K PMS", "110K PMS", "120K PMS", "130K PMS", "140K PMS", "150K PMS", "160K PMS", "170K PMS", "180K PMS", "190K PMS", "200K PMS"];
 const COUNTRY_CODES = [
-  { code: "+91", country: "India" },
-  { code: "+977", country: "Nepal" },
-  { code: "+975", country: "Bhutan" },
+  { code: "+91", country: "India", flag: "\u{1F1EE}\u{1F1F3}" },
+  { code: "+977", country: "Nepal", flag: "\u{1F1F3}\u{1F1F5}" },
+  { code: "+975", country: "Bhutan", flag: "\u{1F1E7}\u{1F1F9}" },
 ];
 
 const NewAppointment = () => {
