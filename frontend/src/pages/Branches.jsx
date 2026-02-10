@@ -213,10 +213,11 @@ const Branches = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Service Center">Service Center</SelectItem>
-                    <SelectItem value="Dealership">Dealership</SelectItem>
-                    <SelectItem value="Parts Center">Parts Center</SelectItem>
-                    <SelectItem value="Bodyshop">Bodyshop</SelectItem>
+                    {branchTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
