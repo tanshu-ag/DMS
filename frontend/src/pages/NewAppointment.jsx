@@ -256,13 +256,13 @@ const NewAppointment = () => {
           <CardContent className="p-6">
             <div className="grid md:grid-cols-3 gap-6">
               <div>
-                <Label className="form-label">Registration No</Label>
+                <Label className="form-label">Registration No *</Label>
                 <div className="relative">
                   <Input
                     value={formData.vehicle_reg_no}
                     onChange={(e) => setFormData({ ...formData, vehicle_reg_no: e.target.value.toUpperCase() })}
-                    placeholder="KA01AB1234"
-                    className="rounded-sm uppercase pr-9"
+                    placeholder="Eg. WB74A1234"
+                    className="rounded-sm pr-9"
                     data-testid="input-vehicle-reg"
                   />
                   <button
@@ -277,13 +277,13 @@ const NewAppointment = () => {
               </div>
 
               <div>
-                <Label className="form-label">VIN</Label>
+                <Label className="form-label">Chassis Number</Label>
                 <div className="relative">
                   <Input
                     value={formData.vin}
                     onChange={(e) => setFormData({ ...formData, vin: e.target.value.toUpperCase() })}
-                    placeholder="Vehicle Identification Number"
-                    className="rounded-sm uppercase pr-9"
+                    placeholder="Chassis number"
+                    className="rounded-sm pr-9"
                     data-testid="input-vin"
                   />
                   <button
@@ -302,30 +302,36 @@ const NewAppointment = () => {
                 <Input
                   value={formData.engine_number}
                   onChange={(e) => setFormData({ ...formData, engine_number: e.target.value.toUpperCase() })}
-                  placeholder="Engine serial number"
-                  className="rounded-sm uppercase"
+                  placeholder="Engine number"
+                  className="rounded-sm"
                   data-testid="input-engine-number"
                 />
               </div>
 
               <div>
-                <Label className="form-label">Model</Label>
-                <Input
+                <Label className="form-label">Model *</Label>
+                <Select
                   value={formData.model}
-                  onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                  placeholder="Kwid, Duster, etc."
-                  className="rounded-sm"
-                  data-testid="input-model"
-                />
+                  onValueChange={(v) => setFormData({ ...formData, model: v })}
+                >
+                  <SelectTrigger className="rounded-sm" data-testid="input-model">
+                    <SelectValue placeholder="Select model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {settings?.vehicle_models?.map((m) => (
+                      <SelectItem key={m} value={m}>{m}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
-                <Label className="form-label">Current KM</Label>
+                <Label className="form-label">Current KM *</Label>
                 <Input
                   type="number"
                   value={formData.current_km}
                   onChange={(e) => setFormData({ ...formData, current_km: e.target.value })}
-                  placeholder="45000"
+                  placeholder="Eg. 45000"
                   className="rounded-sm"
                   data-testid="input-km"
                 />
