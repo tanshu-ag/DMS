@@ -11,7 +11,6 @@ import {
   Car,
   Wrench,
   UserCog,
-  UsersIcon,
   Calendar,
 } from "lucide-react";
 
