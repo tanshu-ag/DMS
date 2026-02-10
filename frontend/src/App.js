@@ -11,6 +11,7 @@ import DayView from "@/pages/DayView";
 import MonthView from "@/pages/MonthView";
 import YearView from "@/pages/YearView";
 import Appointment from "@/pages/Appointment";
+import History from "@/pages/History";
 import Vehicles from "@/pages/Vehicles";
 import NewAppointment from "@/pages/NewAppointment";
 import AppointmentDetail from "@/pages/AppointmentDetail";
