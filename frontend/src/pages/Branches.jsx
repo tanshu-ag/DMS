@@ -30,7 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { MapPin, Plus, Edit2, Trash2 } from "lucide-react";
+import { MapPin, Plus, Edit2, Trash2, Star } from "lucide-react";
 
 const Branches = () => {
   const { user } = useAuth();
