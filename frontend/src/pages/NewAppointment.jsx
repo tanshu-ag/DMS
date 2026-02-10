@@ -466,7 +466,7 @@ const NewAppointment = () => {
                           variant={formData.appointment_time === slot.value ? "default" : "outline"}
                           size="sm"
                           disabled={slot.disabled}
-                          className={`rounded-sm text-xs font-mono h-8 ${
+                          className={`rounded-sm text-xs h-8 ${
                             formData.appointment_time === slot.value
                               ? "bg-black text-white hover:bg-gray-800"
                               : slot.disabled
