@@ -86,7 +86,7 @@ const SettingsOverview = () => {
             title="Users & Roles"
             items={[
               { label: "Users", path: "/users", icon: Users },
-              { label: "Roles", path: null, icon: Shield },
+              { label: "Roles", path: "/roles", icon: Shield },
               { label: "Permissions", path: null, icon: Shield },
             ]}
           />
