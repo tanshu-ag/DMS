@@ -10,6 +10,8 @@ import Dashboard from "@/pages/Dashboard";
 import DayView from "@/pages/DayView";
 import MonthView from "@/pages/MonthView";
 import YearView from "@/pages/YearView";
+import Appointment from "@/pages/Appointment";
+import Vehicles from "@/pages/Vehicles";
 import NewAppointment from "@/pages/NewAppointment";
 import AppointmentDetail from "@/pages/AppointmentDetail";
 import SettingsOverview from "@/pages/SettingsOverview";
