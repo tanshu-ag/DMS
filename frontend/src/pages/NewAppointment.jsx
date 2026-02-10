@@ -73,6 +73,7 @@ const NewAppointment = () => {
     source: "",
     customer_name: "",
     customer_phone: "",
+    country_code: "+91",
     customer_email: "",
     vehicle_reg_no: "",
     vin: "",
