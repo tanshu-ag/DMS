@@ -256,7 +256,7 @@ const NewAppointment = () => {
       </div>
 
       {/* Duplicate Warning */}
-      {duplicates.length > 0 && (
+      {futureDuplicates.length > 0 && (
         <Card className="border-2 border-black rounded-sm shadow-none bg-gray-50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3 mb-3">
@@ -266,21 +266,82 @@ const NewAppointment = () => {
               </span>
             </div>
             <div className="space-y-2">
-              {duplicates.map((d) => (
+              {futureDuplicates.map((d) => (
                 <div
                   key={d.appointment_id}
-                  className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-sm cursor-pointer hover:border-black"
-                  onClick={() => navigate(`/appointments/${d.appointment_id}`)}
+                  className="p-3 bg-white border border-gray-200 rounded-sm"
+                  data-testid={`duplicate-card-${d.appointment_id}`}
                 >
-                  <div>
-                    <p className="font-medium">{d.customer_name}</p>
-                    <p className="text-xs text-gray-500 font-mono">
-                      {d.customer_phone} {d.vehicle_reg_no && `• ${d.vehicle_reg_no}`}
-                    </p>
+                  <div
+                    className="flex items-center justify-between cursor-pointer hover:opacity-75"
+                    onClick={() => navigate(`/appointments/${d.appointment_id}`)}
+                  >
+                    <div>
+                      <p className="text-sm font-medium">{d.customer_name}</p>
+                      <p className="text-xs text-gray-500">
+                        {d.customer_phone} {d.vehicle_reg_no && `\u2022 ${d.vehicle_reg_no}`}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-600" data-testid={`dup-date-${d.appointment_id}`}>
+                        {formatDateDisplay(d.appointment_date)}
+                      </span>
+                      <button
+                        type="button"
+                        className="text-xs text-blue-600 hover:text-blue-800 underline font-medium"
+                        data-testid={`change-date-btn-${d.appointment_id}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingDupId(editingDupId === d.appointment_id ? null : d.appointment_id);
+                          setNewDupDate(d.appointment_date);
+                        }}
+                      >
+                        Change booking date
+                      </button>
+                    </div>
                   </div>
-                  <Badge variant="outline" className="rounded-sm text-xs font-mono">
-                    {d.appointment_date}
-                  </Badge>
+                  {editingDupId === d.appointment_id && (
+                    <div
+                      className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2"
+                      data-testid={`date-picker-row-${d.appointment_id}`}
+                    >
+                      <Input
+                        type="date"
+                        value={newDupDate}
+                        min={tomorrowStr}
+                        onChange={(e) => setNewDupDate(e.target.value)}
+                        className="rounded-sm h-8 text-xs w-44"
+                        data-testid={`dup-date-input-${d.appointment_id}`}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="h-8 rounded-sm bg-black text-white hover:bg-gray-800 text-xs px-4"
+                        disabled={updatingDate || !newDupDate}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleChangeDuplicateDate(d.appointment_id);
+                        }}
+                        data-testid={`apply-date-btn-${d.appointment_id}`}
+                      >
+                        {updatingDate ? "..." : "Apply"}
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 rounded-sm text-xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingDupId(null);
+                          setNewDupDate("");
+                        }}
+                        data-testid={`cancel-date-btn-${d.appointment_id}`}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -491,6 +552,7 @@ const NewAppointment = () => {
                 <Input
                   type="date"
                   value={formData.appointment_date}
+                  min={tomorrowStr}
                   onChange={(e) => setFormData({ ...formData, appointment_date: e.target.value })}
                   className="rounded-sm"
                   data-testid="input-date"
