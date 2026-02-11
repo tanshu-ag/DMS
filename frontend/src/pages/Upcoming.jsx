@@ -6,6 +6,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -21,7 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Filter, RefreshCw, Eye } from "lucide-react";
+import { Filter, RefreshCw, Eye, SlidersHorizontal, GripVertical } from "lucide-react";
 
 const N1_OPTIONS = ["Confirmed", "Pending", "Not Reachable", "Rescheduled", "Cancelled"];
 
@@ -29,121 +35,258 @@ const getN1Color = (val) => {
   const map = {
     Confirmed: "bg-green-100 text-green-800",
     Pending: "bg-yellow-100 text-yellow-800",
-    "Not Reachable": "bg-red-100 text-red-800",
-    Rescheduled: "bg-orange-100 text-orange-800",
-    Cancelled: "bg-gray-200 text-gray-600",
+    "Not Reachable": "bg-orange-100 text-orange-800",
+    Rescheduled: "bg-blue-100 text-blue-800",
+    Cancelled: "bg-red-100 text-red-800",
   };
   return map[val] || "bg-gray-100 text-gray-800";
 };
 
-const getSourceColor = (source) => {
-  return "";
-};
-
-const fmtLocal = (d) => {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-};
-
-const fmtDisplay = (dateStr) => {
-  const p = dateStr.split("-");
-  return `${p[2]}-${p[1]}-${p[0]}`;
-};
-
-// Build demo data with tomorrow having N-1 + docket fields
-const buildDemoData = () => {
-  const now = new Date();
-  const d1 = new Date(now); d1.setDate(d1.getDate() + 1);
-  const d2 = new Date(now); d2.setDate(d2.getDate() + 2);
-  const d3 = new Date(now); d3.setDate(d3.getDate() + 3);
-  const d4 = new Date(now); d4.setDate(d4.getDate() + 5);
-  const d5 = new Date(now); d5.setDate(d5.getDate() + 7);
-
-  return [
-    // Tomorrow — 5 rows with varied N-1 & Docket
-    { id: "u01", date: fmtLocal(d1), time: "10:00 AM", customer_name: "Aarav Mehta", phone: "9012345601", vehicle_reg: "WB74U1001", model: "Kiger", service_type: "1FS", sa: "Arjun", source: "SDR", status: "Scheduled", n1_status: "Confirmed", docket_ready: true },
-    { id: "u02", date: fmtLocal(d1), time: "10:30 AM", customer_name: "Diya Bose", phone: "9012345602", vehicle_reg: "AS01U2002", model: "Triber", service_type: "PMS", sa: "Vivek", source: "Incoming", status: "Scheduled", n1_status: "Pending", docket_ready: false },
-    { id: "u03", date: fmtLocal(d1), time: "11:30 AM", customer_name: "Kabir Sinha", phone: "9012345603", vehicle_reg: "WB73U3003", model: "Duster", service_type: "RR", sa: "Arjun", source: "MYR", status: "Confirmed", n1_status: "Not Reachable", docket_ready: true },
-    { id: "u04", date: fmtLocal(d1), time: "2:00 PM", customer_name: "Ishita Ghosh", phone: "9012345604", vehicle_reg: "BR01U4004", model: "Kwid", service_type: "2FS", sa: "Vivek", source: "Other", status: "Scheduled", n1_status: "Rescheduled", docket_ready: false },
-    { id: "u05", date: fmtLocal(d1), time: "3:30 PM", customer_name: "Priyanka Das", phone: "9012345613", vehicle_reg: "WB72U5013", model: "Kiger", service_type: "BP", sa: "Arjun", source: "SDR", status: "Scheduled", n1_status: "Cancelled", docket_ready: false },
-    // Future — day+2 onwards
-    { id: "u06", date: fmtLocal(d2), time: "10:00 AM", customer_name: "Rohan Chatterjee", phone: "9012345605", vehicle_reg: "WB72U5005", model: "Kiger", service_type: "BP", sa: "Arjun", source: "SDR", status: "Scheduled" },
-    { id: "u07", date: fmtLocal(d2), time: "11:00 AM", customer_name: "Tanvi Mukherjee", phone: "9012345606", vehicle_reg: "AS01U6006", model: "Triber", service_type: "3FS", sa: "Vivek", source: "Incoming", status: "Scheduled" },
-    { id: "u08", date: fmtLocal(d2), time: "3:00 PM", customer_name: "Aditya Rao", phone: "9012345607", vehicle_reg: "WB74U7007", model: "Duster", service_type: "PMS", sa: "Arjun", source: "MYR", status: "Confirmed" },
-    { id: "u09", date: fmtLocal(d3), time: "10:30 AM", customer_name: "Neha Verma", phone: "9012345608", vehicle_reg: "BR01U8008", model: "Kwid", service_type: "1FS", sa: "Vivek", source: "SDR", status: "Scheduled" },
-    { id: "u10", date: fmtLocal(d3), time: "2:30 PM", customer_name: "Siddharth Pal", phone: "9012345609", vehicle_reg: "WB73U9009", model: "Kiger", service_type: "Others", sa: "Arjun", source: "Other", status: "Scheduled" },
-    { id: "u11", date: fmtLocal(d4), time: "10:00 AM", customer_name: "Pooja Agarwal", phone: "9012345610", vehicle_reg: "WB74U1010", model: "Triber", service_type: "RR", sa: "Vivek", source: "Incoming", status: "Scheduled" },
-    { id: "u12", date: fmtLocal(d4), time: "11:30 AM", customer_name: "Manish Tiwari", phone: "9012345611", vehicle_reg: "AS01U1111", model: "Duster", service_type: "BP", sa: "Arjun", source: "SDR", status: "Confirmed" },
-    { id: "u13", date: fmtLocal(d5), time: "3:30 PM", customer_name: "Ritika Sen", phone: "9012345612", vehicle_reg: "WB72U1212", model: "Kwid", service_type: "PMS", sa: "Vivek", source: "MYR", status: "Scheduled" },
-  ];
-};
-
-const INITIAL_DATA = buildDemoData();
-const TOMORROW_STR = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return fmtLocal(d); })();
+// Column definitions
+const TOMORROW_COLS = [
+  { id: "time", label: "Time" },
+  { id: "customer_name", label: "Customer Name" },
+  { id: "phone", label: "Phone No" },
+  { id: "reg_no", label: "Reg No" },
+  { id: "model", label: "Model" },
+  { id: "service_type", label: "Service Type" },
+  { id: "sa", label: "SA" },
+  { id: "source", label: "Source" },
+  { id: "status", label: "Status" },
+  { id: "n1_status", label: "N-1 Status" },
+  { id: "docket_ready", label: "Docket Ready" },
+  { id: "actions", label: "" },
+];
+const FUTURE_COLS = [
+  { id: "date", label: "Date" },
+  { id: "time", label: "Time" },
+  { id: "customer_name", label: "Customer Name" },
+  { id: "phone", label: "Phone No" },
+  { id: "reg_no", label: "Reg No" },
+  { id: "model", label: "Model" },
+  { id: "service_type", label: "Service Type" },
+  { id: "sa", label: "SA" },
+  { id: "source", label: "Source" },
+  { id: "status", label: "Status" },
+  { id: "actions", label: "" },
+];
+const CUSTOMIZABLE_IDS = ["status", "n1_status", "docket_ready"];
+const CUSTOMIZABLE_LABELS = { status: "Status", n1_status: "N-1 Status", docket_ready: "Docket Ready" };
 
 const Upcoming = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [demoData, setDemoData] = useState(INITIAL_DATA);
-  const [filters, setFilters] = useState({
-    branch: "",
-    dateRange: "",
-    service_type: "",
-    sa: "",
-    source: "",
-    status: "",
-  });
+  const [demoData, setDemoData] = useState([]);
+  const [filters, setFilters] = useState({ dateRange: "", service_type: "", sa: "", source: "", status: "", branch: "" });
+  // Column preferences
+  const [hiddenCols, setHiddenCols] = useState([]);
+  const [tmrOrder, setTmrOrder] = useState(TOMORROW_COLS.map((c) => c.id));
+  const [futOrder, setFutOrder] = useState(FUTURE_COLS.map((c) => c.id));
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [rearrangeOpen, setRearrangeOpen] = useState(false);
+  const [rearrangeTarget, setRearrangeTarget] = useState("tomorrow");
+  const [tempHidden, setTempHidden] = useState([]);
+  const [tempOrder, setTempOrder] = useState([]);
+  const [dragIdx, setDragIdx] = useState(null);
 
-  useEffect(() => { fetchSettings(); }, []);
+  const fmtDisplay = (d) => d ? d.split("-").reverse().join("-") : "";
+
+  useEffect(() => {
+    fetchSettings();
+    loadPrefs();
+  }, []);
+
+  const loadPrefs = async () => {
+    try {
+      const res = await axios.get(`${API}/user-preferences/upcoming`, { withCredentials: true });
+      if (res.data.hidden_columns?.length) setHiddenCols(res.data.hidden_columns);
+      if (res.data.column_order?.length) {
+        // column_order stores { tomorrow: [...], future: [...] } encoded as JSON string or we store tomorrow order
+        try {
+          const parsed = JSON.parse(res.data.column_order[0]);
+          if (parsed.tomorrow) setTmrOrder(parsed.tomorrow);
+          if (parsed.future) setFutOrder(parsed.future);
+        } catch {
+          // fallback: single order array
+        }
+      }
+    } catch {}
+  };
+
+  const savePrefs = async (hidden, tmr, fut) => {
+    try {
+      await axios.put(`${API}/user-preferences/upcoming`,
+        { hidden_columns: hidden, column_order: [JSON.stringify({ tomorrow: tmr, future: fut })] },
+        { withCredentials: true }
+      );
+    } catch {}
+  };
 
   const fetchSettings = async () => {
     try {
       const res = await axios.get(`${API}/settings`, { withCredentials: true });
       setSettings(res.data);
-    } catch { toast.error("Failed to load settings"); }
-    finally { setLoading(false); }
+      buildDemoData(res.data);
+    } catch {
+      toast.error("Failed to load data");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const tomorrowRows = demoData.filter((r) => r.date === TOMORROW_STR);
-
-  // Filters apply only to future bookings
-  const allFutureRows = demoData.filter((r) => r.date > TOMORROW_STR);
-  const futureRows = allFutureRows.filter((r) => {
-    if (filters.service_type && r.service_type !== filters.service_type) return false;
-    if (filters.sa && r.sa !== filters.sa) return false;
-    if (filters.source && r.source !== filters.source) return false;
-    if (filters.status && r.status !== filters.status) return false;
-    if (filters.branch && r.branch && r.branch !== filters.branch) return false;
-    if (filters.dateRange) {
-      const now = new Date(); now.setHours(0, 0, 0, 0);
-      const rowDate = new Date(r.date + "T00:00:00");
-      const dayAfter = new Date(now); dayAfter.setDate(dayAfter.getDate() + 2);
-      if (filters.dateRange === "day_after") {
-        if (fmtLocal(rowDate) !== fmtLocal(dayAfter)) return false;
-      } else if (filters.dateRange === "3days") {
-        const end = new Date(now); end.setDate(end.getDate() + 3);
-        if (rowDate > end) return false;
-      } else if (filters.dateRange === "7days") {
-        const end = new Date(now); end.setDate(end.getDate() + 7);
-        if (rowDate > end) return false;
-      } else if (filters.dateRange === "14days") {
-        const end = new Date(now); end.setDate(end.getDate() + 14);
-        if (rowDate > end) return false;
-      } else if (filters.dateRange === "this_month") {
-        if (rowDate.getMonth() !== now.getMonth() || rowDate.getFullYear() !== now.getFullYear()) return false;
-      }
-      // 30days shows all
+  const buildDemoData = (sett) => {
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const makeDateStr = (offset) => {
+      const d = new Date(now);
+      d.setDate(d.getDate() + offset);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    };
+    const sas = sett?.service_advisors || ["Arjun", "Vivek"];
+    const sources = sett?.sources || ["SDR", "Incoming Call", "MYR"];
+    const types = sett?.service_types || ["1FS", "PMS", "RR", "BP"];
+    const models = ["Kiger", "Triber", "Duster", "Kwid"];
+    const names = ["Tanvi Mukherjee", "Aarav Banerjee", "Priya Reddy", "Vikram Shah", "Neha Kapoor", "Arjun Nair", "Pooja Agarwal"];
+    const statuses = ["Scheduled", "Confirmed", "Rescheduled"];
+    const rows = [];
+    for (let i = 0; i < 12; i++) {
+      const dayOffset = i < 5 ? 1 : 2 + Math.floor((i - 5) / 2);
+      rows.push({
+        id: `u${String(i + 1).padStart(2, "0")}`,
+        date: makeDateStr(dayOffset),
+        time: `${String(9 + (i % 8)).padStart(2, "0")}:${i % 2 === 0 ? "00" : "30"}`,
+        customer_name: names[i % names.length],
+        phone: `90123456${String(i + 6).padStart(2, "0")}`,
+        vehicle_reg: `WB${70 + i}U${1000 + i}`,
+        model: models[i % models.length],
+        service_type: types[i % types.length],
+        sa: sas[i % sas.length],
+        source: sources[i % sources.length],
+        status: statuses[i % statuses.length],
+        n1_status: i % 3 === 0 ? "Confirmed" : i % 3 === 1 ? "Pending" : "Not Reachable",
+        docket_ready: i % 2 === 0,
+      });
     }
-    return true;
-  });
+    setDemoData(rows);
+  };
+
+  const applyFilters = (rows) => {
+    return rows.filter((r) => {
+      if (filters.service_type && r.service_type !== filters.service_type) return false;
+      if (filters.sa && r.sa !== filters.sa) return false;
+      if (filters.source && r.source !== filters.source) return false;
+      if (filters.status && r.status !== filters.status) return false;
+      return true;
+    });
+  };
+
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const tmrDate = new Date(now); tmrDate.setDate(tmrDate.getDate() + 1);
+  const tmrStr = `${tmrDate.getFullYear()}-${String(tmrDate.getMonth() + 1).padStart(2, "0")}-${String(tmrDate.getDate()).padStart(2, "0")}`;
+
+  const tomorrowRows = demoData.filter((r) => r.date === tmrStr);
+  let futureRows = demoData.filter((r) => r.date > tmrStr);
+
+  // Apply date-range filter
+  if (filters.dateRange) {
+    const makeFutureDate = (offset) => {
+      const d = new Date(now); d.setDate(d.getDate() + offset);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    };
+    const rangeMap = { day_after: 2, "3days": 4, "7days": 8, "14days": 15, "30days": 31 };
+    if (filters.dateRange === "this_month") {
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      const endStr = `${endOfMonth.getFullYear()}-${String(endOfMonth.getMonth() + 1).padStart(2, "0")}-${String(endOfMonth.getDate()).padStart(2, "0")}`;
+      futureRows = futureRows.filter((r) => r.date <= endStr);
+    } else if (rangeMap[filters.dateRange]) {
+      const endStr = makeFutureDate(rangeMap[filters.dateRange]);
+      futureRows = futureRows.filter((r) => r.date <= endStr);
+    }
+  }
+  futureRows = applyFilters(futureRows);
 
   const updateN1 = (id, val) => {
     setDemoData((prev) => prev.map((r) => (r.id === id ? { ...r, n1_status: val } : r)));
   };
-
   const toggleDocket = (id) => {
     setDemoData((prev) => prev.map((r) => (r.id === id ? { ...r, docket_ready: !r.docket_ready } : r)));
+  };
+
+  // Visible column lists
+  const visTmr = tmrOrder.filter((id) => !hiddenCols.includes(id)).map((id) => TOMORROW_COLS.find((c) => c.id === id)).filter(Boolean);
+  const visFut = futOrder.filter((id) => !hiddenCols.includes(id)).map((id) => FUTURE_COLS.find((c) => c.id === id)).filter(Boolean);
+
+  // Cell renderers
+  const renderTmrCell = (colId, row) => {
+    switch (colId) {
+      case "time": return <span className="text-sm font-medium">{row.time}</span>;
+      case "customer_name": return <span className="text-sm font-medium">{row.customer_name}</span>;
+      case "phone": return <span className="text-sm">{row.phone}</span>;
+      case "reg_no": return <span className="text-sm font-medium">{row.vehicle_reg}</span>;
+      case "model": return <span className="text-sm">{row.model}</span>;
+      case "service_type": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.service_type}</Badge>;
+      case "sa": return <span className="text-sm">{row.sa}</span>;
+      case "source": return <span className="text-sm">{row.source}</span>;
+      case "status": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.status}</Badge>;
+      case "n1_status":
+        return (
+          <Select value={row.n1_status || "Pending"} onValueChange={(v) => updateN1(row.id, v)}>
+            <SelectTrigger className="h-7 w-[130px] rounded-sm text-xs border-0 p-0 pl-2 mx-auto" data-testid={`n1-select-${row.id}`}>
+              <Badge className={`${getN1Color(row.n1_status)} rounded-sm text-xs font-medium border-0 whitespace-nowrap`}>{row.n1_status || "Pending"}</Badge>
+            </SelectTrigger>
+            <SelectContent>{N1_OPTIONS.map((opt) => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent>
+          </Select>
+        );
+      case "docket_ready":
+        return (
+          <button type="button" onClick={() => toggleDocket(row.id)} className="cursor-pointer" data-testid={`docket-toggle-${row.id}`}>
+            <Badge className={`rounded-sm text-xs font-medium border-0 whitespace-nowrap ${row.docket_ready ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{row.docket_ready ? "Yes" : "No"}</Badge>
+          </button>
+        );
+      case "actions":
+        return <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`view-btn-${row.id}`}><Eye className="w-4 h-4" strokeWidth={1.5} /></Button>;
+      default: return null;
+    }
+  };
+
+  const renderFutCell = (colId, row) => {
+    switch (colId) {
+      case "date": return <span className="text-sm">{fmtDisplay(row.date)}</span>;
+      case "time": return <span className="text-sm font-medium">{row.time}</span>;
+      case "customer_name": return <span className="text-sm font-medium">{row.customer_name}</span>;
+      case "phone": return <span className="text-sm">{row.phone}</span>;
+      case "reg_no": return <span className="text-sm font-medium">{row.vehicle_reg}</span>;
+      case "model": return <span className="text-sm">{row.model}</span>;
+      case "service_type": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.service_type}</Badge>;
+      case "sa": return <span className="text-sm">{row.sa}</span>;
+      case "source": return <span className="text-sm">{row.source}</span>;
+      case "status": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.status}</Badge>;
+      case "actions":
+        return <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`view-btn-${row.id}`}><Eye className="w-4 h-4" strokeWidth={1.5} /></Button>;
+      default: return null;
+    }
+  };
+
+  const handleSaveCustomize = () => {
+    setHiddenCols(tempHidden);
+    savePrefs(tempHidden, tmrOrder, futOrder);
+    setCustomizeOpen(false);
+    toast.success("Column visibility saved");
+  };
+
+  const handleSaveRearrange = () => {
+    if (rearrangeTarget === "tomorrow") {
+      setTmrOrder(tempOrder);
+      savePrefs(hiddenCols, tempOrder, futOrder);
+    } else {
+      setFutOrder(tempOrder);
+      savePrefs(hiddenCols, tmrOrder, tempOrder);
+    }
+    setRearrangeOpen(false);
+    toast.success("Column order saved");
   };
 
   if (loading) {
@@ -172,87 +315,45 @@ const Upcoming = () => {
         </div>
       </div>
 
-      {/* Section 1: Tomorrow Prep — no filters */}
+      {/* Section 1: Tomorrow Prep */}
       <div className="space-y-3" data-testid="tomorrow-section">
-        <h2 className="font-heading font-bold text-lg tracking-tight uppercase">
-          Tomorrow Prep (N-1 &amp; Docket)
-        </h2>
-        <div className="text-sm text-gray-600 font-medium" data-testid="tomorrow-count">
-          {tomorrowRows.length} appointment{tomorrowRows.length !== 1 ? "s" : ""} for tomorrow
+        <h2 className="font-heading font-bold text-lg tracking-tight uppercase">Tomorrow Prep (N-1 &amp; Docket)</h2>
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600 font-medium" data-testid="tomorrow-count">
+            {tomorrowRows.length} appointment{tomorrowRows.length !== 1 ? "s" : ""} for tomorrow
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="rounded-sm h-8 text-xs gap-1.5" data-testid="customize-columns-btn" onClick={() => { setTempHidden([...hiddenCols]); setCustomizeOpen(true); }}>
+              <SlidersHorizontal className="w-3.5 h-3.5" strokeWidth={1.5} />Customize Columns
+            </Button>
+            <Button variant="outline" size="sm" className="rounded-sm h-8 text-xs gap-1.5" data-testid="rearrange-columns-btn" onClick={() => { setRearrangeTarget("tomorrow"); setTempOrder(tmrOrder.filter((id) => !hiddenCols.includes(id))); setRearrangeOpen(true); }}>
+              <GripVertical className="w-3.5 h-3.5" strokeWidth={1.5} />Rearrange Columns
+            </Button>
+          </div>
         </div>
         <Card className="border border-gray-200 rounded-sm shadow-none overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50">
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Time</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Customer Name</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Phone No</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Reg No</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Model</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Service Type</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">SA</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Source</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Status</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">N-1 Status</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Docket Ready</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Actions</TableHead>
+                  {visTmr.map((col) => (
+                    <TableHead key={col.id} className={`text-xs font-bold uppercase whitespace-nowrap text-center${col.id === "actions" ? " w-12" : ""}`}>{col.label}</TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {tomorrowRows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={12} className="text-center text-sm text-gray-400 py-6">
-                      No appointments scheduled for tomorrow.
-                    </TableCell>
+                    <TableCell colSpan={visTmr.length} className="text-center text-sm text-gray-400 py-6">No appointments scheduled for tomorrow.</TableCell>
                   </TableRow>
                 ) : (
                   tomorrowRows.map((row) => (
                     <TableRow key={row.id} className="hover:bg-gray-50">
-                      <TableCell className="text-sm font-medium whitespace-nowrap text-center">{row.time}</TableCell>
-                      <TableCell className="text-sm font-medium whitespace-nowrap">{row.customer_name}</TableCell>
-                      <TableCell className="text-sm whitespace-nowrap text-center">{row.phone}</TableCell>
-                      <TableCell className="text-sm font-medium whitespace-nowrap text-center">{row.vehicle_reg}</TableCell>
-                      <TableCell className="text-sm whitespace-nowrap text-center">{row.model}</TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.service_type}</Badge>
-                      </TableCell>
-                      <TableCell className="text-sm whitespace-nowrap text-center">{row.sa}</TableCell>
-                      <TableCell className="text-sm whitespace-nowrap text-center">{row.source}</TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.status}</Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Select value={row.n1_status || "Pending"} onValueChange={(v) => updateN1(row.id, v)}>
-                          <SelectTrigger className="h-7 w-[130px] rounded-sm text-xs border-0 p-0 pl-2 mx-auto" data-testid={`n1-select-${row.id}`}>
-                            <Badge className={`${getN1Color(row.n1_status)} rounded-sm text-xs font-medium border-0 whitespace-nowrap`}>
-                              {row.n1_status || "Pending"}
-                            </Badge>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {N1_OPTIONS.map((opt) => (
-                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <button
-                          type="button"
-                          onClick={() => toggleDocket(row.id)}
-                          className="cursor-pointer"
-                          data-testid={`docket-toggle-${row.id}`}
-                        >
-                          <Badge className={`rounded-sm text-xs font-medium border-0 whitespace-nowrap ${row.docket_ready ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                            {row.docket_ready ? "Yes" : "No"}
-                          </Badge>
-                        </button>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`view-btn-${row.id}`}>
-                          <Eye className="w-4 h-4" strokeWidth={1.5} />
-                        </Button>
-                      </TableCell>
+                      {visTmr.map((col) => (
+                        <TableCell key={col.id} className={`whitespace-nowrap text-center${col.id === "customer_name" ? " text-left" : ""}`}>
+                          {renderTmrCell(col.id, row)}
+                        </TableCell>
+                      ))}
                     </TableRow>
                   ))
                 )}
@@ -327,56 +428,39 @@ const Upcoming = () => {
       {/* Section 2: Future Bookings */}
       <div className="space-y-3" data-testid="future-section">
         <h2 className="font-heading font-bold text-lg tracking-tight uppercase">Future Bookings</h2>
-        <div className="text-sm text-gray-600 font-medium" data-testid="future-count">
-          {futureRows.length} future booking{futureRows.length !== 1 ? "s" : ""}
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600 font-medium" data-testid="future-count">
+            {futureRows.length} future booking{futureRows.length !== 1 ? "s" : ""}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="rounded-sm h-8 text-xs gap-1.5" onClick={() => { setRearrangeTarget("future"); setTempOrder(futOrder.filter((id) => !hiddenCols.includes(id))); setRearrangeOpen(true); }}>
+              <GripVertical className="w-3.5 h-3.5" strokeWidth={1.5} />Rearrange Columns
+            </Button>
+          </div>
         </div>
         <Card className="border border-gray-200 rounded-sm shadow-none overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50">
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Date</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Time</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Customer Name</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Phone No</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Reg No</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Model</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Service Type</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">SA</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Source</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Status</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Actions</TableHead>
+                  {visFut.map((col) => (
+                    <TableHead key={col.id} className={`text-xs font-bold uppercase whitespace-nowrap text-center${col.id === "actions" ? " w-12" : ""}`}>{col.label}</TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {futureRows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={11} className="text-center text-sm text-gray-400 py-6">
-                      No future bookings found.
-                    </TableCell>
+                    <TableCell colSpan={visFut.length} className="text-center text-sm text-gray-400 py-6">No future bookings found.</TableCell>
                   </TableRow>
                 ) : (
                   futureRows.map((row) => (
                     <TableRow key={row.id} className="hover:bg-gray-50">
-                      <TableCell className="text-sm whitespace-nowrap text-center">{fmtDisplay(row.date)}</TableCell>
-                      <TableCell className="text-sm font-medium whitespace-nowrap text-center">{row.time}</TableCell>
-                      <TableCell className="text-sm font-medium whitespace-nowrap">{row.customer_name}</TableCell>
-                      <TableCell className="text-sm whitespace-nowrap text-center">{row.phone}</TableCell>
-                      <TableCell className="text-sm font-medium whitespace-nowrap text-center">{row.vehicle_reg}</TableCell>
-                      <TableCell className="text-sm whitespace-nowrap text-center">{row.model}</TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.service_type}</Badge>
-                      </TableCell>
-                      <TableCell className="text-sm whitespace-nowrap text-center">{row.sa}</TableCell>
-                      <TableCell className="text-sm whitespace-nowrap text-center">{row.source}</TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.status}</Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`view-btn-${row.id}`}>
-                          <Eye className="w-4 h-4" strokeWidth={1.5} />
-                        </Button>
-                      </TableCell>
+                      {visFut.map((col) => (
+                        <TableCell key={col.id} className={`whitespace-nowrap text-center${col.id === "customer_name" ? " text-left" : ""}`}>
+                          {renderFutCell(col.id, row)}
+                        </TableCell>
+                      ))}
                     </TableRow>
                   ))
                 )}
@@ -385,6 +469,56 @@ const Upcoming = () => {
           </div>
         </Card>
       </div>
+
+      {/* Customize Columns Modal */}
+      <Dialog open={customizeOpen} onOpenChange={setCustomizeOpen}>
+        <DialogContent className="sm:max-w-md" data-testid="customize-columns-modal">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold uppercase tracking-tight">Customize Columns</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            {CUSTOMIZABLE_IDS.map((id) => (
+              <label key={id} className="flex items-center gap-3 cursor-pointer" data-testid={`toggle-col-${id}`}>
+                <input type="checkbox" checked={!tempHidden.includes(id)} onChange={() => setTempHidden((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])} className="h-4 w-4 rounded border-gray-300 accent-black" />
+                <span className="text-sm font-medium">{CUSTOMIZABLE_LABELS[id]}</span>
+              </label>
+            ))}
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" size="sm" className="rounded-sm" onClick={() => setCustomizeOpen(false)}>Cancel</Button>
+            <Button size="sm" className="rounded-sm bg-black text-white hover:bg-gray-800" onClick={handleSaveCustomize}>Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rearrange Columns Modal */}
+      <Dialog open={rearrangeOpen} onOpenChange={setRearrangeOpen}>
+        <DialogContent className="sm:max-w-md" data-testid="rearrange-columns-modal">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold uppercase tracking-tight">Rearrange Columns</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1 py-2 max-h-[400px] overflow-y-auto">
+            {tempOrder.map((id, idx) => {
+              const allCols = rearrangeTarget === "tomorrow" ? TOMORROW_COLS : FUTURE_COLS;
+              const col = allCols.find((c) => c.id === id);
+              if (!col) return null;
+              return (
+                <div key={id} className={`flex items-center gap-3 p-2.5 rounded-sm border cursor-grab active:cursor-grabbing select-none ${dragIdx === idx ? "border-black bg-gray-100" : "border-gray-200 bg-white"}`}
+                  draggable onDragStart={() => setDragIdx(idx)} onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => { if (dragIdx === null || dragIdx === idx) return; const c = [...tempOrder]; const [m] = c.splice(dragIdx, 1); c.splice(idx, 0, m); setTempOrder(c); setDragIdx(null); }}
+                  onDragEnd={() => setDragIdx(null)} data-testid={`drag-col-${id}`}>
+                  <GripVertical className="w-4 h-4 text-gray-400 shrink-0" strokeWidth={1.5} />
+                  <span className="text-sm font-medium">{col.label || "Actions"}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" size="sm" className="rounded-sm" onClick={() => setRearrangeOpen(false)}>Cancel</Button>
+            <Button size="sm" className="rounded-sm bg-black text-white hover:bg-gray-800" onClick={handleSaveRearrange}>Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
