@@ -93,6 +93,23 @@ const DayView = () => {
 
   const getSourceColor = () => "";
 
+  const updateOutcome = async (appointmentId, outcome) => {
+    try {
+      await axios.put(`${API}/appointments/${appointmentId}`,
+        { appointment_day_outcome: outcome },
+        { withCredentials: true }
+      );
+      const up = (list) => list.map(a =>
+        a.appointment_id === appointmentId ? { ...a, appointment_day_outcome: outcome } : a
+      );
+      setAppointments(up);
+      setRescheduledCancelled(up);
+      toast.success("Status updated");
+    } catch {
+      toast.error("Failed to update status");
+    }
+  };
+
   const AppointmentTable = ({ appointments, showEmpty = true }) => (
     <div className="overflow-x-auto">
       <Table>
@@ -186,7 +203,21 @@ const DayView = () => {
                   <span className="text-xs">{appt.n_minus_1_confirmation || "Pending"}</span>
                 </TableCell>
                 <TableCell className="whitespace-nowrap text-center">
-                  <span className="text-xs">{appt.appointment_status || "Booked"}</span>
+                  <Select
+                    value={appt.appointment_day_outcome || ""}
+                    onValueChange={(v) => updateOutcome(appt.appointment_id, v)}
+                  >
+                    <SelectTrigger className="h-7 w-[120px] rounded-sm text-xs mx-auto" data-testid={`status-select-${appt.appointment_id}`}>
+                      <SelectValue>
+                        <span className="text-xs">{appt.appointment_day_outcome || appt.appointment_status || "Booked"}</span>
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {settings?.appointment_day_outcomes?.map((opt) => (
+                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap text-center">
                   {appt.cre_name}
