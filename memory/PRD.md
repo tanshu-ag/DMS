@@ -37,6 +37,7 @@ Build a Customer Relations module for a Dealership Management System with appoin
 5. **Change Booking Date:** Each duplicate card has "Change booking date" action with inline date picker (D+1 restricted)
 6. **Data Consistency:** Date changes via API reflect across Today, Upcoming, History pages
 7. **Activity Logging:** Date changes are logged in the activity log
+8. **Registration No Space Stripping:** Spaces are auto-removed on type and paste (e.g., "WB 74 BH 1004" → "WB74BH1004")
 
 ## Key API Endpoints
 - `POST /api/auth/login` - Login
