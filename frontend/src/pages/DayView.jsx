@@ -249,15 +249,18 @@ const DayView = () => {
                     <span className="text-xs text-gray-400">No</span>
                   )}
                 </TableCell>
+                <TableCell className="text-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-sm"
+                    onClick={() => navigate(`/appointments/${appt.appointment_id}`)}
+                    data-testid={`action-btn-${appt.appointment_id}`}
+                  >
+                    <Eye className="w-4 h-4" strokeWidth={1.5} />
+                  </Button>
+                </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  );
-
-  if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
