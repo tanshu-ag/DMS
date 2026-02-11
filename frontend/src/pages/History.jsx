@@ -53,6 +53,7 @@ const History = () => {
   const [loading, setLoading] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // Filter state — keys match backend query params
   const [filters, setFilters] = useState({
@@ -208,12 +209,13 @@ const History = () => {
             <TableHead className="text-xs">Vehicle</TableHead>
             <TableHead className="text-xs">Service</TableHead>
             <TableHead className="text-xs">Status</TableHead>
+            <TableHead className="text-xs w-12"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {appointments.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center text-gray-400 py-8">
+              <TableCell colSpan={6} className="text-center text-gray-400 py-8">
                 No appointments found
               </TableCell>
             </TableRow>
@@ -230,6 +232,17 @@ const History = () => {
                   <Badge variant="outline" className="rounded-sm">
                     {apt.appointment_status}
                   </Badge>
+                </TableCell>
+                <TableCell className="text-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-sm"
+                    onClick={() => navigate(`/appointments/${apt.appointment_id}`)}
+                    data-testid={`action-btn-${apt.appointment_id}`}
+                  >
+                    <Eye className="w-4 h-4" strokeWidth={1.5} />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))
