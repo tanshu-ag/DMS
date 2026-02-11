@@ -248,21 +248,9 @@ const Upcoming = () => {
         );
       case "actions":
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" data-testid={`action-menu-btn-${row.id}`}>
-                <Eye className="w-4 h-4" strokeWidth={1.5} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="rounded-sm min-w-[120px]">
-              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => navigate(`/appointments/${row.id}?edit=true`)} data-testid={`edit-btn-${row.id}`}>
-                <Pencil className="w-4 h-4" strokeWidth={1.5} /> Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 cursor-pointer" data-testid={`message-btn-${row.id}`}>
-                <MessageCircle className="w-4 h-4" strokeWidth={1.5} /> Message
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`action-btn-${row.id}`}>
+            <Eye className="w-4 h-4" strokeWidth={1.5} />
+          </Button>
         );
       default: return null;
     }
@@ -282,21 +270,9 @@ const Upcoming = () => {
       case "status": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.status}</Badge>;
       case "actions":
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" data-testid={`action-menu-btn-${row.id}`}>
-                <Eye className="w-4 h-4" strokeWidth={1.5} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="rounded-sm min-w-[120px]">
-              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => navigate(`/appointments/${row.id}?edit=true`)} data-testid={`edit-btn-${row.id}`}>
-                <Pencil className="w-4 h-4" strokeWidth={1.5} /> Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 cursor-pointer" data-testid={`message-btn-${row.id}`}>
-                <MessageCircle className="w-4 h-4" strokeWidth={1.5} /> Message
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`action-btn-${row.id}`}>
+            <Eye className="w-4 h-4" strokeWidth={1.5} />
+          </Button>
         );
       default: return null;
     }
