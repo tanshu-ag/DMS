@@ -279,151 +279,28 @@ const DayView = () => {
       <Table>
         <TableHeader>
           <TableRow className="table-header bg-gray-50">
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Time</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Source</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Customer Name</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">PH. No</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Mail ID</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Reg No</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Model</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Current KM</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">OTS</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Service Type</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">SA Name</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Docket Readiness</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">N-1</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Status</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">CRE Name</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Lost Customer</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Remarks</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center w-12"></TableHead>
+            {visibleCols.map((col) => (
+              <TableHead key={col.id} className={`text-xs font-bold uppercase whitespace-nowrap text-center${col.id === "actions" ? " w-12" : ""}`}>
+                {col.label}
+              </TableHead>
+            ))}
           </TableRow>
         </TableHeader>
         <TableBody>
           {appointments.length === 0 && showEmpty ? (
             <TableRow>
-              <TableCell colSpan={18} className="text-center text-gray-400 py-8">
+              <TableCell colSpan={visibleCols.length} className="text-center text-gray-400 py-8">
                 No appointments
               </TableCell>
             </TableRow>
           ) : (
             appointments.map((appt) => (
-              <TableRow
-                key={appt.appointment_id}
-                className="hover:bg-gray-50"
-              >
-                <TableCell className="text-sm font-medium whitespace-nowrap text-center">
-                  {appt.appointment_time}
-                </TableCell>
-                <TableCell className="text-sm whitespace-nowrap text-center">
-                  {appt.source}
-                </TableCell>
-                <TableCell className="whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{appt.customer_name}</span>
-                    {appt.priority_customer && (
-                      <div className="w-5 h-5 bg-black text-white rounded-sm flex items-center justify-center text-xs font-bold">
-                        P
-                      </div>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="text-sm whitespace-nowrap text-center">
-                  {appt.customer_phone}
-                </TableCell>
-                <TableCell className="text-sm whitespace-nowrap text-center">
-                  {appt.customer_email || "-"}
-                </TableCell>
-                <TableCell className="text-sm font-medium whitespace-nowrap text-center">
-                  {appt.vehicle_reg}
-                </TableCell>
-                <TableCell className="text-sm whitespace-nowrap text-center">
-                  {appt.vehicle_model}
-                </TableCell>
-                <TableCell className="text-sm whitespace-nowrap text-center">
-                  {appt.current_km || "-"}
-                </TableCell>
-                <TableCell className="text-sm whitespace-nowrap text-center">
-                  {appt.ots ? "Yes" : "No"}
-                </TableCell>
-                <TableCell className="text-center">
-                  <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">
-                    {appt.service_type}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-sm whitespace-nowrap text-center">
-                  {appt.allocated_sa}
-                </TableCell>
-                <TableCell className="text-center">
-                  <Badge 
-                    className={`rounded-sm text-xs font-medium border-0 whitespace-nowrap ${
-                      appt.docket_readiness ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {appt.docket_readiness ? "Yes" : "No"}
-                  </Badge>
-                </TableCell>
-                <TableCell className="whitespace-nowrap text-center">
-                  <span className="text-xs">{appt.n_minus_1_confirmation || "Pending"}</span>
-                </TableCell>
-                <TableCell className="whitespace-nowrap text-center">
-                  <Select
-                    value={appt.appointment_day_outcome || ""}
-                    onValueChange={(v) => updateOutcome(appt.appointment_id, v)}
-                  >
-                    <SelectTrigger className="h-7 w-[120px] rounded-sm text-xs mx-auto" data-testid={`status-select-${appt.appointment_id}`}>
-                      <SelectValue>
-                        <span className="text-xs">{appt.appointment_day_outcome || appt.appointment_status || "Booked"}</span>
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {settings?.appointment_day_outcomes?.map((opt) => (
-                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell className="text-sm whitespace-nowrap text-center">
-                  {appt.cre_name}
-                </TableCell>
-                <TableCell className="text-center">
-                  <Badge 
-                    className={`rounded-sm text-xs font-medium border-0 whitespace-nowrap ${
-                      appt.lost_customer ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {appt.lost_customer ? "Yes" : "No"}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-center">
-                  {appt.specific_repair ? (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-xs font-medium cursor-help underline decoration-dotted">
-                            Yes
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-xs">
-                          <p className="text-sm">{appt.specific_repair}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ) : (
-                    <span className="text-xs text-gray-400">No</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-center">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-sm"
-                    onClick={() => navigate(`/appointments/${appt.appointment_id}`)}
-                    data-testid={`action-btn-${appt.appointment_id}`}
-                  >
-                    <Eye className="w-4 h-4" strokeWidth={1.5} />
-                  </Button>
-                </TableCell>
+              <TableRow key={appt.appointment_id} className="hover:bg-gray-50">
+                {visibleCols.map((col) => (
+                  <TableCell key={col.id} className={`whitespace-nowrap text-center${col.id === "customer_name" ? " text-left" : ""}`}>
+                    {renderCell(col.id, appt)}
+                  </TableCell>
+                ))}
               </TableRow>
             ))
           )}
