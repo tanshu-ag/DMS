@@ -17,7 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, History as HistoryIcon, Filter, RefreshCw, Eye, SlidersHorizontal, GripVertical, Edit2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, History as HistoryIcon, Filter, RefreshCw, Eye, SlidersHorizontal, GripVertical, Pencil, MoreVertical } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format, addDays, subDays, addMonths, subMonths, addYears, subYears, isAfter, startOfDay, startOfMonth, startOfYear } from "date-fns";
