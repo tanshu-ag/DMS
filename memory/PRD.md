@@ -54,5 +54,12 @@ Build a Customer Relations module for a Dealership Management System with appoin
 - CRE1: username=cre1, password=cre123
 - Reception: username=reception, password=reception123
 
+### Enhancement (Feb 11, 2026) - Table Controls & Multi-page Improvements
+1. **Renamed Headers:** VEH REG NO→REG NO, OTS NO→OTS, TYPE OF SERVICE→SERVICE TYPE, ALLOCATED SA NAME→SA NAME (Today + Upcoming)
+2. **Customize Columns:** Hide/unhide modal per page (Today: 5 columns, Upcoming: 3, History: 1) with per-user backend persistence
+3. **Rearrange Columns:** Drag-and-drop column reorder modal per page with per-user backend persistence
+4. **STATUS Dropdown:** Today table STATUS is now editable dropdown linked to Day's Outcome settings (Reported, Rescheduled, Cancelled, No-show)
+5. **Eye Action Button:** Every row on Today, Upcoming, History has an action button navigating to booking detail
+
 ## Backlog
 No pending tasks at this time.
