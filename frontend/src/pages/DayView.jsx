@@ -120,7 +120,7 @@ const DayView = () => {
         <TableBody>
           {appointments.length === 0 && showEmpty ? (
             <TableRow>
-              <TableCell colSpan={16} className="text-center text-gray-400 py-8">
+              <TableCell colSpan={17} className="text-center text-gray-400 py-8">
                 No appointments
               </TableCell>
             </TableRow>
