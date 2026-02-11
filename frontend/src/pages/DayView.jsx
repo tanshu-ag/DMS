@@ -1,10 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth, API } from "@/App";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -27,7 +33,31 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Filter, RefreshCw, Eye } from "lucide-react";
+import { Filter, RefreshCw, Eye, SlidersHorizontal, GripVertical } from "lucide-react";
+
+// Columns that can be hidden via Customize Columns
+const CUSTOMIZABLE_IDS = ["mail_id", "docket_readiness", "n1", "status", "cre_name"];
+
+const DEFAULT_COLUMNS = [
+  { id: "time", label: "Time" },
+  { id: "source", label: "Source" },
+  { id: "customer_name", label: "Customer Name" },
+  { id: "phone", label: "Ph. No" },
+  { id: "mail_id", label: "Mail ID" },
+  { id: "reg_no", label: "Reg No" },
+  { id: "model", label: "Model" },
+  { id: "current_km", label: "Current KM" },
+  { id: "ots", label: "OTS" },
+  { id: "service_type", label: "Service Type" },
+  { id: "sa_name", label: "SA Name" },
+  { id: "docket_readiness", label: "Docket Readiness" },
+  { id: "n1", label: "N-1" },
+  { id: "status", label: "Status" },
+  { id: "cre_name", label: "CRE Name" },
+  { id: "lost_customer", label: "Lost Customer" },
+  { id: "remarks", label: "Remarks" },
+  { id: "actions", label: "" },
+];
 
 const DayView = () => {
   const { user } = useAuth();
