@@ -27,7 +27,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Filter, RefreshCw } from "lucide-react";
+import { Filter, RefreshCw, Eye } from "lucide-react";
 
 const DayView = () => {
   const { user } = useAuth();
@@ -103,24 +103,25 @@ const DayView = () => {
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Customer Name</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">PH. No</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Mail ID</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Veh Reg No</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Reg No</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Model</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Current KM</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">OTS No</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Type of Service</TableHead>
-            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Allocated SA Name</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">OTS</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Service Type</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">SA Name</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Docket Readiness</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">N-1</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Status</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">CRE Name</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Lost Customer</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Remarks</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center w-12"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {appointments.length === 0 && showEmpty ? (
             <TableRow>
-              <TableCell colSpan={17} className="text-center text-gray-400 py-8">
+              <TableCell colSpan={18} className="text-center text-gray-400 py-8">
                 No appointments
               </TableCell>
             </TableRow>
