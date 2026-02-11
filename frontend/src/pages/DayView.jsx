@@ -142,23 +142,6 @@ const DayView = () => {
 
   const getSourceColor = () => "";
 
-  const updateOutcome = async (appointmentId, outcome) => {
-    try {
-      await axios.put(`${API}/appointments/${appointmentId}`,
-        { appointment_day_outcome: outcome },
-        { withCredentials: true }
-      );
-      const up = (list) => list.map(a =>
-        a.appointment_id === appointmentId ? { ...a, appointment_day_outcome: outcome } : a
-      );
-      setAppointments(up);
-      setRescheduledCancelled(up);
-      toast.success("Status updated");
-    } catch {
-      toast.error("Failed to update status");
-    }
-  };
-
   // Save column preferences to backend
   const savePrefs = async (hidden, order) => {
     try {
