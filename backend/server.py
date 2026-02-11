@@ -178,6 +178,10 @@ class Appointment(BaseModel):
     duplicate_phone_last_30_days: bool = False
     duplicate_vehicle_last_30_days: bool = False
 
+class ColumnPreferences(BaseModel):
+    hidden_columns: Optional[List[str]] = None
+    column_order: Optional[List[str]] = None
+
 class SettingsUpdate(BaseModel):
     branch_types: Optional[List[str]] = None
     branches: Optional[List[str]] = None
@@ -1358,6 +1362,34 @@ async def seed_data():
     })
     
     return {"message": "Data seeded successfully", "admin_credentials": {"username": "admin", "password": "admin"}}
+
+# ============== USER PREFERENCES ROUTES ==============
+
+@api_router.get("/user-preferences/{page}")
+async def get_user_preferences(request: Request, page: str):
+    """Get column preferences for a page"""
+    user = await get_current_user(request)
+    prefs = await db.user_preferences.find_one(
+        {"user_id": user["user_id"], "page": page},
+        {"_id": 0}
+    )
+    return prefs or {"user_id": user["user_id"], "page": page, "hidden_columns": [], "column_order": []}
+
+@api_router.put("/user-preferences/{page}")
+async def save_user_preferences(request: Request, page: str, data: ColumnPreferences):
+    """Save column preferences for a page"""
+    user = await get_current_user(request)
+    await db.user_preferences.update_one(
+        {"user_id": user["user_id"], "page": page},
+        {"$set": {
+            "user_id": user["user_id"],
+            "page": page,
+            "hidden_columns": data.hidden_columns or [],
+            "column_order": data.column_order or []
+        }},
+        upsert=True
+    )
+    return {"message": "Preferences saved"}
 
 # ============== ROOT ROUTE ==============
 
