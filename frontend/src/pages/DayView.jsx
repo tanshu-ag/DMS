@@ -159,6 +159,121 @@ const DayView = () => {
     }
   };
 
+  // Save column preferences to backend
+  const savePrefs = async (hidden, order) => {
+    try {
+      await axios.put(`${API}/user-preferences/today`,
+        { hidden_columns: hidden, column_order: order },
+        { withCredentials: true }
+      );
+    } catch {}
+  };
+
+  const handleSaveCustomize = () => {
+    setHiddenCols(tempHidden);
+    savePrefs(tempHidden, colOrder);
+    setCustomizeOpen(false);
+    toast.success("Column visibility saved");
+  };
+
+  const handleSaveRearrange = () => {
+    setColOrder(tempOrder);
+    savePrefs(hiddenCols, tempOrder);
+    setRearrangeOpen(false);
+    toast.success("Column order saved");
+  };
+
+  // Compute visible columns in order
+  const visibleCols = colOrder
+    .filter((id) => !hiddenCols.includes(id))
+    .map((id) => DEFAULT_COLUMNS.find((c) => c.id === id))
+    .filter(Boolean);
+
+  // Cell renderer
+  const renderCell = (colId, appt) => {
+    switch (colId) {
+      case "time":
+        return <span className="text-sm font-medium">{appt.appointment_time}</span>;
+      case "source":
+        return <span className="text-sm">{appt.source}</span>;
+      case "customer_name":
+        return (
+          <div className="flex items-center gap-2">
+            <span className="font-medium">{appt.customer_name}</span>
+            {appt.priority_customer && (
+              <div className="w-5 h-5 bg-black text-white rounded-sm flex items-center justify-center text-xs font-bold shrink-0">P</div>
+            )}
+          </div>
+        );
+      case "phone":
+        return <span className="text-sm">{appt.customer_phone}</span>;
+      case "mail_id":
+        return <span className="text-sm">{appt.customer_email || "-"}</span>;
+      case "reg_no":
+        return <span className="text-sm font-medium">{appt.vehicle_reg}</span>;
+      case "model":
+        return <span className="text-sm">{appt.vehicle_model}</span>;
+      case "current_km":
+        return <span className="text-sm">{appt.current_km || "-"}</span>;
+      case "ots":
+        return <span className="text-sm">{appt.ots ? "Yes" : "No"}</span>;
+      case "service_type":
+        return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{appt.service_type}</Badge>;
+      case "sa_name":
+        return <span className="text-sm">{appt.allocated_sa}</span>;
+      case "docket_readiness":
+        return (
+          <Badge className={`rounded-sm text-xs font-medium border-0 whitespace-nowrap ${appt.docket_readiness ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+            {appt.docket_readiness ? "Yes" : "No"}
+          </Badge>
+        );
+      case "n1":
+        return <span className="text-xs">{appt.n_minus_1_confirmation || "Pending"}</span>;
+      case "status":
+        return (
+          <Select value={appt.appointment_day_outcome || ""} onValueChange={(v) => updateOutcome(appt.appointment_id, v)}>
+            <SelectTrigger className="h-7 w-[120px] rounded-sm text-xs mx-auto" data-testid={`status-select-${appt.appointment_id}`}>
+              <SelectValue>
+                <span className="text-xs">{appt.appointment_day_outcome || appt.appointment_status || "Booked"}</span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {settings?.appointment_day_outcomes?.map((opt) => (
+                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      case "cre_name":
+        return <span className="text-sm">{appt.cre_name}</span>;
+      case "lost_customer":
+        return (
+          <Badge className={`rounded-sm text-xs font-medium border-0 whitespace-nowrap ${appt.lost_customer ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800"}`}>
+            {appt.lost_customer ? "Yes" : "No"}
+          </Badge>
+        );
+      case "remarks":
+        return appt.specific_repair ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-xs font-medium cursor-help underline decoration-dotted">Yes</span>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs"><p className="text-sm">{appt.specific_repair}</p></TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : <span className="text-xs text-gray-400">No</span>;
+      case "actions":
+        return (
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${appt.appointment_id}`)} data-testid={`action-btn-${appt.appointment_id}`}>
+            <Eye className="w-4 h-4" strokeWidth={1.5} />
+          </Button>
+        );
+      default:
+        return null;
+    }
+  };
+
   const AppointmentTable = ({ appointments, showEmpty = true }) => (
     <div className="overflow-x-auto">
       <Table>
