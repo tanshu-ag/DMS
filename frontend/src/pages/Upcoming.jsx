@@ -70,8 +70,8 @@ const FUTURE_COLS = [
   { id: "status", label: "Status" },
   { id: "actions", label: "" },
 ];
-const CUSTOMIZABLE_IDS = ["status", "n1_status", "docket_ready"];
-const CUSTOMIZABLE_LABELS = { status: "Status", n1_status: "N-1 Status", docket_ready: "Docket Ready" };
+const CUSTOMIZABLE_IDS = ["n1_status", "docket_ready"];
+const CUSTOMIZABLE_LABELS = { n1_status: "N-1 Status", docket_ready: "Docket Ready" };
 
 const Upcoming = () => {
   const navigate = useNavigate();

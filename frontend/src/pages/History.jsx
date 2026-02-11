@@ -42,8 +42,8 @@ const HISTORY_COLS = [
   { id: "status", label: "Status" },
   { id: "actions", label: "" },
 ];
-const HIST_CUSTOMIZABLE = ["status"];
-const HIST_CUSTOM_LABELS = { status: "Status" };
+const HIST_CUSTOMIZABLE = [];
+const HIST_CUSTOM_LABELS = {};
 
 const History = () => {
   const [searchParams, setSearchParams] = useSearchParams();

@@ -36,7 +36,7 @@ import { toast } from "sonner";
 import { Filter, RefreshCw, Eye, SlidersHorizontal, GripVertical } from "lucide-react";
 
 // Columns that can be hidden via Customize Columns
-const CUSTOMIZABLE_IDS = ["mail_id", "docket_readiness", "n1", "status", "cre_name"];
+const CUSTOMIZABLE_IDS = ["mail_id", "docket_readiness", "n1", "cre_name"];
 
 const DEFAULT_COLUMNS = [
   { id: "time", label: "Time" },
