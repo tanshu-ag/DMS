@@ -74,6 +74,14 @@ const History = () => {
     status: "",
   });
   const [settings, setSettings] = useState({});
+  // Column preferences
+  const [hiddenCols, setHiddenCols] = useState([]);
+  const [colOrder, setColOrder] = useState(HISTORY_COLS.map((c) => c.id));
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [rearrangeOpen, setRearrangeOpen] = useState(false);
+  const [tempHidden, setTempHidden] = useState([]);
+  const [tempOrder, setTempOrder] = useState([]);
+  const [dragIdx, setDragIdx] = useState(null);
 
   useEffect(() => {
     if (activeTab) {
