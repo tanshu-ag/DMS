@@ -27,7 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Filter, RefreshCw, Eye, SlidersHorizontal, GripVertical } from "lucide-react";
+import { Filter, RefreshCw, Eye, SlidersHorizontal, GripVertical, Edit2 } from "lucide-react";
 
 const N1_OPTIONS = ["Confirmed", "Pending", "Not Reachable", "Rescheduled", "Cancelled"];
 
