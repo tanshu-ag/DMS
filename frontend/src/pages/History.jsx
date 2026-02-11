@@ -34,6 +34,17 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
+const HISTORY_COLS = [
+  { id: "date", label: "Date" },
+  { id: "customer", label: "Customer" },
+  { id: "vehicle", label: "Vehicle" },
+  { id: "service", label: "Service" },
+  { id: "status", label: "Status" },
+  { id: "actions", label: "" },
+];
+const HIST_CUSTOMIZABLE = ["status"];
+const HIST_CUSTOM_LABELS = { status: "Status" };
+
 const History = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "date");
