@@ -188,7 +188,7 @@ const Upcoming = () => {
                   <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Time</TableHead>
                   <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Customer Name</TableHead>
                   <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Phone No</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Vehicle Reg No</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Reg No</TableHead>
                   <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Model</TableHead>
                   <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Service Type</TableHead>
                   <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">SA</TableHead>
@@ -249,7 +249,7 @@ const Upcoming = () => {
                         </button>
                       </TableCell>
                       <TableCell className="text-center">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => toast.info("View appointment details")} data-testid={`view-btn-${row.id}`}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`view-btn-${row.id}`}>
                           <Eye className="w-4 h-4" strokeWidth={1.5} />
                         </Button>
                       </TableCell>
@@ -339,7 +339,7 @@ const Upcoming = () => {
                   <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Time</TableHead>
                   <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Customer Name</TableHead>
                   <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Phone No</TableHead>
-                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Vehicle Reg No</TableHead>
+                  <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Reg No</TableHead>
                   <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Model</TableHead>
                   <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Service Type</TableHead>
                   <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">SA</TableHead>
@@ -373,7 +373,7 @@ const Upcoming = () => {
                         <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.status}</Badge>
                       </TableCell>
                       <TableCell className="text-center">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => toast.info("View appointment details")} data-testid={`view-btn-${row.id}`}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`view-btn-${row.id}`}>
                           <Eye className="w-4 h-4" strokeWidth={1.5} />
                         </Button>
                       </TableCell>
