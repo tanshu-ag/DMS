@@ -75,6 +75,13 @@ const DayView = () => {
     source: "",
   });
   const [cres, setCres] = useState([]);
+  const [hiddenCols, setHiddenCols] = useState([]);
+  const [colOrder, setColOrder] = useState(DEFAULT_COLUMNS.map((c) => c.id));
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [rearrangeOpen, setRearrangeOpen] = useState(false);
+  const [tempHidden, setTempHidden] = useState([]);
+  const [tempOrder, setTempOrder] = useState([]);
+  const [dragIdx, setDragIdx] = useState(null);
 
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
