@@ -6,19 +6,20 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 ## Core Requirements
 
 ### 1. New Appointment Form
-- Registration Number field auto-strips spaces on input/paste ✅
+- Registration Number field auto-strips spaces on input/paste
 
 ### 2. Today Table UI Cleanup
-- Priority `[P]` badge appears after customer name ✅
-- Status split into "N-1" and "Status" columns ✅
+- Priority `[P]` badge appears after customer name
+- Status split into "N-1" and "Status" columns
 
 ### 3. Table Functionality (Today, Upcoming, History)
-- **Header Renaming:** VEH REG NO → REG NO, OTS NO → OTS, TYPE OF SERVICE → SERVICE TYPE, ALLOCATED SA NAME → SA NAME ✅
-- **Column Customization:** Hide/unhide MAIL ID, DOCKET READINESS, N-1, CRE NAME. STATUS always visible ✅
-- **Column Rearrangement:** Drag-to-reorder all visible columns ✅
-- **Persistence:** Column visibility and order saved per user in backend ✅
-- **Status Read-Only:** STATUS column in Today table is read-only text ✅
-- **Row Actions:** Eye icon opens dropdown menu with Edit and Message options ✅
+- **Header Renaming:** VEH REG NO -> REG NO, OTS NO -> OTS, TYPE OF SERVICE -> SERVICE TYPE, ALLOCATED SA NAME -> SA NAME
+- **Column Customization:** Hide/unhide MAIL ID, DOCKET READINESS, N-1, CRE NAME. STATUS always visible
+- **Column Rearrangement:** Drag-to-reorder all visible columns
+- **Persistence:** Column visibility and order saved per user in backend
+- **Status Read-Only:** STATUS column in Today table is read-only text
+- **Row Actions:** Eye icon navigates to Customer Card (appointment detail page)
+- **Customer Card Header:** Edit (pencil) icon + Message (WhatsApp) icon in top-right (phone button removed)
 
 ## Architecture
 - Frontend: React + Shadcn UI + Tailwind
@@ -37,8 +38,9 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - Priority badge repositioning
 - N-1 column split
 - Status read-only in Today table
-- Action menu: Eye icon → dropdown with Edit + Message
+- Eye icon in table rows navigates to Customer Card
+- Customer Card: Phone button replaced with Edit (pencil) icon, Message icon kept
+- DP role added to canEdit() for admin edit access
 
 ## Backlog
 - P2: Extract column control logic into reusable `useColumnManager` hook
-- P2: Wire up Message action to WhatsApp/messaging functionality
