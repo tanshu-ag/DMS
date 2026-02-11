@@ -364,7 +364,12 @@ const NewAppointment = () => {
                 <div className="relative">
                   <Input
                     value={formData.vehicle_reg_no}
-                    onChange={(e) => setFormData({ ...formData, vehicle_reg_no: e.target.value.toUpperCase() })}
+                    onChange={(e) => setFormData({ ...formData, vehicle_reg_no: e.target.value.replace(/\s/g, "").toUpperCase() })}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      const pasted = (e.clipboardData.getData("text") || "").replace(/\s/g, "").toUpperCase();
+                      setFormData((prev) => ({ ...prev, vehicle_reg_no: pasted }));
+                    }}
                     placeholder="Eg. WB74A1234"
                     className="rounded-sm pr-9"
                     data-testid="input-vehicle-reg"
