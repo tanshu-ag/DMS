@@ -114,6 +114,53 @@ const History = () => {
     }
   };
 
+  const loadColPrefs = async () => {
+    try {
+      const res = await axios.get(`${API}/user-preferences/history`, { withCredentials: true });
+      if (res.data.hidden_columns?.length) setHiddenCols(res.data.hidden_columns);
+      if (res.data.column_order?.length) setColOrder(res.data.column_order);
+    } catch {}
+  };
+
+  const saveColPrefs = async (hidden, order) => {
+    try {
+      await axios.put(`${API}/user-preferences/history`, { hidden_columns: hidden, column_order: order }, { withCredentials: true });
+    } catch {}
+  };
+
+  const handleSaveCustomize = () => {
+    setHiddenCols(tempHidden);
+    saveColPrefs(tempHidden, colOrder);
+    setCustomizeOpen(false);
+    toast.success("Column visibility saved");
+  };
+
+  const handleSaveRearrange = () => {
+    setColOrder(tempOrder);
+    saveColPrefs(hiddenCols, tempOrder);
+    setRearrangeOpen(false);
+    toast.success("Column order saved");
+  };
+
+  const visibleCols = colOrder.filter((id) => !hiddenCols.includes(id)).map((id) => HISTORY_COLS.find((c) => c.id === id)).filter(Boolean);
+
+  const renderHistCell = (colId, apt) => {
+    switch (colId) {
+      case "date": return <span className="text-sm">{apt.appointment_date?.split("-").reverse().join("-")}</span>;
+      case "customer": return <span className="text-sm font-medium">{apt.customer_name}</span>;
+      case "vehicle": return <span className="text-sm">{apt.vehicle_reg_no}</span>;
+      case "service": return <Badge variant="outline" className="rounded-sm">{apt.service_type}</Badge>;
+      case "status": return <Badge variant="outline" className="rounded-sm">{apt.appointment_status}</Badge>;
+      case "actions":
+        return (
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${apt.appointment_id}`)} data-testid={`action-btn-${apt.appointment_id}`}>
+            <Eye className="w-4 h-4" strokeWidth={1.5} />
+          </Button>
+        );
+      default: return null;
+    }
+  };
+
   const buildFilterParams = (params) => {
     Object.entries(filters).forEach(([key, value]) => {
       if (value) params.append(key, value);
