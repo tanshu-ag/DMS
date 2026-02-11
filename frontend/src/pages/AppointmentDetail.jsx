@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth, API } from "@/App";
 import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,6 +38,7 @@ const AppointmentDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [appointment, setAppointment] = useState(null);
   const [activityLogs, setActivityLogs] = useState([]);
   const [settings, setSettings] = useState(null);
@@ -52,6 +53,13 @@ const AppointmentDetail = () => {
   useEffect(() => {
     fetchData();
   }, [id]);
+
+  // Auto-enable edit mode when navigated with ?edit=true
+  useEffect(() => {
+    if (searchParams.get("edit") === "true") {
+      setEditMode(true);
+    }
+  }, [searchParams]);
 
   const fetchData = async () => {
     try {
