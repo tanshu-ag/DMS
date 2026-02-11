@@ -162,6 +162,38 @@ const NewAppointment = () => {
     toast.info("No linked data found.");
   };
 
+  const formatDateDisplay = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  };
+
+  const handleChangeDuplicateDate = async (appointmentId) => {
+    if (!newDupDate) return;
+    setUpdatingDate(true);
+    try {
+      await axios.put(
+        `${API}/appointments/${appointmentId}`,
+        { appointment_date: newDupDate },
+        { withCredentials: true }
+      );
+      setDuplicates((prev) =>
+        prev.map((d) =>
+          d.appointment_id === appointmentId
+            ? { ...d, appointment_date: newDupDate }
+            : d
+        )
+      );
+      setEditingDupId(null);
+      setNewDupDate("");
+      toast.success("Booking date updated");
+    } catch (error) {
+      toast.error("Failed to update date");
+    } finally {
+      setUpdatingDate(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.vehicle_reg_no || !formData.model || !formData.current_km ||
@@ -190,6 +222,9 @@ const NewAppointment = () => {
 
   // Get display label for selected time
   const selectedTimeLabel = TIME_SLOTS.find((s) => s.value === formData.appointment_time)?.label || "";
+
+  // Filter duplicates: only show today or future
+  const futureDuplicates = duplicates.filter((d) => d.appointment_date >= todayStr);
 
   if (loading) {
     return (
