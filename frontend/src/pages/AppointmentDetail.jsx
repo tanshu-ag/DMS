@@ -215,15 +215,24 @@ const AppointmentDetail = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="rounded-sm"
-            onClick={() => window.open(`tel:${appointment.customer_phone}`)}
-            data-testid="call-btn"
-          >
-            <Phone className="w-4 h-4" strokeWidth={1.5} />
-          </Button>
+          {canEdit() && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-sm"
+              onClick={() => editMode ? handleSave() : setEditMode(true)}
+              disabled={saving}
+              data-testid="edit-icon-btn"
+            >
+              {saving ? (
+                <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+              ) : editMode ? (
+                <Save className="w-4 h-4" strokeWidth={1.5} />
+              ) : (
+                <Pencil className="w-4 h-4" strokeWidth={1.5} />
+              )}
+            </Button>
+          )}
           <Button
             variant="outline"
             size="icon"
@@ -233,31 +242,6 @@ const AppointmentDetail = () => {
           >
             <MessageCircle className="w-4 h-4" strokeWidth={1.5} />
           </Button>
-          {canEdit() && (
-            <Button
-              variant={editMode ? "default" : "outline"}
-              className={`rounded-sm font-mono text-xs uppercase tracking-wider ${
-                editMode ? "bg-black text-white" : ""
-              }`}
-              onClick={() => editMode ? handleSave() : setEditMode(true)}
-              disabled={saving}
-              data-testid="edit-save-btn"
-            >
-              {saving ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : editMode ? (
-                <>
-                  <Save className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                  Save
-                </>
-              ) : (
-                <>
-                  <Edit2 className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                  Edit
-                </>
-              )}
-            </Button>
-          )}
         </div>
       </div>
 
