@@ -935,23 +935,26 @@ async def get_appointment_activity(request: Request, appointment_id: str):
 
 @api_router.get("/appointments/duplicates/check")
 async def check_duplicate_records(request: Request, phone: str = None, vehicle: str = None):
-    """Check for duplicate records"""
+    """Check for duplicate records - excludes past-dated appointments"""
     await get_current_user(request)
     
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     thirty_days_ago = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
     results = []
     
     if phone:
         matches = await db.appointments.find({
             "customer_phone": phone,
-            "created_at": {"$gte": thirty_days_ago}
+            "created_at": {"$gte": thirty_days_ago},
+            "appointment_date": {"$gte": today}
         }, {"_id": 0}).to_list(10)
         results.extend(matches)
     
     if vehicle:
         matches = await db.appointments.find({
             "vehicle_reg_no": vehicle,
-            "created_at": {"$gte": thirty_days_ago}
+            "created_at": {"$gte": thirty_days_ago},
+            "appointment_date": {"$gte": today}
         }, {"_id": 0}).to_list(10)
         results.extend(matches)
     

@@ -63,12 +63,20 @@ const NewAppointment = () => {
   const [duplicates, setDuplicates] = useState([]);
   const [selectedServiceBase, setSelectedServiceBase] = useState("");
   const [selectedPmsInterval, setSelectedPmsInterval] = useState("");
+  const [editingDupId, setEditingDupId] = useState(null);
+  const [newDupDate, setNewDupDate] = useState("");
+  const [updatingDate, setUpdatingDate] = useState(false);
 
-  const today = new Date().toISOString().split("T")[0];
+  // Local timezone dates
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const tmrw = new Date(now);
+  tmrw.setDate(tmrw.getDate() + 1);
+  const tomorrowStr = `${tmrw.getFullYear()}-${String(tmrw.getMonth() + 1).padStart(2, '0')}-${String(tmrw.getDate()).padStart(2, '0')}`;
 
   const [formData, setFormData] = useState({
     branch: "",
-    appointment_date: today,
+    appointment_date: tomorrowStr,
     appointment_time: "",
     source: "",
     customer_name: "",
