@@ -1,65 +1,44 @@
-# Bohania Renault Dealer Management System - PRD
+# Dealer Management System - PRD
 
 ## Original Problem Statement
-Build a Customer Relations module for a Dealership Management System with appointment management, including Today/Upcoming/History views, a New Appointment form, user management, and settings.
+Implement enhancements for the "Customer Relations" module, focusing on the "Today", "Upcoming", and "History" appointment tables.
 
 ## Core Requirements
-- Sidebar navigation: Dashboard, Customer Relations (Today, Upcoming, History, Vehicles), Parts, Bodyshop, Mechanical, Insurance, HR, Settings
-- **Today page:** Current day's appointments table
-- **Upcoming page:** Split into "Tomorrow Prep" (N-1 status, docket ready) and "Future Bookings" (with filters)
-- **History page:** Past appointments with date picker (no future dates)
-- **New Appointment form:** 4 sections (Vehicle, Customer, Required, Additional) with advanced UI (time slots, PMS sub-dropdown, country code selector)
-- **Permanent rule:** Date format display is `dd-mm-yyyy` globally (except duplicate cards: `DD MMM YYYY`)
 
-## Tech Stack
-- **Frontend:** React, Tailwind CSS, Shadcn/ui
-- **Backend:** FastAPI (Python), MongoDB
-- **Auth:** Session-based with cookies
+### 1. New Appointment Form
+- Registration Number field auto-strips spaces on input/paste ✅
 
-## What's Been Implemented
+### 2. Today Table UI Cleanup
+- Priority `[P]` badge appears after customer name ✅
+- Status split into "N-1" and "Status" columns ✅
 
-### Completed Features
-- Full sidebar navigation with module structure
-- Today page with appointment table
-- Upcoming page split into "Tomorrow Prep" and "Future Bookings"
-- History page with date constraints
-- New Appointment form with all advanced controls
-- User management (CRUD, roles: DP, CRM, CRE, Receptionist)
-- Settings management (branches, service advisors, sources, vehicle models)
-- Dashboard with stats
-- CSV export
+### 3. Table Functionality (Today, Upcoming, History)
+- **Header Renaming:** VEH REG NO → REG NO, OTS NO → OTS, TYPE OF SERVICE → SERVICE TYPE, ALLOCATED SA NAME → SA NAME ✅
+- **Column Customization:** Hide/unhide MAIL ID, DOCKET READINESS, N-1, CRE NAME. STATUS always visible ✅
+- **Column Rearrangement:** Drag-to-reorder all visible columns ✅
+- **Persistence:** Column visibility and order saved per user in backend ✅
+- **Status Read-Only:** STATUS column in Today table is read-only text ✅
+- **Row Actions:** Eye icon opens dropdown menu with Edit and Message options ✅
 
-### Latest Enhancement (Feb 11, 2026) - New Appointment Screen
-1. **Past Duplicates Hidden:** Duplicate check API and UI filter out appointments with dates before today
-2. **Date Format in Duplicates:** Cards show `DD MMM YYYY` (e.g., "12 Feb 2026")
-3. **Font Consistency:** Duplicate cards use consistent font styling (no font-mono on text)
-4. **D+1 Date Restriction:** Date picker defaults to tomorrow, min attribute prevents today/past selection
-5. **Change Booking Date:** Each duplicate card has "Change booking date" action with inline date picker (D+1 restricted)
-6. **Data Consistency:** Date changes via API reflect across Today, Upcoming, History pages
-7. **Activity Logging:** Date changes are logged in the activity log
-8. **Registration No Space Stripping:** Spaces are auto-removed on type and paste (e.g., "WB 74 BH 1004" → "WB74BH1004")
+## Architecture
+- Frontend: React + Shadcn UI + Tailwind
+- Backend: Python FastAPI + MongoDB
+- Auth: Username/password with session tokens
 
 ## Key API Endpoints
+- `GET /api/appointments` - Fetch appointments with filters
+- `GET /api/user-preferences/:view` - Get column layout preferences
+- `PUT /api/user-preferences/:view` - Save column layout preferences
 - `POST /api/auth/login` - Login
-- `GET /api/auth/me` - Current user
-- `GET /api/appointments` - List with filters (view, date, branch, etc.)
-- `POST /api/appointments` - Create appointment
-- `PUT /api/appointments/{id}` - Update appointment
-- `GET /api/appointments/duplicates/check` - Check duplicates (excludes past dates)
-- `GET /api/settings` - Get settings
-- `GET /api/branches` - Get branches
 
-## Credentials
-- Admin: username=admin, password=admin
-- CRE1: username=cre1, password=cre123
-- Reception: username=reception, password=reception123
-
-### Enhancement (Feb 11, 2026) - Table Controls & Multi-page Improvements
-1. **Renamed Headers:** VEH REG NO→REG NO, OTS NO→OTS, TYPE OF SERVICE→SERVICE TYPE, ALLOCATED SA NAME→SA NAME (Today + Upcoming)
-2. **Customize Columns:** Hide/unhide modal per page (Today: 5 columns, Upcoming: 3, History: 1) with per-user backend persistence
-3. **Rearrange Columns:** Drag-and-drop column reorder modal per page with per-user backend persistence
-4. **STATUS Dropdown:** Today table STATUS is now editable dropdown linked to Day's Outcome settings (Reported, Rescheduled, Cancelled, No-show)
-5. **Eye Action Button:** Every row on Today, Upcoming, History has an action button navigating to booking detail
+## Completed (Feb 2026)
+- All table enhancements (headers, columns, customization, rearrangement)
+- Registration number space stripping
+- Priority badge repositioning
+- N-1 column split
+- Status read-only in Today table
+- Action menu: Eye icon → dropdown with Edit + Message
 
 ## Backlog
-No pending tasks at this time.
+- P2: Extract column control logic into reusable `useColumnManager` hook
+- P2: Wire up Message action to WhatsApp/messaging functionality
