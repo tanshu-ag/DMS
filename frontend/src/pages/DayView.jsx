@@ -110,6 +110,7 @@ const DayView = () => {
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Type of Service</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Allocated SA Name</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Docket Readiness</TableHead>
+            <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">N-1</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Status</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">CRE Name</TableHead>
             <TableHead className="text-xs font-bold uppercase whitespace-nowrap text-center">Lost Customer</TableHead>
@@ -137,12 +138,12 @@ const DayView = () => {
                 </TableCell>
                 <TableCell className="whitespace-nowrap">
                   <div className="flex items-center gap-2">
+                    <span className="font-medium">{appt.customer_name}</span>
                     {appt.priority_customer && (
                       <div className="w-5 h-5 bg-black text-white rounded-sm flex items-center justify-center text-xs font-bold">
                         P
                       </div>
                     )}
-                    <span className="font-medium">{appt.customer_name}</span>
                   </div>
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap text-center">
@@ -181,14 +182,10 @@ const DayView = () => {
                   </Badge>
                 </TableCell>
                 <TableCell className="whitespace-nowrap text-center">
-                  <div className="text-xs space-y-0.5">
-                    <div>
-                      <span className="font-medium">N-1:</span> {appt.n_minus_1_confirmation || "Pending"}
-                    </div>
-                    <div>
-                      <span className="font-medium">TD:</span> {appt.appointment_status || "Booked"}
-                    </div>
-                  </div>
+                  <span className="text-xs">{appt.n_minus_1_confirmation || "Pending"}</span>
+                </TableCell>
+                <TableCell className="whitespace-nowrap text-center">
+                  <span className="text-xs">{appt.appointment_status || "Booked"}</span>
                 </TableCell>
                 <TableCell className="text-sm whitespace-nowrap text-center">
                   {appt.cre_name}
