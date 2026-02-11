@@ -257,15 +257,15 @@ const Upcoming = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" data-testid={`action-menu-btn-${row.id}`}>
-                <MoreVertical className="w-4 h-4" strokeWidth={1.5} />
+                <Eye className="w-4 h-4" strokeWidth={1.5} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="rounded-sm min-w-[140px]">
-              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`view-btn-${row.id}`}>
-                <Eye className="w-4 h-4" strokeWidth={1.5} /> View
-              </DropdownMenuItem>
+            <DropdownMenuContent align="end" className="rounded-sm min-w-[120px]">
               <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => navigate(`/appointments/${row.id}?edit=true`)} data-testid={`edit-btn-${row.id}`}>
-                <Pencil className="w-4 h-4" strokeWidth={1.5} /> Edit / Update
+                <Pencil className="w-4 h-4" strokeWidth={1.5} /> Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2 cursor-pointer" data-testid={`message-btn-${row.id}`}>
+                <MessageCircle className="w-4 h-4" strokeWidth={1.5} /> Message
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -291,15 +291,15 @@ const Upcoming = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" data-testid={`action-menu-btn-${row.id}`}>
-                <MoreVertical className="w-4 h-4" strokeWidth={1.5} />
+                <Eye className="w-4 h-4" strokeWidth={1.5} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="rounded-sm min-w-[140px]">
-              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`view-btn-${row.id}`}>
-                <Eye className="w-4 h-4" strokeWidth={1.5} /> View
-              </DropdownMenuItem>
+            <DropdownMenuContent align="end" className="rounded-sm min-w-[120px]">
               <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => navigate(`/appointments/${row.id}?edit=true`)} data-testid={`edit-btn-${row.id}`}>
-                <Pencil className="w-4 h-4" strokeWidth={1.5} /> Edit / Update
+                <Pencil className="w-4 h-4" strokeWidth={1.5} /> Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2 cursor-pointer" data-testid={`message-btn-${row.id}`}>
+                <MessageCircle className="w-4 h-4" strokeWidth={1.5} /> Message
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
