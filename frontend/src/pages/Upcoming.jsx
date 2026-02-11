@@ -270,7 +270,12 @@ const Upcoming = () => {
       case "source": return <span className="text-sm">{row.source}</span>;
       case "status": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.status}</Badge>;
       case "actions":
-        return <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`view-btn-${row.id}`}><Eye className="w-4 h-4" strokeWidth={1.5} /></Button>;
+        return (
+          <div className="flex items-center gap-1 justify-center">
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`view-btn-${row.id}`}><Eye className="w-4 h-4" strokeWidth={1.5} /></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}?edit=true`)} data-testid={`edit-btn-${row.id}`}><Edit2 className="w-4 h-4" strokeWidth={1.5} /></Button>
+          </div>
+        );
       default: return null;
     }
   };
