@@ -241,14 +241,21 @@ const DayView = () => {
         ) : <span className="text-xs text-gray-400">No</span>;
       case "actions":
         return (
-          <div className="flex items-center gap-1 justify-center">
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${appt.appointment_id}`)} data-testid={`action-btn-${appt.appointment_id}`}>
-              <Eye className="w-4 h-4" strokeWidth={1.5} />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${appt.appointment_id}?edit=true`)} data-testid={`edit-btn-${appt.appointment_id}`}>
-              <Edit2 className="w-4 h-4" strokeWidth={1.5} />
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" data-testid={`action-menu-btn-${appt.appointment_id}`}>
+                <MoreVertical className="w-4 h-4" strokeWidth={1.5} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-sm min-w-[140px]">
+              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => navigate(`/appointments/${appt.appointment_id}`)} data-testid={`view-btn-${appt.appointment_id}`}>
+                <Eye className="w-4 h-4" strokeWidth={1.5} /> View
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => navigate(`/appointments/${appt.appointment_id}?edit=true`)} data-testid={`edit-btn-${appt.appointment_id}`}>
+                <Pencil className="w-4 h-4" strokeWidth={1.5} /> Edit / Update
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       default:
         return null;
