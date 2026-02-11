@@ -131,6 +131,7 @@ const AppointmentDetail = () => {
   // Permission checks
   const canEdit = () => {
     if (user?.role === "CRM") return true;
+    if (user?.role === "DP") return true;
     if (user?.role === "CRE" && appointment?.assigned_cre_user === user?.user_id) return true;
     if (user?.role === "Receptionist") return true;
     return false;
