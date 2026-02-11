@@ -153,9 +153,14 @@ const History = () => {
       case "status": return <Badge variant="outline" className="rounded-sm">{apt.appointment_status}</Badge>;
       case "actions":
         return (
-          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${apt.appointment_id}`)} data-testid={`action-btn-${apt.appointment_id}`}>
-            <Eye className="w-4 h-4" strokeWidth={1.5} />
-          </Button>
+          <div className="flex items-center gap-1 justify-center">
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${apt.appointment_id}`)} data-testid={`action-btn-${apt.appointment_id}`}>
+              <Eye className="w-4 h-4" strokeWidth={1.5} />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${apt.appointment_id}?edit=true`)} data-testid={`edit-btn-${apt.appointment_id}`}>
+              <Edit2 className="w-4 h-4" strokeWidth={1.5} />
+            </Button>
+          </div>
         );
       default: return null;
     }
