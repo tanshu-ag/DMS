@@ -271,46 +271,26 @@ const History = () => {
       <Table>
         <TableHeader>
           <TableRow className="table-header bg-gray-50">
-            <TableHead className="text-xs">Date</TableHead>
-            <TableHead className="text-xs">Customer</TableHead>
-            <TableHead className="text-xs">Vehicle</TableHead>
-            <TableHead className="text-xs">Service</TableHead>
-            <TableHead className="text-xs">Status</TableHead>
-            <TableHead className="text-xs w-12"></TableHead>
+            {visibleCols.map((col) => (
+              <TableHead key={col.id} className={`text-xs${col.id === "actions" ? " w-12" : ""}`}>{col.label}</TableHead>
+            ))}
           </TableRow>
         </TableHeader>
         <TableBody>
           {appointments.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-gray-400 py-8">
+              <TableCell colSpan={visibleCols.length} className="text-center text-gray-400 py-8">
                 No appointments found
               </TableCell>
             </TableRow>
           ) : (
             appointments.map((apt) => (
               <TableRow key={apt.appointment_id} className="hover:bg-gray-50">
-                <TableCell className="text-sm">
-                  {format(new Date(apt.appointment_date + "T00:00:00"), "dd-MM-yyyy")}
-                </TableCell>
-                <TableCell className="font-medium">{apt.customer_name}</TableCell>
-                <TableCell className="text-sm">{apt.vehicle_reg || apt.vehicle_reg_no || "-"}</TableCell>
-                <TableCell className="text-sm">{apt.service_type}</TableCell>
-                <TableCell>
-                  <Badge variant="outline" className="rounded-sm">
-                    {apt.appointment_status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-center">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded-sm"
-                    onClick={() => navigate(`/appointments/${apt.appointment_id}`)}
-                    data-testid={`action-btn-${apt.appointment_id}`}
-                  >
-                    <Eye className="w-4 h-4" strokeWidth={1.5} />
-                  </Button>
-                </TableCell>
+                {visibleCols.map((col) => (
+                  <TableCell key={col.id} className="whitespace-nowrap">
+                    {renderHistCell(col.id, apt)}
+                  </TableCell>
+                ))}
               </TableRow>
             ))
           )}
