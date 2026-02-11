@@ -91,6 +91,7 @@ const History = () => {
 
   useEffect(() => {
     fetchSettings();
+    loadColPrefs();
   }, []);
 
   useEffect(() => {
