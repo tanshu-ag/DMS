@@ -443,8 +443,35 @@ const DayView = () => {
 
       {/* Main Today Section */}
       <div className="space-y-3">
-        <div className="text-sm text-gray-600 font-medium">
-          {appointments.length} appointment{appointments.length !== 1 ? 's' : ''}
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600 font-medium">
+            {appointments.length} appointment{appointments.length !== 1 ? 's' : ''}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-sm h-8 text-xs gap-1.5"
+              data-testid="customize-columns-btn"
+              onClick={() => { setTempHidden([...hiddenCols]); setCustomizeOpen(true); }}
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" strokeWidth={1.5} />
+              Customize Columns
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-sm h-8 text-xs gap-1.5"
+              data-testid="rearrange-columns-btn"
+              onClick={() => {
+                setTempOrder(colOrder.filter((id) => !hiddenCols.includes(id)));
+                setRearrangeOpen(true);
+              }}
+            >
+              <GripVertical className="w-3.5 h-3.5" strokeWidth={1.5} />
+              Rearrange Columns
+            </Button>
+          </div>
         </div>
         <Card className="border border-gray-200 rounded-sm shadow-none overflow-hidden">
           <AppointmentTable appointments={appointments} />
