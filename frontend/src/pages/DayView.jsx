@@ -492,6 +492,78 @@ const DayView = () => {
           </Card>
         </div>
       )}
+
+      {/* Customize Columns Modal */}
+      <Dialog open={customizeOpen} onOpenChange={setCustomizeOpen}>
+        <DialogContent className="sm:max-w-md" data-testid="customize-columns-modal">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold uppercase tracking-tight">Customize Columns</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            {CUSTOMIZABLE_IDS.map((id) => {
+              const col = DEFAULT_COLUMNS.find((c) => c.id === id);
+              return (
+                <label key={id} className="flex items-center gap-3 cursor-pointer" data-testid={`toggle-col-${id}`}>
+                  <input
+                    type="checkbox"
+                    checked={!tempHidden.includes(id)}
+                    onChange={() => setTempHidden((prev) =>
+                      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+                    )}
+                    className="h-4 w-4 rounded border-gray-300 accent-black"
+                  />
+                  <span className="text-sm font-medium">{col?.label}</span>
+                </label>
+              );
+            })}
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" size="sm" className="rounded-sm" onClick={() => setCustomizeOpen(false)} data-testid="customize-cancel-btn">Cancel</Button>
+            <Button size="sm" className="rounded-sm bg-black text-white hover:bg-gray-800" onClick={handleSaveCustomize} data-testid="customize-save-btn">Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rearrange Columns Modal */}
+      <Dialog open={rearrangeOpen} onOpenChange={setRearrangeOpen}>
+        <DialogContent className="sm:max-w-md" data-testid="rearrange-columns-modal">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold uppercase tracking-tight">Rearrange Columns</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1 py-2 max-h-[400px] overflow-y-auto">
+            {tempOrder.map((id, idx) => {
+              const col = DEFAULT_COLUMNS.find((c) => c.id === id);
+              if (!col) return null;
+              return (
+                <div
+                  key={id}
+                  className={`flex items-center gap-3 p-2.5 rounded-sm border cursor-grab active:cursor-grabbing select-none ${dragIdx === idx ? "border-black bg-gray-100" : "border-gray-200 bg-white"}`}
+                  draggable
+                  onDragStart={() => setDragIdx(idx)}
+                  onDragOver={(e) => { e.preventDefault(); }}
+                  onDrop={() => {
+                    if (dragIdx === null || dragIdx === idx) return;
+                    const copy = [...tempOrder];
+                    const [moved] = copy.splice(dragIdx, 1);
+                    copy.splice(idx, 0, moved);
+                    setTempOrder(copy);
+                    setDragIdx(null);
+                  }}
+                  onDragEnd={() => setDragIdx(null)}
+                  data-testid={`drag-col-${id}`}
+                >
+                  <GripVertical className="w-4 h-4 text-gray-400 shrink-0" strokeWidth={1.5} />
+                  <span className="text-sm font-medium">{col.label || "Actions"}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" size="sm" className="rounded-sm" onClick={() => setRearrangeOpen(false)} data-testid="rearrange-cancel-btn">Cancel</Button>
+            <Button size="sm" className="rounded-sm bg-black text-white hover:bg-gray-800" onClick={handleSaveRearrange} data-testid="rearrange-save-btn">Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
