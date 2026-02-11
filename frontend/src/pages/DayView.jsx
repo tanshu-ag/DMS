@@ -230,20 +230,7 @@ const DayView = () => {
       case "n1":
         return <span className="text-xs">{appt.n_minus_1_confirmation || "Pending"}</span>;
       case "status":
-        return (
-          <Select value={appt.appointment_day_outcome || ""} onValueChange={(v) => updateOutcome(appt.appointment_id, v)}>
-            <SelectTrigger className="h-7 w-[120px] rounded-sm text-xs mx-auto" data-testid={`status-select-${appt.appointment_id}`}>
-              <SelectValue>
-                <span className="text-xs">{appt.appointment_day_outcome || appt.appointment_status || "Booked"}</span>
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {settings?.appointment_day_outcomes?.map((opt) => (
-                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        );
+        return <span className="text-xs">{appt.appointment_day_outcome || appt.appointment_status || "Booked"}</span>;
       case "cre_name":
         return <span className="text-sm">{appt.cre_name}</span>;
       case "lost_customer":
