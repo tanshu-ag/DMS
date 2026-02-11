@@ -87,6 +87,18 @@ const DayView = () => {
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const todayDisplay = today.split("-").reverse().join("-");
 
+  // Load column preferences
+  useEffect(() => {
+    const loadPrefs = async () => {
+      try {
+        const res = await axios.get(`${API}/user-preferences/today`, { withCredentials: true });
+        if (res.data.hidden_columns?.length) setHiddenCols(res.data.hidden_columns);
+        if (res.data.column_order?.length) setColOrder(res.data.column_order);
+      } catch {}
+    };
+    loadPrefs();
+  }, []);
+
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
