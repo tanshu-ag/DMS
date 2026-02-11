@@ -39,7 +39,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Filter, RefreshCw, Eye, SlidersHorizontal, GripVertical, Pencil, MoreVertical } from "lucide-react";
+import { Filter, RefreshCw, Eye, SlidersHorizontal, GripVertical, Pencil, MessageCircle } from "lucide-react";
 
 // Columns that can be hidden via Customize Columns
 const CUSTOMIZABLE_IDS = ["mail_id", "docket_readiness", "n1", "cre_name"];
