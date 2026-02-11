@@ -449,6 +449,16 @@ const History = () => {
         </div>
       </div>
 
+      {/* Column Controls */}
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" size="sm" className="rounded-sm h-8 text-xs gap-1.5" data-testid="customize-columns-btn" onClick={() => { setTempHidden([...hiddenCols]); setCustomizeOpen(true); }}>
+          <SlidersHorizontal className="w-3.5 h-3.5" strokeWidth={1.5} />Customize Columns
+        </Button>
+        <Button variant="outline" size="sm" className="rounded-sm h-8 text-xs gap-1.5" data-testid="rearrange-columns-btn" onClick={() => { setTempOrder(colOrder.filter((id) => !hiddenCols.includes(id))); setRearrangeOpen(true); }}>
+          <GripVertical className="w-3.5 h-3.5" strokeWidth={1.5} />Rearrange Columns
+        </Button>
+      </div>
+
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full max-w-2xl grid-cols-4 mb-6">
