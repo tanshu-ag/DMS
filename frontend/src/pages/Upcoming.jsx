@@ -78,7 +78,7 @@ const Upcoming = () => {
   const { user } = useAuth();
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [demoData, setDemoData] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [filters, setFilters] = useState({ dateRange: "", service_type: "", sa: "", source: "", status: "", branch: "" });
   // Column preferences
   const [hiddenCols, setHiddenCols] = useState([]);
@@ -94,7 +94,7 @@ const Upcoming = () => {
   const fmtDisplay = (d) => d ? d.split("-").reverse().join("-") : "";
 
   useEffect(() => {
-    fetchSettings();
+    fetchData();
     loadPrefs();
   }, []);
 
