@@ -101,6 +101,9 @@ const Upcoming = () => {
   const [tempOrder, setTempOrder] = useState([]);
   const [dragIdx, setDragIdx] = useState(null);
 
+  // N-1 popup state
+  const [n1Popup, setN1Popup] = useState({ open: false, appointmentId: null, status: "", rescheduleDate: "", rescheduleRemarks: "", cancelReason: "" });
+
   const fmtDisplay = (d) => d ? d.split("-").reverse().join("-") : "";
 
   // Get all reschedule history entries
