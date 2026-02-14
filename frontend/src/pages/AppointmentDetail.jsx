@@ -505,33 +505,84 @@ const AppointmentDetail = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
-              {/* Appointment Status */}
+              {/* Day Outcome (renamed from Appointment Status) */}
               <div>
-                <Label className="form-label">Appointment Status</Label>
-                {user?.role === "CRM" ? (
-                  <Select
-                    value={appointment.appointment_status}
-                    onValueChange={(v) => handleQuickUpdate("appointment_status", v)}
-                  >
-                    <SelectTrigger className="rounded-sm mt-1" data-testid="status-select">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {settings?.appointment_statuses?.map((s) => (
-                        <SelectItem key={s} value={s}>{s}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <Label className="form-label">Day Outcome</Label>
+                {editMode && canEdit() ? (
+                  <>
+                    <Select
+                      value={formData.appointment_status || appointment.appointment_status}
+                      onValueChange={(v) => {
+                        setFormData({ ...formData, appointment_status: v, reschedule_date: formData.reschedule_date || "", reschedule_remarks: formData.reschedule_remarks || "", cancel_reason: formData.cancel_reason || "" });
+                      }}
+                    >
+                      <SelectTrigger className="rounded-sm mt-1" data-testid="status-select">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Booked">Booked</SelectItem>
+                        <SelectItem value="Confirmed">Confirmed</SelectItem>
+                        <SelectItem value="Reported">Reported</SelectItem>
+                        <SelectItem value="Rescheduled">Rescheduled</SelectItem>
+                        <SelectItem value="Cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {/* Rescheduled: date + remarks */}
+                    {(formData.appointment_status || appointment.appointment_status) === "Rescheduled" && (
+                      <div className="mt-3 space-y-2">
+                        <Label className="text-xs text-gray-500">Reschedule Date</Label>
+                        <Input
+                          type="date"
+                          value={formData.reschedule_date || appointment.reschedule_date || ""}
+                          onChange={(e) => setFormData({ ...formData, reschedule_date: e.target.value })}
+                          className="rounded-sm text-sm"
+                          data-testid="reschedule-date"
+                        />
+                        <Label className="text-xs text-gray-500">Remarks</Label>
+                        <Textarea
+                          placeholder="Reschedule remarks..."
+                          value={formData.reschedule_remarks || ""}
+                          onChange={(e) => setFormData({ ...formData, reschedule_remarks: e.target.value })}
+                          className="rounded-sm text-sm"
+                          data-testid="reschedule-remarks"
+                        />
+                      </div>
+                    )}
+                    {/* Cancelled: reason */}
+                    {(formData.appointment_status || appointment.appointment_status) === "Cancelled" && (
+                      <div className="mt-3 space-y-2">
+                        <Label className="text-xs text-gray-500">Reason for Cancellation</Label>
+                        <Textarea
+                          placeholder="Enter reason..."
+                          value={formData.cancel_reason || ""}
+                          onChange={(e) => setFormData({ ...formData, cancel_reason: e.target.value })}
+                          className="rounded-sm text-sm"
+                          data-testid="cancel-reason"
+                        />
+                      </div>
+                    )}
+                  </>
                 ) : (
-                  <Badge
-                    className={`rounded-sm text-sm mt-1 ${
-                      appointment.appointment_status === "Confirmed"
-                        ? "bg-black text-white"
-                        : "bg-white text-black border border-dashed border-black"
-                    }`}
-                  >
-                    {appointment.appointment_status}
-                  </Badge>
+                  <>
+                    <Badge
+                      className={`rounded-sm text-sm mt-1 ${
+                        appointment.appointment_status === "Confirmed"
+                          ? "bg-black text-white"
+                          : "bg-white text-black border border-dashed border-black"
+                      }`}
+                    >
+                      {appointment.appointment_status}
+                    </Badge>
+                    {appointment.appointment_status === "Rescheduled" && appointment.reschedule_date && (
+                      <p className="text-xs text-gray-500 mt-1">Rescheduled to: {appointment.reschedule_date}</p>
+                    )}
+                    {appointment.appointment_status === "Rescheduled" && appointment.reschedule_remarks && (
+                      <p className="text-xs text-gray-500 mt-1">{appointment.reschedule_remarks}</p>
+                    )}
+                    {appointment.appointment_status === "Cancelled" && appointment.cancel_reason && (
+                      <p className="text-xs text-gray-500 mt-1">Reason: {appointment.cancel_reason}</p>
+                    )}
+                  </>
                 )}
               </div>
 
