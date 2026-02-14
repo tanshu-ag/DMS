@@ -198,33 +198,33 @@ const Upcoming = () => {
   // Cell renderers
   const renderTmrCell = (colId, row) => {
     switch (colId) {
-      case "time": return <span className="text-sm font-medium">{row.time}</span>;
+      case "time": return <span className="text-sm font-medium">{row.appointment_time}</span>;
       case "customer_name": return <span className="text-sm font-medium">{row.customer_name}</span>;
-      case "phone": return <span className="text-sm">{row.phone}</span>;
-      case "reg_no": return <span className="text-sm font-medium">{row.vehicle_reg}</span>;
-      case "model": return <span className="text-sm">{row.model}</span>;
+      case "phone": return <span className="text-sm">{row.customer_phone}</span>;
+      case "reg_no": return <span className="text-sm font-medium">{row.vehicle_reg || row.vehicle_reg_no}</span>;
+      case "model": return <span className="text-sm">{row.vehicle_model || row.model}</span>;
       case "service_type": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.service_type}</Badge>;
-      case "sa": return <span className="text-sm">{row.sa}</span>;
+      case "sa": return <span className="text-sm">{row.allocated_sa}</span>;
       case "source": return <span className="text-sm">{row.source}</span>;
-      case "status": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.status}</Badge>;
+      case "status": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.appointment_status}</Badge>;
       case "n1_status":
         return (
-          <Select value={row.n1_status || "Pending"} onValueChange={(v) => updateN1(row.id, v)}>
-            <SelectTrigger className="h-7 w-[130px] rounded-sm text-xs border-0 p-0 pl-2 mx-auto" data-testid={`n1-select-${row.id}`}>
-              <Badge className={`${getN1Color(row.n1_status)} rounded-sm text-xs font-medium border-0 whitespace-nowrap`}>{row.n1_status || "Pending"}</Badge>
+          <Select value={row.n_minus_1_confirmation_status || "Pending"} onValueChange={(v) => updateN1(row.appointment_id, v)}>
+            <SelectTrigger className="h-7 w-[130px] rounded-sm text-xs border-0 p-0 pl-2 mx-auto" data-testid={`n1-select-${row.appointment_id}`}>
+              <Badge className={`${getN1Color(row.n_minus_1_confirmation_status)} rounded-sm text-xs font-medium border-0 whitespace-nowrap`}>{row.n_minus_1_confirmation_status || "Pending"}</Badge>
             </SelectTrigger>
             <SelectContent>{N1_OPTIONS.map((opt) => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent>
           </Select>
         );
       case "docket_ready":
         return (
-          <button type="button" onClick={() => toggleDocket(row.id)} className="cursor-pointer" data-testid={`docket-toggle-${row.id}`}>
-            <Badge className={`rounded-sm text-xs font-medium border-0 whitespace-nowrap ${row.docket_ready ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{row.docket_ready ? "Yes" : "No"}</Badge>
+          <button type="button" onClick={() => toggleDocket(row.appointment_id, row.docket_readiness)} className="cursor-pointer" data-testid={`docket-toggle-${row.appointment_id}`}>
+            <Badge className={`rounded-sm text-xs font-medium border-0 whitespace-nowrap ${row.docket_readiness ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{row.docket_readiness ? "Yes" : "No"}</Badge>
           </button>
         );
       case "actions":
         return (
-          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`action-btn-${row.id}`}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.appointment_id}`)} data-testid={`action-btn-${row.appointment_id}`}>
             <Eye className="w-4 h-4" strokeWidth={1.5} />
           </Button>
         );
@@ -234,19 +234,19 @@ const Upcoming = () => {
 
   const renderFutCell = (colId, row) => {
     switch (colId) {
-      case "date": return <span className="text-sm">{fmtDisplay(row.date)}</span>;
-      case "time": return <span className="text-sm font-medium">{row.time}</span>;
+      case "date": return <span className="text-sm">{fmtDisplay(row.appointment_date)}</span>;
+      case "time": return <span className="text-sm font-medium">{row.appointment_time}</span>;
       case "customer_name": return <span className="text-sm font-medium">{row.customer_name}</span>;
-      case "phone": return <span className="text-sm">{row.phone}</span>;
-      case "reg_no": return <span className="text-sm font-medium">{row.vehicle_reg}</span>;
-      case "model": return <span className="text-sm">{row.model}</span>;
+      case "phone": return <span className="text-sm">{row.customer_phone}</span>;
+      case "reg_no": return <span className="text-sm font-medium">{row.vehicle_reg || row.vehicle_reg_no}</span>;
+      case "model": return <span className="text-sm">{row.vehicle_model || row.model}</span>;
       case "service_type": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.service_type}</Badge>;
-      case "sa": return <span className="text-sm">{row.sa}</span>;
+      case "sa": return <span className="text-sm">{row.allocated_sa}</span>;
       case "source": return <span className="text-sm">{row.source}</span>;
-      case "status": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.status}</Badge>;
+      case "status": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.appointment_status}</Badge>;
       case "actions":
         return (
-          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.id}`)} data-testid={`action-btn-${row.id}`}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm" onClick={() => navigate(`/appointments/${row.appointment_id}`)} data-testid={`action-btn-${row.appointment_id}`}>
             <Eye className="w-4 h-4" strokeWidth={1.5} />
           </Button>
         );
