@@ -87,6 +87,9 @@ const DayView = () => {
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const todayDisplay = today.split("-").reverse().join("-");
 
+  // Filter reschedule history to only show from_dates strictly before today
+  const getRescheduleEntries = (history) => (history || []).filter(h => h.from_date && h.from_date < today);
+
   // Load column preferences
   useEffect(() => {
     const loadPrefs = async () => {
