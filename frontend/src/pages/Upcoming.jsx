@@ -332,7 +332,7 @@ const Upcoming = () => {
                   </TableRow>
                 ) : (
                   tomorrowRows.map((row) => (
-                    <TableRow key={row.id} className="hover:bg-gray-50">
+                    <TableRow key={row.appointment_id} className="hover:bg-gray-50">
                       {visTmr.map((col) => (
                         <TableCell key={col.id} className={`whitespace-nowrap text-center${col.id === "customer_name" ? " text-left" : ""}`}>
                           {renderTmrCell(col.id, row)}
