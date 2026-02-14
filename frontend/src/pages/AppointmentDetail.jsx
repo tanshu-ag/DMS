@@ -546,6 +546,7 @@ const AppointmentDetail = () => {
             formData={formData}
             setFormData={setFormData}
             settings={settings}
+            today={today}
             tomorrow={tomorrow}
           />
 
