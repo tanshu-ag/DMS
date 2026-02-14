@@ -439,7 +439,7 @@ const Upcoming = () => {
                   </TableRow>
                 ) : (
                   futureRows.map((row) => (
-                    <TableRow key={row.id} className="hover:bg-gray-50">
+                    <TableRow key={row.appointment_id} className="hover:bg-gray-50">
                       {visFut.map((col) => (
                         <TableCell key={col.id} className={`whitespace-nowrap text-center${col.id === "customer_name" ? " text-left" : ""}`}>
                           {renderFutCell(col.id, row)}
