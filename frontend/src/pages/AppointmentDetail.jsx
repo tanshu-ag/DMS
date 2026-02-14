@@ -529,7 +529,7 @@ const AppointmentDetail = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
-              {/* Day Outcome (renamed from Appointment Status) */}
+              {/* Day Outcome (linked to settings) */}
               <div>
                 <Label className="form-label">Day Outcome</Label>
                 {editMode && canEdit() ? (
@@ -540,23 +540,22 @@ const AppointmentDetail = () => {
                         setFormData({ ...formData, appointment_status: v, reschedule_date: formData.reschedule_date || "", reschedule_remarks: formData.reschedule_remarks || "", cancel_reason: formData.cancel_reason || "" });
                       }}
                     >
-                      <SelectTrigger className="rounded-sm mt-1" data-testid="status-select">
+                      <SelectTrigger className="rounded-sm mt-2" data-testid="status-select">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Booked">Booked</SelectItem>
-                        <SelectItem value="Confirmed">Confirmed</SelectItem>
-                        <SelectItem value="Reported">Reported</SelectItem>
-                        <SelectItem value="Rescheduled">Rescheduled</SelectItem>
-                        <SelectItem value="Cancelled">Cancelled</SelectItem>
+                        {(settings?.appointment_day_outcomes || ["Booked", "Confirmed", "Reported", "Rescheduled", "Cancelled", "No Show"]).map((s) => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
-                    {/* Rescheduled: date + remarks */}
+                    {/* Rescheduled: date (must be > today) + remarks */}
                     {(formData.appointment_status || appointment.appointment_status) === "Rescheduled" && (
                       <div className="mt-3 space-y-2">
                         <Label className="text-xs text-gray-500">Reschedule Date</Label>
                         <Input
                           type="date"
+                          min={tomorrow}
                           value={formData.reschedule_date || appointment.reschedule_date || ""}
                           onChange={(e) => setFormData({ ...formData, reschedule_date: e.target.value })}
                           className="rounded-sm text-sm"
@@ -589,7 +588,7 @@ const AppointmentDetail = () => {
                 ) : (
                   <>
                     <Badge
-                      className={`rounded-sm text-sm mt-1 ${
+                      className={`rounded-sm text-sm mt-2 ${
                         appointment.appointment_status === "Confirmed"
                           ? "bg-black text-white"
                           : "bg-white text-black border border-dashed border-black"
