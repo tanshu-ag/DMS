@@ -648,21 +648,45 @@ const AppointmentDetail = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">OTS/Recall</span>
-                  <Badge variant={appointment.ots_recall ? "default" : "outline"} className="rounded-sm text-xs">
-                    {appointment.ots_recall ? "Yes" : "No"}
-                  </Badge>
+                  {editMode && canEdit() ? (
+                    <Switch
+                      checked={formData.ots ?? appointment.ots}
+                      onCheckedChange={(v) => setFormData({ ...formData, ots: v })}
+                      data-testid="ots-toggle"
+                    />
+                  ) : (
+                    <Badge variant={appointment.ots ? "default" : "outline"} className="rounded-sm text-xs">
+                      {appointment.ots ? "Yes" : "No"}
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Docket Ready</span>
-                  <Badge variant={appointment.docket_readiness ? "default" : "outline"} className="rounded-sm text-xs">
-                    {appointment.docket_readiness ? "Yes" : "No"}
-                  </Badge>
+                  {editMode && canEdit() ? (
+                    <Switch
+                      checked={formData.docket_readiness ?? appointment.docket_readiness}
+                      onCheckedChange={(v) => setFormData({ ...formData, docket_readiness: v })}
+                      data-testid="docket-toggle"
+                    />
+                  ) : (
+                    <Badge variant={appointment.docket_readiness ? "default" : "outline"} className="rounded-sm text-xs">
+                      {appointment.docket_readiness ? "Yes" : "No"}
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Recovered</span>
-                  <Badge variant={appointment.recovered_lost_customer ? "default" : "outline"} className="rounded-sm text-xs">
-                    {appointment.recovered_lost_customer ? "Yes" : "No"}
-                  </Badge>
+                  <span className="text-sm">Lost Customer</span>
+                  {editMode && canEdit() ? (
+                    <Switch
+                      checked={formData.lost_customer ?? appointment.lost_customer}
+                      onCheckedChange={(v) => setFormData({ ...formData, lost_customer: v })}
+                      data-testid="lost-customer-toggle"
+                    />
+                  ) : (
+                    <Badge variant={appointment.lost_customer ? "default" : "outline"} className="rounded-sm text-xs">
+                      {appointment.lost_customer ? "Yes" : "No"}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </CardContent>
