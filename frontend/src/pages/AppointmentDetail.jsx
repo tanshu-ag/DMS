@@ -622,47 +622,6 @@ const AppointmentDetail = () => {
                 )}
               </div>
 
-              {/* Day Outcome */}
-              <div>
-                <Label className="form-label">Day Outcome</Label>
-                {canEditOutcome() ? (
-                  <>
-                    <Select
-                      value={appointment.appointment_day_outcome || ""}
-                      onValueChange={(v) => handleQuickUpdate("appointment_day_outcome", v)}
-                    >
-                      <SelectTrigger className="rounded-sm mt-1" data-testid="outcome-select">
-                        <SelectValue placeholder="Select outcome" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {settings?.appointment_day_outcomes?.map((o) => (
-                          <SelectItem key={o} value={o}>{o}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Textarea
-                      placeholder="Outcome notes..."
-                      value={formData.appointment_day_outcome_notes || ""}
-                      onChange={(e) => setFormData({ ...formData, appointment_day_outcome_notes: e.target.value })}
-                      onBlur={() => {
-                        if (formData.appointment_day_outcome_notes !== appointment.appointment_day_outcome_notes) {
-                          handleQuickUpdate("appointment_day_outcome_notes", formData.appointment_day_outcome_notes);
-                        }
-                      }}
-                      className="rounded-sm mt-2 text-sm"
-                      data-testid="outcome-notes"
-                    />
-                  </>
-                ) : (
-                  <>
-                    <p className="mt-1">{appointment.appointment_day_outcome || "-"}</p>
-                    {appointment.appointment_day_outcome_notes && (
-                      <p className="text-xs text-gray-500 mt-1">{appointment.appointment_day_outcome_notes}</p>
-                    )}
-                  </>
-                )}
-              </div>
-
               {/* Assigned CRE */}
               {canReassign() && (
                 <div>
