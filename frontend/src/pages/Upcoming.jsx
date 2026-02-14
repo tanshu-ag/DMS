@@ -218,18 +218,18 @@ const Upcoming = () => {
                 <TooltipTrigger>
                   <div className="w-4 h-4 bg-amber-100 text-amber-800 rounded-sm flex items-center justify-center text-[10px] font-bold shrink-0 cursor-help" data-testid={`reschedule-badge-${row.appointment_id}`}>R</div>
                 </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-[240px] p-3">
+                <TooltipContent side="bottom" className="max-w-[240px] p-3 bg-gray-100 border-0">
                   {(() => {
                     const entries = getRescheduleEntries(row.reschedule_history);
                     return entries.length > 0 ? (
                       <>
-                        <p className="font-bold text-xs mb-1.5">{entries.length} reschedule{entries.length !== 1 ? "s" : ""}</p>
+                        <p className="font-bold text-sm mb-2 text-black">{entries.length} reschedule{entries.length !== 1 ? "s" : ""}</p>
                         {entries.map((h, i) => (
-                          <p key={i} className="text-xs text-gray-600">{h.from_date.split("-").reverse().join("-")}</p>
+                          <p key={i} className="text-sm text-black mb-1">&gt; {h.from_date.split("-").reverse().join("-")}</p>
                         ))}
                       </>
                     ) : (
-                      <p className="text-xs text-gray-600">Rescheduled</p>
+                      <p className="text-sm text-black">Rescheduled</p>
                     );
                   })()}
                 </TooltipContent>
@@ -283,18 +283,18 @@ const Upcoming = () => {
                 <TooltipTrigger>
                   <div className="w-4 h-4 bg-amber-100 text-amber-800 rounded-sm flex items-center justify-center text-[10px] font-bold shrink-0 cursor-help" data-testid={`reschedule-badge-${row.appointment_id}`}>R</div>
                 </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-[240px] p-3">
+                <TooltipContent side="bottom" className="max-w-[240px] p-3 bg-gray-100 border-0">
                   {(() => {
                     const entries = getRescheduleEntries(row.reschedule_history);
                     return entries.length > 0 ? (
                       <>
-                        <p className="font-bold text-xs mb-1.5">{entries.length} reschedule{entries.length !== 1 ? "s" : ""}</p>
+                        <p className="font-bold text-sm mb-2 text-black">{entries.length} reschedule{entries.length !== 1 ? "s" : ""}</p>
                         {entries.map((h, i) => (
-                          <p key={i} className="text-xs text-gray-600">{h.from_date.split("-").reverse().join("-")}</p>
+                          <p key={i} className="text-sm text-black mb-1">&gt; {h.from_date.split("-").reverse().join("-")}</p>
                         ))}
                       </>
                     ) : (
-                      <p className="text-xs text-gray-600">Rescheduled</p>
+                      <p className="text-sm text-black">Rescheduled</p>
                     );
                   })()}
                 </TooltipContent>
