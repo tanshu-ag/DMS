@@ -173,17 +173,6 @@ const AppointmentDetail = () => {
 
   const isAppointmentDay = appointment?.appointment_date === today;
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "Confirmed":
-        return <CheckCircle className="w-4 h-4" strokeWidth={1.5} />;
-      case "Closed":
-        return <XCircle className="w-4 h-4" strokeWidth={1.5} />;
-      default:
-        return <Circle className="w-4 h-4" strokeWidth={1.5} />;
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
