@@ -219,10 +219,19 @@ const Upcoming = () => {
                   <div className="w-4 h-4 bg-amber-100 text-amber-800 rounded-sm flex items-center justify-center text-[10px] font-bold shrink-0 cursor-help" data-testid={`reschedule-badge-${row.appointment_id}`}>R</div>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="max-w-[240px] p-3">
-                  <p className="font-bold text-xs mb-1.5">{(row.reschedule_history || []).length} reschedule{(row.reschedule_history || []).length !== 1 ? "s" : ""}</p>
-                  {(row.reschedule_history || []).map((h, i) => (
-                    <p key={i} className="text-xs text-gray-600">{h.from_date ? h.from_date.split("-").reverse().join("-") : "-"}</p>
-                  ))}
+                  {(() => {
+                    const entries = getRescheduleEntries(row.reschedule_history);
+                    return entries.length > 0 ? (
+                      <>
+                        <p className="font-bold text-xs mb-1.5">{entries.length} reschedule{entries.length !== 1 ? "s" : ""}</p>
+                        {entries.map((h, i) => (
+                          <p key={i} className="text-xs text-gray-600">{h.from_date.split("-").reverse().join("-")}</p>
+                        ))}
+                      </>
+                    ) : (
+                      <p className="text-xs text-gray-600">Rescheduled</p>
+                    );
+                  })()}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -275,10 +284,19 @@ const Upcoming = () => {
                   <div className="w-4 h-4 bg-amber-100 text-amber-800 rounded-sm flex items-center justify-center text-[10px] font-bold shrink-0 cursor-help" data-testid={`reschedule-badge-${row.appointment_id}`}>R</div>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="max-w-[240px] p-3">
-                  <p className="font-bold text-xs mb-1.5">{(row.reschedule_history || []).length} reschedule{(row.reschedule_history || []).length !== 1 ? "s" : ""}</p>
-                  {(row.reschedule_history || []).map((h, i) => (
-                    <p key={i} className="text-xs text-gray-600">{h.from_date ? h.from_date.split("-").reverse().join("-") : "-"}</p>
-                  ))}
+                  {(() => {
+                    const entries = getRescheduleEntries(row.reschedule_history);
+                    return entries.length > 0 ? (
+                      <>
+                        <p className="font-bold text-xs mb-1.5">{entries.length} reschedule{entries.length !== 1 ? "s" : ""}</p>
+                        {entries.map((h, i) => (
+                          <p key={i} className="text-xs text-gray-600">{h.from_date.split("-").reverse().join("-")}</p>
+                        ))}
+                      </>
+                    ) : (
+                      <p className="text-xs text-gray-600">Rescheduled</p>
+                    );
+                  })()}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
