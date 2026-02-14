@@ -235,18 +235,18 @@ const AppointmentDetail = () => {
                     <TooltipTrigger>
                       <Badge className="bg-amber-100 text-amber-800 rounded-sm text-xs cursor-help" data-testid="reschedule-badge">[R]</Badge>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-[280px] p-3">
+                    <TooltipContent side="bottom" className="max-w-[280px] p-3 bg-gray-100 border-0">
                       {(() => {
-                        const entries = (appointment.reschedule_history || []).filter(h => h.from_date && h.from_date < today);
+                        const entries = (appointment.reschedule_history || []).filter(h => h.from_date);
                         return entries.length > 0 ? (
                           <>
-                            <p className="font-bold text-xs mb-1.5">{entries.length} reschedule{entries.length !== 1 ? "s" : ""}</p>
+                            <p className="font-bold text-sm mb-2 text-black">{entries.length} reschedule{entries.length !== 1 ? "s" : ""}</p>
                             {entries.map((h, i) => (
-                              <p key={i} className="text-xs text-gray-600">{h.from_date.split("-").reverse().join("-")}</p>
+                              <p key={i} className="text-sm text-black mb-1">&gt; {h.from_date.split("-").reverse().join("-")}</p>
                             ))}
                           </>
                         ) : (
-                          <p className="text-xs text-gray-600">Rescheduled</p>
+                          <p className="text-sm text-black">Rescheduled</p>
                         );
                       })()}
                     </TooltipContent>
