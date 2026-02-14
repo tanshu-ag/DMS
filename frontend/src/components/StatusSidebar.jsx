@@ -66,6 +66,7 @@ export const StatusSidebar = ({ appointment, editMode, canEdit, formData, setFor
           {isTodayOrTomorrow && (
             <FlagRow label="Docket Ready" field="docket_readiness" appointment={appointment} editMode={editMode} canEdit={canEdit} formData={formData} setFormData={setFormData} />
           )}
+          <FlagRow label="Priority" field="priority_customer" appointment={appointment} editMode={editMode} canEdit={canEdit} formData={formData} setFormData={setFormData} />
           <FlagRow label="Lost Customer" field="lost_customer" appointment={appointment} editMode={editMode} canEdit={canEdit} formData={formData} setFormData={setFormData} />
         </div>
       </CardContent>
