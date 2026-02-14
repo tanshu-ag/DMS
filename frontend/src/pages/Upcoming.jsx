@@ -142,20 +142,19 @@ const Upcoming = () => {
   const applyFilters = (rows) => {
     return rows.filter((r) => {
       if (filters.service_type && r.service_type !== filters.service_type) return false;
-      if (filters.sa && r.sa !== filters.sa) return false;
+      if (filters.sa && r.allocated_sa !== filters.sa) return false;
       if (filters.source && r.source !== filters.source) return false;
-      if (filters.status && r.status !== filters.status) return false;
+      if (filters.status && r.appointment_status !== filters.status) return false;
       return true;
     });
   };
 
   const now = new Date();
-  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const tmrDate = new Date(now); tmrDate.setDate(tmrDate.getDate() + 1);
   const tmrStr = `${tmrDate.getFullYear()}-${String(tmrDate.getMonth() + 1).padStart(2, "0")}-${String(tmrDate.getDate()).padStart(2, "0")}`;
 
-  const tomorrowRows = demoData.filter((r) => r.date === tmrStr);
-  let futureRows = demoData.filter((r) => r.date > tmrStr);
+  const tomorrowRows = appointments.filter((r) => r.appointment_date === tmrStr);
+  let futureRows = appointments.filter((r) => r.appointment_date > tmrStr);
 
   // Apply date-range filter
   if (filters.dateRange) {
