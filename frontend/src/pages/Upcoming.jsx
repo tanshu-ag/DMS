@@ -602,6 +602,60 @@ const Upcoming = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* N-1 Status Popup (Rescheduled / Cancelled) */}
+      <Dialog open={n1Popup.open} onOpenChange={(open) => { if (!open) setN1Popup({ ...n1Popup, open: false }); }}>
+        <DialogContent className="sm:max-w-md" data-testid="n1-popup-dialog">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold uppercase tracking-tight">
+              {n1Popup.status === "Rescheduled" ? "Reschedule Appointment" : "Cancel Appointment"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            {n1Popup.status === "Rescheduled" && (
+              <>
+                <div>
+                  <Label className="form-label">Reschedule Date</Label>
+                  <Input
+                    type="date"
+                    min={tmrStr}
+                    value={n1Popup.rescheduleDate}
+                    onChange={(e) => setN1Popup({ ...n1Popup, rescheduleDate: e.target.value })}
+                    className="rounded-sm mt-1"
+                    data-testid="n1-reschedule-date"
+                  />
+                </div>
+                <div>
+                  <Label className="form-label">Remarks</Label>
+                  <Textarea
+                    placeholder="Reschedule remarks..."
+                    value={n1Popup.rescheduleRemarks}
+                    onChange={(e) => setN1Popup({ ...n1Popup, rescheduleRemarks: e.target.value })}
+                    className="rounded-sm mt-1"
+                    data-testid="n1-reschedule-remarks"
+                  />
+                </div>
+              </>
+            )}
+            {n1Popup.status === "Cancelled" && (
+              <div>
+                <Label className="form-label">Reason for Cancellation</Label>
+                <Textarea
+                  placeholder="Enter reason..."
+                  value={n1Popup.cancelReason}
+                  onChange={(e) => setN1Popup({ ...n1Popup, cancelReason: e.target.value })}
+                  className="rounded-sm mt-1"
+                  data-testid="n1-cancel-reason"
+                />
+              </div>
+            )}
+          </div>
+          <DialogFooter className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" size="sm" className="rounded-sm" onClick={() => setN1Popup({ ...n1Popup, open: false })} data-testid="n1-popup-cancel">Cancel</Button>
+            <Button size="sm" className="rounded-sm bg-black text-white hover:bg-gray-800" onClick={submitN1Popup} data-testid="n1-popup-submit">Confirm</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
