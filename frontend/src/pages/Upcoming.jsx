@@ -99,8 +99,8 @@ const Upcoming = () => {
 
   const fmtDisplay = (d) => d ? d.split("-").reverse().join("-") : "";
 
-  // Filter reschedule history to only show from_dates strictly before today
-  const getRescheduleEntries = (history) => (history || []).filter(h => h.from_date && h.from_date < todayStr);
+  // Get all reschedule history entries
+  const getRescheduleEntries = (history) => (history || []).filter(h => h.from_date);
 
   useEffect(() => {
     fetchData();
