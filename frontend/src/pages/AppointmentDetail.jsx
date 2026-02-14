@@ -345,7 +345,7 @@ const AppointmentDetail = () => {
                       </SelectContent>
                     </Select>
                   ) : (
-                    <Badge variant="outline" className="rounded-sm mt-2">{appointment.source}</Badge>
+                    <p className="text-sm mt-1" data-testid="source-value">{appointment.source || "-"}</p>
                   )}
                 </div>
                 <div>
@@ -365,7 +365,7 @@ const AppointmentDetail = () => {
                       </SelectContent>
                     </Select>
                   ) : (
-                    <Badge variant="outline" className="rounded-sm font-mono mt-2">{appointment.service_type}</Badge>
+                    <p className="text-sm font-mono mt-1" data-testid="service-type-value">{appointment.service_type || "-"}</p>
                   )}
                 </div>
                 <div>
