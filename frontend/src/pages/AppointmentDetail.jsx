@@ -68,11 +68,12 @@ const AppointmentDetail = () => {
 
   const fetchData = async () => {
     try {
-      const [apptRes, logsRes, settingsRes, cresRes] = await Promise.all([
+      const [apptRes, logsRes, settingsRes, cresRes, branchesRes] = await Promise.all([
         axios.get(`${API}/appointments/${id}`, { withCredentials: true }),
         axios.get(`${API}/appointments/${id}/activity`, { withCredentials: true }),
         axios.get(`${API}/settings`, { withCredentials: true }),
         axios.get(`${API}/users/cres`, { withCredentials: true }),
+        axios.get(`${API}/branches`, { withCredentials: true }),
       ]);
 
       setAppointment(apptRes.data);
@@ -80,6 +81,7 @@ const AppointmentDetail = () => {
       setActivityLogs(logsRes.data);
       setSettings(settingsRes.data);
       setCres(cresRes.data);
+      setBranches(branchesRes.data || []);
     } catch (error) {
       toast.error("Failed to load appointment");
       navigate("/day");
