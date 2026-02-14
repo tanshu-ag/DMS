@@ -220,21 +220,19 @@ const AppointmentDetail = () => {
                 <Badge className="bg-black text-white rounded-sm text-xs">PRIORITY</Badge>
               )}
               {appointment.is_rescheduled && (
-                <div className="relative group">
-                  <Badge className="bg-amber-100 text-amber-800 rounded-sm text-xs cursor-help">[R]</Badge>
-                  {appointment.reschedule_history?.length > 0 && (
-                    <div className="absolute left-0 top-full mt-1 z-50 hidden group-hover:block bg-white border border-gray-200 shadow-lg rounded-sm p-3 min-w-[250px]">
-                      <p className="text-xs font-bold mb-2">Reschedule History</p>
-                      {appointment.reschedule_history.map((h, i) => (
-                        <div key={i} className="text-xs text-gray-600 mb-1 border-b border-gray-100 pb-1">
-                          <span>{h.from_date} → {h.to_date}</span>
-                          {h.remarks && <p className="text-gray-400">{h.remarks}</p>}
-                          <p className="text-gray-400">by {h.rescheduled_by}</p>
-                        </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Badge className="bg-amber-100 text-amber-800 rounded-sm text-xs">[R]</Badge>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[280px]">
+                      <p className="font-bold text-xs mb-1">Reschedule History</p>
+                      {(appointment.reschedule_history || []).map((h, i) => (
+                        <p key={i} className="text-xs">{h.from_date} → {h.to_date}{h.remarks ? ` (${h.remarks})` : ""}</p>
                       ))}
-                    </div>
-                  )}
-                </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
             </div>
           </div>
