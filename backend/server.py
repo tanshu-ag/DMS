@@ -908,10 +908,12 @@ async def update_appointment(request: Request, appointment_id: str, update_data:
     
     # CRM has full access
     
-    # Log changes
+    # Log changes — only log meaningful differences (skip null ↔ empty string)
     for field, new_val in update_dict.items():
         old_val = appointment.get(field)
-        if old_val != new_val:
+        norm_old = None if old_val in (None, "", "None") else old_val
+        norm_new = None if new_val in (None, "", "None") else new_val
+        if norm_old != norm_new:
             await log_activity(
                 appointment_id,
                 user_id,

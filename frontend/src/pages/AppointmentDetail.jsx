@@ -96,9 +96,13 @@ const AppointmentDetail = () => {
     try {
       const updateData = {};
       
-      // Only include changed fields
+      // Only include genuinely changed fields (treat null/undefined/"" as equivalent)
       Object.keys(formData).forEach((key) => {
-        if (formData[key] !== appointment[key]) {
+        const newVal = formData[key];
+        const oldVal = appointment[key];
+        const isEmpty = (v) => v === null || v === undefined || v === "";
+        if (isEmpty(newVal) && isEmpty(oldVal)) return;
+        if (newVal !== oldVal) {
           updateData[key] = formData[key];
         }
       });
