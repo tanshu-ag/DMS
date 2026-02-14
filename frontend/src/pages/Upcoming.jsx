@@ -280,7 +280,7 @@ const Upcoming = () => {
       case "status": return <Badge variant="outline" className="rounded-sm text-xs font-medium whitespace-nowrap">{row.appointment_status}</Badge>;
       case "n1_status":
         return (
-          <Select value={row.n_minus_1_confirmation_status || "Pending"} onValueChange={(v) => updateN1(row.appointment_id, v)}>
+          <Select value={row.n_minus_1_confirmation_status || "Pending"} onValueChange={(v) => handleN1Change(row.appointment_id, v)}>
             <SelectTrigger className="h-7 w-[130px] rounded-sm text-xs border-0 p-0 pl-2 mx-auto" data-testid={`n1-select-${row.appointment_id}`}>
               <Badge className={`${getN1Color(row.n_minus_1_confirmation_status)} rounded-sm text-xs font-medium border-0 whitespace-nowrap`}>{row.n_minus_1_confirmation_status || "Pending"}</Badge>
             </SelectTrigger>
