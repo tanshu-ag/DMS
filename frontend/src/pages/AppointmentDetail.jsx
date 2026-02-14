@@ -520,185 +520,37 @@ const AppointmentDetail = () => {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Status & Actions */}
-          <Card className="border border-gray-200 rounded-sm shadow-none">
-            <CardHeader className="border-b border-gray-100 pb-4">
-              <CardTitle className="font-heading font-bold text-lg tracking-tight uppercase">
-                Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              {/* Day Outcome (linked to settings) */}
-              <div>
-                <Label className="form-label">Day Outcome</Label>
-                {editMode && canEdit() ? (
-                  <>
-                    <Select
-                      value={formData.appointment_status || appointment.appointment_status}
-                      onValueChange={(v) => {
-                        setFormData({ ...formData, appointment_status: v, reschedule_date: formData.reschedule_date || "", reschedule_remarks: formData.reschedule_remarks || "", cancel_reason: formData.cancel_reason || "" });
-                      }}
-                    >
-                      <SelectTrigger className="rounded-sm mt-2" data-testid="status-select">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(settings?.appointment_day_outcomes || ["Booked", "Confirmed", "Reported", "Rescheduled", "Cancelled", "No Show"]).map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {/* Rescheduled: date (must be > today) + remarks */}
-                    {(formData.appointment_status || appointment.appointment_status) === "Rescheduled" && (
-                      <div className="mt-3 space-y-2">
-                        <Label className="text-xs text-gray-500">Reschedule Date</Label>
-                        <Input
-                          type="date"
-                          min={tomorrow}
-                          value={formData.reschedule_date || appointment.reschedule_date || ""}
-                          onChange={(e) => setFormData({ ...formData, reschedule_date: e.target.value })}
-                          className="rounded-sm text-sm"
-                          data-testid="reschedule-date"
-                        />
-                        <Label className="text-xs text-gray-500">Remarks</Label>
-                        <Textarea
-                          placeholder="Reschedule remarks..."
-                          value={formData.reschedule_remarks || ""}
-                          onChange={(e) => setFormData({ ...formData, reschedule_remarks: e.target.value })}
-                          className="rounded-sm text-sm"
-                          data-testid="reschedule-remarks"
-                        />
-                      </div>
-                    )}
-                    {/* Cancelled: reason */}
-                    {(formData.appointment_status || appointment.appointment_status) === "Cancelled" && (
-                      <div className="mt-3 space-y-2">
-                        <Label className="text-xs text-gray-500">Reason for Cancellation</Label>
-                        <Textarea
-                          placeholder="Enter reason..."
-                          value={formData.cancel_reason || ""}
-                          onChange={(e) => setFormData({ ...formData, cancel_reason: e.target.value })}
-                          className="rounded-sm text-sm"
-                          data-testid="cancel-reason"
-                        />
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <Badge
-                      className={`rounded-sm text-sm mt-2 ${
-                        appointment.appointment_status === "Confirmed"
-                          ? "bg-black text-white"
-                          : "bg-white text-black border border-dashed border-black"
-                      }`}
-                    >
-                      {appointment.appointment_status}
-                    </Badge>
-                    {appointment.appointment_status === "Rescheduled" && appointment.reschedule_date && (
-                      <p className="text-xs text-gray-500 mt-1">Rescheduled to: {appointment.reschedule_date}</p>
-                    )}
-                    {appointment.appointment_status === "Rescheduled" && appointment.reschedule_remarks && (
-                      <p className="text-xs text-gray-500 mt-1">{appointment.reschedule_remarks}</p>
-                    )}
-                    {appointment.appointment_status === "Cancelled" && appointment.cancel_reason && (
-                      <p className="text-xs text-gray-500 mt-1">Reason: {appointment.cancel_reason}</p>
-                    )}
-                  </>
-                )}
-              </div>
+          <StatusSidebar
+            appointment={appointment}
+            editMode={editMode}
+            canEdit={canEdit()}
+            formData={formData}
+            setFormData={setFormData}
+            settings={settings}
+            tomorrow={tomorrow}
+          />
 
-              {/* N-1 Confirmation */}
-              <div>
-                <Label className="form-label">N-1 Confirmation</Label>
-                {editMode && canEdit() ? (
-                  <Select
-                    value={formData.n_minus_1_confirmation_status || appointment.n_minus_1_confirmation_status}
-                    onValueChange={(v) => setFormData({ ...formData, n_minus_1_confirmation_status: v })}
-                  >
-                    <SelectTrigger className="rounded-sm mt-1" data-testid="n1-status-select">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {settings?.n_minus_1_confirmation_statuses?.map((s) => (
-                        <SelectItem key={s} value={s}>{s}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <p className="mt-1">{appointment.n_minus_1_confirmation_status}</p>
-                )}
-              </div>
-
-              {/* Assigned CRE */}
-              {canReassign() && (
-                <div>
-                  <Label className="form-label">Assigned CRE</Label>
-                  <Select
-                    value={appointment.assigned_cre_user}
-                    onValueChange={(v) => handleQuickUpdate("assigned_cre_user", v)}
-                  >
-                    <SelectTrigger className="rounded-sm mt-1" data-testid="cre-select">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cres.map((c) => (
-                        <SelectItem key={c.user_id} value={c.user_id}>{c.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              <Separator />
-
-              {/* Flags */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">OTS/Recall</span>
-                  {editMode && canEdit() ? (
-                    <Switch
-                      checked={formData.ots ?? appointment.ots}
-                      onCheckedChange={(v) => setFormData({ ...formData, ots: v })}
-                      data-testid="ots-toggle"
-                    />
-                  ) : (
-                    <Badge variant={appointment.ots ? "default" : "outline"} className="rounded-sm text-xs">
-                      {appointment.ots ? "Yes" : "No"}
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Docket Ready</span>
-                  {editMode && canEdit() ? (
-                    <Switch
-                      checked={formData.docket_readiness ?? appointment.docket_readiness}
-                      onCheckedChange={(v) => setFormData({ ...formData, docket_readiness: v })}
-                      data-testid="docket-toggle"
-                    />
-                  ) : (
-                    <Badge variant={appointment.docket_readiness ? "default" : "outline"} className="rounded-sm text-xs">
-                      {appointment.docket_readiness ? "Yes" : "No"}
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Lost Customer</span>
-                  {editMode && canEdit() ? (
-                    <Switch
-                      checked={formData.lost_customer ?? appointment.lost_customer}
-                      onCheckedChange={(v) => setFormData({ ...formData, lost_customer: v })}
-                      data-testid="lost-customer-toggle"
-                    />
-                  ) : (
-                    <Badge variant={appointment.lost_customer ? "default" : "outline"} className="rounded-sm text-xs">
-                      {appointment.lost_customer ? "Yes" : "No"}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Assigned CRE */}
+          {canReassign() && (
+            <Card className="border border-gray-200 rounded-sm shadow-none">
+              <CardContent className="p-6">
+                <Label className="form-label">Assigned CRE</Label>
+                <Select
+                  value={appointment.assigned_cre_user}
+                  onValueChange={(v) => handleQuickUpdate("assigned_cre_user", v)}
+                >
+                  <SelectTrigger className="rounded-sm mt-1" data-testid="cre-select">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cres.map((c) => (
+                      <SelectItem key={c.user_id} value={c.user_id}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Activity Log */}
           <Card className="border border-gray-200 rounded-sm shadow-none">
