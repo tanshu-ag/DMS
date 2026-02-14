@@ -1391,6 +1391,120 @@ async def save_user_preferences(request: Request, page: str, data: ColumnPrefere
     )
     return {"message": "Preferences saved"}
 
+# ============== SEED DEMO APPOINTMENTS ==============
+
+@api_router.post("/seed-demo-appointments")
+async def seed_demo_appointments():
+    """Generate 4 appointments per day from today through May 30, 2026. Keeps history intact."""
+    import random
+
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    end_date = "2026-05-30"
+
+    # Delete only today and future appointments
+    await db.appointments.delete_many({"appointment_date": {"$gte": today}})
+
+    customers = [
+        ("Aarav Mehta", "9012345601", "aarav.m@gmail.com"),
+        ("Diya Bose", "9012345602", "diya.b@yahoo.com"),
+        ("Kabir Sinha", "9012345603", "kabir.s@gmail.com"),
+        ("Ishita Ghosh", "9012345604", "ishita.g@outlook.com"),
+        ("Rohan Chatterjee", "9012345605", "rohan.c@gmail.com"),
+        ("Tanvi Mukherjee", "9012345606", "tanvi.m@outlook.com"),
+        ("Arjun Nair", "9012345607", "arjun.n@gmail.com"),
+        ("Priya Reddy", "9012345608", "priya.r@yahoo.com"),
+        ("Vikram Shah", "9012345609", "vikram.s@gmail.com"),
+        ("Neha Kapoor", "9012345610", "neha.k@outlook.com"),
+        ("Pooja Agarwal", "9012345611", "pooja.a@gmail.com"),
+        ("Rahul Verma", "9012345612", "rahul.v@yahoo.com"),
+        ("Sneha Das", "9012345613", "sneha.d@gmail.com"),
+        ("Amit Pal", "9012345614", "amit.p@outlook.com"),
+        ("Ritu Sharma", "9012345615", "ritu.s@gmail.com"),
+        ("Sanjay Kumar", "9012345616", "sanjay.k@yahoo.com"),
+        ("Meera Joshi", "9012345617", "meera.j@gmail.com"),
+        ("Deepak Tiwari", "9012345618", "deepak.t@outlook.com"),
+        ("Ananya Roy", "9012345619", "ananya.r@gmail.com"),
+        ("Kunal Banerjee", "9012345620", "kunal.b@yahoo.com"),
+    ]
+    models = ["Kiger", "Triber", "Duster", "Kwid", "Magnite"]
+    reg_prefixes = ["WB74U", "AS01U", "WB73U", "BR01U", "WB72U", "KA01A", "MH02B", "DL03C"]
+    sources = ["SDR", "Incoming", "MYR", "Other"]
+    service_types = ["1FS", "2FS", "3FS", "PMS", "RR", "BP"]
+    sas = ["Arjun", "Vivek"]
+    cres = ["Pooja", "Rahul"]
+    branches = ["Main Branch", "North Branch"]
+    statuses_today = ["Booked", "Confirmed", "Reported", "Rescheduled"]
+    statuses_upcoming = ["Booked", "Scheduled", "Confirmed"]
+    times = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "14:00", "14:30", "15:00", "15:30", "16:00"]
+    n1_statuses = ["Confirmed", "Pending", "Not Reachable"]
+    day_outcomes = ["Reported", "No Show", "Rescheduled", None]
+
+    appointments = []
+    current = datetime.strptime(today, "%Y-%m-%d")
+    end = datetime.strptime(end_date, "%Y-%m-%d")
+    sl = 100
+    day_idx = 0
+
+    while current <= end:
+        date_str = current.strftime("%Y-%m-%d")
+        is_today = date_str == today
+        picked_times = random.sample(times, 4)
+        picked_times.sort()
+
+        for i in range(4):
+            ci = (day_idx * 4 + i) % len(customers)
+            name, phone, email = customers[ci]
+            sl += 1
+            reg = f"{random.choice(reg_prefixes)}{1000 + sl}"
+            is_priority = random.random() < 0.2
+            has_ots = random.random() < 0.15
+            docket = random.random() < 0.5
+            lost = random.random() < 0.1
+
+            appt = {
+                "appointment_id": f"apt_up_{sl:03d}",
+                "sl_no": sl,
+                "branch": random.choice(branches),
+                "appointment_date": date_str,
+                "appointment_time": picked_times[i],
+                "source": random.choice(sources),
+                "customer_name": name.upper() if is_priority else name,
+                "customer_phone": phone,
+                "customer_email": email,
+                "vehicle_reg": reg,
+                "vehicle_model": random.choice(models),
+                "current_km": str(random.randint(5000, 80000)),
+                "ots": has_ots,
+                "service_type": random.choice(service_types),
+                "allocated_sa": random.choice(sas),
+                "specific_repair": random.choice(["", "AC service needed", "Brake pad replacement", "Engine noise check", "Full body wash", ""]),
+                "priority_customer": is_priority,
+                "docket_readiness": docket,
+                "n_minus_1_confirmation": random.choice(n1_statuses) if not is_today else random.choice(["Confirmed", "Pending"]),
+                "n_minus_1_confirmation_status": random.choice(n1_statuses),
+                "upcoming_status": "Scheduled",
+                "appointment_status": random.choice(statuses_today) if is_today else random.choice(statuses_upcoming),
+                "appointment_day_outcome": random.choice(day_outcomes) if is_today else None,
+                "cre_name": random.choice(cres),
+                "lost_customer": lost,
+                "rescheduled_in_n1": False,
+                "cancelled_in_n1": False,
+                "assigned_cre_user": random.choice(["user_cre_001", "user_cre_002"]),
+                "created_by": random.choice(["user_cre_001", "user_cre_002"]),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }
+            appointments.append(appt)
+
+        day_idx += 1
+        current += timedelta(days=1)
+
+    # Bulk insert
+    if appointments:
+        await db.appointments.insert_many(appointments)
+
+    return {"message": f"Seeded {len(appointments)} appointments from {today} to {end_date} (4 per day)"}
+
 # ============== ROOT ROUTE ==============
 
 @api_router.get("/")
