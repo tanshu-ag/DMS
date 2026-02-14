@@ -1,0 +1,164 @@
+<analysis>**original_problem_statement**: The user wants to implement a series of enhancements for the Customer Relations module, focusing on the appointment tables (Today, Upcoming, History) and the Appointment Card / Sheet (Appointment Detail page).
+
+**PRODUCT REQUIREMENTS:**
+1.  **Appointment Card / Sheet UI/UX:**
+    *   **Layout:** The text boxes/values for fields like Source of Data (SDR) and Type of Service (3FS) should be moved *under* their respective headings, not to the right, aligning with the Service Advisor's name.
+    *   **Field Consolidation:** Remove the Day Outcome section and rename the Appointment Status label to Day Outcome.
+    *   **Day Outcome Field Logic:**
+        *   This dropdown should be dynamically populated from the Day Outcome list in Other Settings.
+        *   No Show should be included as an option and set as the default.
+        *   If the status is Rescheduled, show fields for a new date and remarks. The reschedule date must be after the current day.
+        *   If the status is Cancelled, show a text box for the reason.
+        *   The system should automatically mark an appointment as No Show if the customer doesn't report by 7 PM (This part is not yet implemented).
+    *   **Reschedule Flow:** When an appointment is rescheduled, a new appointment must be automatically created in the Upcoming list. This new appointment retains the original  and gets an  mark next to the customer's name. Hovering over the  mark should show the appointment's reschedule history.
+    *   **Booking ID:** Implement a non-editable, auto-generated, unique  for each new appointment (e.g., ). This ID persists across reschedules.
+    *   **Field Renaming & Cleanup:** Rename Recovered to Lost Customer and remove the Notes text area from the N-1 Confirmation section.
+    *   **Editable Fields:** In edit mode, the following fields must be editable: Day Outcome, N-1 Confirmation, OTS Recall, Docket Ready, and Lost Customer.
+    *   **Dynamic Dropdowns:** The Branch field should be a dropdown populated from the  endpoint.
+    *   **Spacing:** Add more vertical space between labels and their corresponding value boxes (e.g., between SDR and its text box).
+2.  **Table Functionality & Data:**
+    *   **Action Buttons:** The Upcoming table's view (eye) icon should navigate to the correct appointment detail page, not show an error.
+    *   **Demo Data:** Generate and seed 4 demo appointments for each day from the current date through May 30, 2026, for the Today and Upcoming views, while preserving all existing History data.
+
+**User's preferred language**: English
+
+**what currently exists?**
+The application's Customer Relations module is functional. The agent has implemented most of the user's recent, complex feature requests for the Appointment Detail page. This includes adding a  system, implementing the backend and frontend logic for rescheduling appointments, linking dropdowns to API data, and making various fields editable. The UI was refactored into smaller components () to resolve build issues. A data seeding endpoint was created and used to populate the database. The previous major issue of the Upcoming page using incorrect mock data has been resolved. The agent was about to start on the final UI layout tweak requested by the user.
+
+**Last working item**:
+*   **Last item agent was working:** The user requested a final UI layout change for the Appointment Detail page (). They want the values for Source (SDR) and Service Type to be positioned *under* their respective labels, not next to them.
+*   **Status:** NOT STARTED
+*   **Agent Testing Done:** N/A
+*   **Which testing method agent to use?** Frontend testing agent (after an initial smoke test with the screenshot tool).
+*   **User Testing Done:** N/A
+
+**All Pending/In progress Issue list**:
+*   **Issue 1:** Incorrect layout on Appointment Detail page (P0 - HIGHEST)
+
+**Issues Detail**:
+*   **Issue 1:** Incorrect layout on Appointment Detail page
+    *   **Attempted fixes:** None. This is a new request.
+    *   **Next debug checklist:**
+        1.  Locate the JSX for the Source of Data and Type of Service sections within .
+        2.  Modify the Flexbox or Grid layout classes (e.g., , , etc.) to stack the label and its value vertically instead of horizontally.
+        3.  Ensure the vertical alignment matches the reference image provided by the user.
+        4.  Verify the change doesn't break the responsive layout on smaller screens.
+    *   **Why fix this issue and what will be achieved with the fix?** To match the user's specific UI/UX design requirements for the Appointment Card.
+    *   **Status:** NOT STARTED
+    *   **Is recurring issue?** N
+    *   **Should Test frontend/backend/both after fix?** Frontend
+    *   **Blocked on other issue:** None
+
+**In progress Task List**:
+None.
+
+**Upcoming and Future Tasks**
+*   **Future Tasks:**
+    *   P1: Implement the logic to automatically mark an appointment as No Show if the customer has not reported by 7 PM on the appointment day. This will likely require a backend cron job or a scheduled task.
+
+**Completed work in this session**
+-   **Appointment Reschedule & Booking ID Flow (Major Feature):**
+    -   Backend ():
+        -   Added logic to auto-generate a unique  (e.g., ) for new appointments.
+        -   Implemented the rescheduling mechanism: when an appointment's status is updated to Rescheduled, the system archives the old one and creates a new appointment for the future date with the same  and an updated reschedule history.
+    -   Frontend ():
+        -   Displayed the .
+        -   Added an  icon with a hover-able tooltip showing reschedule history for relevant appointments.
+        -   Linked Day Outcome and Branch dropdowns to fetch data from backend settings and .
+        -   Added conditional UI for Rescheduled (date/remarks) and Cancelled (reason) statuses.
+        -   Set the minimum date for the reschedule date picker to the next day.
+-   **UI Refactoring & Bug Fixes:**
+    -   **Compilation Error:** Fixed a Maximum call stack size exceeded build error by refactoring the large  into smaller components, creating  and .
+    -   **Upcoming Page Bug:** Fixed a critical bug where the Upcoming page used static mock data, causing navigation errors. The page was refactored to fetch live data from the API.
+    -   **Action Button UI:** Corrected the row action button on all tables to be a simple View (eye) icon that navigates to the detail page, per user's final decision after several iterations.
+    -   **Appointment Detail UI:**
+        -   Replaced the Phone icon with an Edit icon.
+        -   Renamed Appointment Status to Day Outcome and Recovered to Lost Customer.
+        -   Removed the Notes field from the N-1 section.
+        -   Added edit-mode functionality for several fields (Day Outcome, N-1, OTS, etc.).
+-   **Data Management:**
+    -   **Data Seeding:** Created and executed a backend endpoint () to populate the database with 4 daily appointments until May 30, 2026, while preserving historical data.
+
+**Earlier issues found/mentioned but not fixed**
+None.
+
+**Known issue recurrence from previous fork**
+None.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+-   **Frontend:** React, Material-UI (MUI), React Router, Axios.
+-   **Backend:** Node.js, Express.js, Mongoose.
+-   **Component Refactoring:** Decomposing large, complex JSX files (like ) into smaller, single-responsibility components to fix build errors and improve maintainability.
+-   **Backend Business Logic:** Implementing complex business rules (e.g., auto-generating IDs, creating linked records upon status change) in backend controllers.
+-   **Data Seeding:** Using a dedicated API endpoint to populate the database with extensive test data for development and testing.
+
+**key DB schema**
+-   **appointments**: , , , , , , , , , .
+
+**changes in tech stack**
+-   None.
+
+**All files of reference**
+-   **Created:**
+    -   : New component to hold the status and flags section from the appointment detail page, created to solve a build issue.
+    -   : New component for the reschedule history tooltip.
+-   **Updated:**
+    -   : Major overhaul for the reschedule flow, booking ID, dynamic dropdowns, and UI cleanup. Refactored to use .
+    -   : Major refactor to replace mock data with live API calls.
+    -   : Updated to display the  reschedule mark.
+    -   : Heavily modified to add booking ID generation, data seeding, and the core appointment rescheduling logic.
+    -   : Added new fields to support the booking ID and reschedule features.
+    -   : Added the  endpoint.
+
+**Areas that need refactoring**:
+-   The column customization logic (modals, state management) is still duplicated across , , and . This could be extracted into a reusable custom hook (e.g., ) to reduce code repetition.
+
+**key api endpoints**
+-   : Seeds the database with a large set of demo appointments.
+-   : Endpoint was enhanced to handle the complex rescheduling logic on the backend.
+-   : Fetches all future appointments.
+-   : Fetches the list of company branches.
+
+**Critical Info for New Agent**
+-   **Top Priority:** The immediate task is to fix the layout on the  page as per the user's last message (stacking labels and values vertically).
+-   **Component Structure:** Be aware that  has been refactored. The main status/flags sidebar logic is now located in . You will likely need to edit that file for the layout change.
+-   **Build Sensitivity:** The project's build process is sensitive to deeply nested JSX components. When making changes, prefer breaking down complex UI into smaller components over creating deeply nested conditional rendering within a single file.
+-   **Backend Logic:** The logic for creating a new appointment upon rescheduling is handled entirely on the backend within . Any changes to this flow will require backend modifications.
+
+**documents and test reports created in this job**
+-   
+
+**Last 10 User Messages and any pending HUMAN messages**
+1.  **User (Pending):** Shift the text box containting MYR and 3FS under the respective headings instead of on the right... - **Status: Unresolved. This is the top priority task.**
+2.  **User:** Provided a large set of requirements for the Appointment Card, including booking IDs, reschedule flow, linking fields to settings, and UI cleanup. - **Status: Mostly completed, pending the final layout tweak.**
+3.  **User:** Requested to add 4 demo appointments per day for Today and Upcoming until May 30, 2026. - **Status: Completed.**
+4.  **User:** Reported that the Upcoming page gives an error when clicking the view icon. - **Status: Resolved.**
+5.  **User:** Provided an image and detailed requirements for editing the Appointment Card. - **Status: Completed.**
+6.  **User:** Confirmed the agent's summary of the Appointment Card changes. - **Status: N/A.**
+7.  **User:** Stated that the eye icon should open the Customer Card (detail page), not a dropdown, and that the Edit button should replace the Phone button on that card. - **Status: Completed.**
+8.  **User:** Eye icon does not open the drop down. - **Status: N/A (Part of a larger feedback thread).**
+9.  **User:** Rejected the three-dot kebab menu and asked to revert to the eye icon as the menu trigger. - **Status: Superseded by later feedback.**
+10. **User:** I did not ask for the three-dot menu, revert back to the eye icon. - **Status: Superseded.**
+
+**Project Health Check:**
+*   **Broken:** The layout of the Appointment Detail page's info boxes does not match the user's latest request.
+*   **Mocked:** None.
+
+**3rd Party Integrations**
+*   None.
+
+**Testing status**
+-   **Testing agent used after significant changes:** NO (for the last major batch of changes)
+-   **Troubleshoot agent used after agent stuck in loop:** NO
+-   **Test files created:** []
+-   **Known regressions:** None.
+
+**Credentials to test flow:**
+*   **Username:** 
+*   **Password:** 
+
+**What agent forgot to execute**
+-   The agent has not yet implemented the user's latest request to change the layout on the Appointment Detail page (stacking labels and values vertically). This is the next action item.</analysis>
