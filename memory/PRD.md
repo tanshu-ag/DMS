@@ -27,7 +27,7 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - Auth: Username/password with session tokens
 
 ## Key API Endpoints
-- `GET /api/appointments` - Fetch appointments with filters
+- `GET /api/appointments` - Fetch appointments with filters (supports view=day, upcoming, month, year, custom)
 - `GET /api/user-preferences/:view` - Get column layout preferences
 - `PUT /api/user-preferences/:view` - Save column layout preferences
 - `POST /api/auth/login` - Login
@@ -41,6 +41,7 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - Eye icon in table rows navigates to Customer Card
 - Customer Card: Phone button replaced with Edit (pencil) icon, Message icon kept
 - DP role added to canEdit() for admin edit access
+- Upcoming page: Replaced demo/mock data with real API data (view=upcoming)
 
 ## Backlog
 - P2: Extract column control logic into reusable `useColumnManager` hook
