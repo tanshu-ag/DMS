@@ -929,6 +929,78 @@ async def update_appointment(request: Request, appointment_id: str, update_data:
         {"$set": update_dict}
     )
     
+    # Handle reschedule: create new upcoming appointment with same booking_id
+    if "appointment_status" in update_dict and update_dict["appointment_status"] == "Rescheduled":
+        reschedule_date = update_dict.get("reschedule_date")
+        if reschedule_date:
+            # Build reschedule history entry
+            history_entry = {
+                "from_date": appointment.get("appointment_date"),
+                "to_date": reschedule_date,
+                "remarks": update_dict.get("reschedule_remarks", ""),
+                "rescheduled_at": datetime.now(timezone.utc).isoformat(),
+                "rescheduled_by": user["name"]
+            }
+            # Get existing reschedule_history from original
+            existing_history = appointment.get("reschedule_history", [])
+            existing_history.append(history_entry)
+            
+            # Get next sl_no
+            last_appt = await db.appointments.find_one(
+                {}, {"_id": 0, "sl_no": 1}, sort=[("sl_no", -1)]
+            )
+            new_sl = (last_appt.get("sl_no", 0) + 1) if last_appt else 1
+            
+            now_iso = datetime.now(timezone.utc).isoformat()
+            new_appt = {
+                "appointment_id": f"appt_{uuid.uuid4().hex[:12]}",
+                "booking_id": appointment.get("booking_id"),
+                "sl_no": new_sl,
+                "branch": appointment.get("branch"),
+                "appointment_date": reschedule_date,
+                "appointment_time": appointment.get("appointment_time"),
+                "source": appointment.get("source"),
+                "customer_name": appointment.get("customer_name"),
+                "customer_phone": appointment.get("customer_phone"),
+                "customer_email": appointment.get("customer_email"),
+                "vehicle_reg_no": appointment.get("vehicle_reg_no"),
+                "vehicle_reg": appointment.get("vehicle_reg"),
+                "vehicle_model": appointment.get("vehicle_model"),
+                "model": appointment.get("model"),
+                "current_km": appointment.get("current_km"),
+                "ots": appointment.get("ots", False),
+                "service_type": appointment.get("service_type"),
+                "allocated_sa": appointment.get("allocated_sa"),
+                "specific_repair_request": appointment.get("specific_repair_request"),
+                "specific_repair": appointment.get("specific_repair"),
+                "priority_customer": appointment.get("priority_customer", False),
+                "docket_readiness": False,
+                "n_minus_1_confirmation_status": "Pending",
+                "appointment_status": "Booked",
+                "lost_customer": appointment.get("lost_customer", False),
+                "is_rescheduled": True,
+                "reschedule_history": existing_history,
+                "assigned_cre_user": appointment.get("assigned_cre_user"),
+                "cre_name": appointment.get("cre_name"),
+                "created_by": appointment.get("created_by") or appointment.get("created_by_user"),
+                "created_at": now_iso,
+                "updated_at": now_iso,
+            }
+            await db.appointments.insert_one(new_appt)
+            
+            # Also store the history on the original appointment
+            await db.appointments.update_one(
+                {"appointment_id": appointment_id},
+                {"$set": {"reschedule_history": existing_history}}
+            )
+            
+            await log_activity(
+                new_appt["appointment_id"],
+                user["user_id"],
+                user["name"],
+                f"Rescheduled from {appointment.get('appointment_date')} to {reschedule_date}",
+            )
+    
     # Complete N-1 task if status updated
     if "n_minus_1_confirmation_status" in update_dict and update_dict["n_minus_1_confirmation_status"] != "Pending":
         await db.tasks.update_one(
