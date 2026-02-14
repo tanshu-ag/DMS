@@ -682,13 +682,28 @@ async def log_activity(appointment_id: str, user_id: str, user_name: str,
 @api_router.post("/appointments", status_code=201)
 async def create_appointment(request: Request, appt_data: AppointmentCreate):
     """Create new appointment"""
-    user = await require_role(request, ["CRE", "CRM", "Receptionist"])
+    user = await require_role(request, ["CRE", "CRM", "Receptionist", "DP"])
     
     # Get next sl_no
     last_appt = await db.appointments.find_one(
         {}, {"_id": 0, "sl_no": 1}, sort=[("sl_no", -1)]
     )
     sl_no = (last_appt.get("sl_no", 0) + 1) if last_appt else 1
+    
+    # Generate booking_id (#SILB0001, #SILB0002, ...)
+    last_booking = await db.appointments.find_one(
+        {"booking_id": {"$exists": True, "$ne": None}},
+        {"_id": 0, "booking_id": 1},
+        sort=[("booking_id", -1)]
+    )
+    if last_booking and last_booking.get("booking_id"):
+        try:
+            num = int(last_booking["booking_id"].replace("#SILB", "")) + 1
+        except ValueError:
+            num = 1
+    else:
+        num = 1
+    booking_id = f"#SILB{num:04d}"
     
     # Check duplicates
     dup_phone, dup_vehicle = await check_duplicates(
@@ -699,6 +714,7 @@ async def create_appointment(request: Request, appt_data: AppointmentCreate):
     now = datetime.now(timezone.utc).isoformat()
     appointment = {
         "appointment_id": f"appt_{uuid.uuid4().hex[:12]}",
+        "booking_id": booking_id,
         "sl_no": sl_no,
         "branch": appt_data.branch,
         "appointment_date": appt_data.appointment_date,
@@ -710,18 +726,16 @@ async def create_appointment(request: Request, appt_data: AppointmentCreate):
         "vehicle_reg_no": appt_data.vehicle_reg_no,
         "model": appt_data.model,
         "current_km": appt_data.current_km,
-        "ots_recall": appt_data.ots_recall,
+        "ots": appt_data.ots_recall,
         "service_type": appt_data.service_type,
         "allocated_sa": appt_data.allocated_sa,
         "specific_repair_request": appt_data.specific_repair_request,
         "priority_customer": appt_data.priority_customer,
         "docket_readiness": appt_data.docket_readiness,
         "n_minus_1_confirmation_status": "Pending",
-        "n_minus_1_confirmation_notes": None,
         "appointment_status": "Booked",
-        "appointment_day_outcome": None,
-        "appointment_day_outcome_notes": None,
-        "recovered_lost_customer": appt_data.recovered_lost_customer,
+        "lost_customer": False,
+        "reschedule_history": [],
         "assigned_cre_user": user["user_id"],
         "created_by_user": user["user_id"],
         "created_at": now,
