@@ -5,50 +5,49 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 
 ## Core Requirements
 
-### 1. New Appointment Form
-- Registration Number field auto-strips spaces on input/paste
+### 1-3. Table & Form Enhancements (Complete)
+- Header renaming, column customization, rearrangement, persistence
+- Registration number auto-strips spaces, [P] badge, N-1 column split
+- Eye icon → Customer Card, Edit/Message icons
 
-### 2. Today Table UI Cleanup
-- Priority `[P]` badge appears after customer name
-- Status split into "N-1" and "Status" columns
+### 4. Customer Card / Appointment Detail
+- Day Outcome linked to "Other Settings" `appointment_day_outcomes`
+- N-1 Notes removed, "Recovered" → "Lost Customer"
+- Spacing improved for Source, Service Type, Day Outcome badges
+- Branch linked to `/api/branches`
+- Edit mode: Day Outcome, N-1, OTS/Recall, Docket Ready, Lost Customer all editable
 
-### 3. Table Functionality (Today, Upcoming, History)
-- Header Renaming, Column Customization, Rearrangement with persistence
-- Status Read-Only in Today table
-- Eye icon navigates to Customer Card
-- Customer Card: Edit + Message icons in top-right (phone removed)
+### 5. Booking ID System
+- Auto-generated `#SILB0001` series on appointment creation
+- Non-editable, displayed in header
+- Preserved on reschedule, new ID on cancellation+new booking
 
-### 4. Customer Card (Appointment Detail)
-- Merged "Appointment Status" and "Day Outcome" into single "Day Outcome" field
-- Status options: Booked, Confirmed, Reported, Rescheduled, Cancelled (no No-Show in dropdown)
-- Rescheduled → shows date picker + remarks
-- Cancelled → shows reason text box
-- Reported → no additional action
-- No-Show → auto-mark at 7pm (future: backend cron)
-- Edit mode makes editable: Day Outcome, N-1 Confirmation, OTS/Recall, Docket Ready, Lost Customer
-- Renamed "Recovered" → "Lost Customer"
+### 6. Reschedule Flow
+- Reschedule date must be > today
+- Auto-creates new upcoming appointment with same booking_id
+- `[R]` mark with reschedule history on hover (in tables + detail page)
+- Cancelled shows reason text box
+- "No Show" in dropdown, auto-mark at 7pm (future: backend cron)
 
-### 5. Demo Data
-- 4 appointments per day from today through May 30, 2026
-- Endpoint: `POST /api/seed-demo-appointments`
+### 7. Demo Data
+- 4 appointments/day from today through May 30, 2026 with booking_ids
 
 ## Architecture
 - Frontend: React + Shadcn UI + Tailwind
 - Backend: Python FastAPI + MongoDB
+- Components: StatusSidebar.jsx (extracted for build optimization)
 
 ## Key API Endpoints
 - `GET /api/appointments` - view=day|upcoming|month|year|custom
-- `GET/PUT /api/user-preferences/:view` - Column preferences
+- `PUT /api/appointments/:id` - Update with reschedule logic
+- `GET /api/branches` - Branch list from settings
 - `POST /api/seed-demo-appointments` - Seed demo data
-- `POST /api/auth/login` - Login (admin/admin)
 
 ## Completed (Feb 2026)
-- All table enhancements
-- Eye icon → Customer Card navigation (real API data)
-- Customer Card: Edit/Message icons, merged status fields, editable flags
-- DP role edit access
-- Demo data seed (424 appointments)
+- All table enhancements, column customization, persistence
+- Customer Card: Day Outcome, booking ID, reschedule flow, editable flags
+- Demo data seed (424 appointments with booking_ids)
 
 ## Backlog
-- P1: Backend auto-mark "No Show" at 7pm for unreported customers
+- P1: Backend cron: auto-mark "No Show" at 7pm for unreported customers
 - P2: Extract column control logic into reusable `useColumnManager` hook
