@@ -47,8 +47,13 @@ const AppointmentDetail = () => {
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
+  const [branches, setBranches] = useState([]);
 
   const today = new Date().toISOString().split("T")[0];
+  const tomorrow = (() => {
+    const d = new Date(); d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+  })();
 
   useEffect(() => {
     fetchData();
