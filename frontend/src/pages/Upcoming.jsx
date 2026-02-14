@@ -124,52 +124,19 @@ const Upcoming = () => {
     } catch {}
   };
 
-  const fetchSettings = async () => {
+  const fetchData = async () => {
     try {
-      const res = await axios.get(`${API}/settings`, { withCredentials: true });
-      setSettings(res.data);
-      buildDemoData(res.data);
+      const [apptsRes, settingsRes] = await Promise.all([
+        axios.get(`${API}/appointments?view=upcoming`, { withCredentials: true }),
+        axios.get(`${API}/settings`, { withCredentials: true }),
+      ]);
+      setAppointments(apptsRes.data || []);
+      setSettings(settingsRes.data);
     } catch {
       toast.error("Failed to load data");
     } finally {
       setLoading(false);
     }
-  };
-
-  const buildDemoData = (sett) => {
-    const now = new Date();
-    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-    const makeDateStr = (offset) => {
-      const d = new Date(now);
-      d.setDate(d.getDate() + offset);
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    };
-    const sas = sett?.service_advisors || ["Arjun", "Vivek"];
-    const sources = sett?.sources || ["SDR", "Incoming Call", "MYR"];
-    const types = sett?.service_types || ["1FS", "PMS", "RR", "BP"];
-    const models = ["Kiger", "Triber", "Duster", "Kwid"];
-    const names = ["Tanvi Mukherjee", "Aarav Banerjee", "Priya Reddy", "Vikram Shah", "Neha Kapoor", "Arjun Nair", "Pooja Agarwal"];
-    const statuses = ["Scheduled", "Confirmed", "Rescheduled"];
-    const rows = [];
-    for (let i = 0; i < 12; i++) {
-      const dayOffset = i < 5 ? 1 : 2 + Math.floor((i - 5) / 2);
-      rows.push({
-        id: `u${String(i + 1).padStart(2, "0")}`,
-        date: makeDateStr(dayOffset),
-        time: `${String(9 + (i % 8)).padStart(2, "0")}:${i % 2 === 0 ? "00" : "30"}`,
-        customer_name: names[i % names.length],
-        phone: `90123456${String(i + 6).padStart(2, "0")}`,
-        vehicle_reg: `WB${70 + i}U${1000 + i}`,
-        model: models[i % models.length],
-        service_type: types[i % types.length],
-        sa: sas[i % sas.length],
-        source: sources[i % sources.length],
-        status: statuses[i % statuses.length],
-        n1_status: i % 3 === 0 ? "Confirmed" : i % 3 === 1 ? "Pending" : "Not Reachable",
-        docket_ready: i % 2 === 0,
-      });
-    }
-    setDemoData(rows);
   };
 
   const applyFilters = (rows) => {
