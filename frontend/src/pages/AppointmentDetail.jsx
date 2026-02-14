@@ -253,10 +253,6 @@ const AppointmentDetail = () => {
                   </Tooltip>
                 </TooltipProvider>
               )}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
             </div>
           </div>
         </div>
