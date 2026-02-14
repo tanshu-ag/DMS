@@ -12,50 +12,60 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const StatusSidebar = ({ appointment, editMode, canEdit, formData, setFormData, settings, tomorrow }) => {
+export const StatusSidebar = ({ appointment, editMode, canEdit, formData, setFormData, settings, today, tomorrow }) => {
+  const isToday = appointment?.appointment_date === today;
+  const isTodayOrTomorrow = isToday || appointment?.appointment_date === tomorrow;
+
   return (
     <Card className="border border-gray-200 rounded-sm shadow-none">
       <CardHeader className="border-b border-gray-100 pb-4">
         <CardTitle className="font-heading font-bold text-lg tracking-tight uppercase">Status</CardTitle>
       </CardHeader>
       <CardContent className="p-6 space-y-6">
-        {/* Day Outcome */}
-        <DayOutcomeField
-          appointment={appointment}
-          editMode={editMode}
-          canEdit={canEdit}
-          formData={formData}
-          setFormData={setFormData}
-          settings={settings}
-          tomorrow={tomorrow}
-        />
+        {/* Day Outcome — only for today's appointments */}
+        {isToday && (
+          <DayOutcomeField
+            appointment={appointment}
+            editMode={editMode}
+            canEdit={canEdit}
+            formData={formData}
+            setFormData={setFormData}
+            settings={settings}
+            tomorrow={tomorrow}
+          />
+        )}
 
-        {/* N-1 Confirmation */}
-        <div>
-          <Label className="form-label">N-1 Confirmation</Label>
-          {editMode && canEdit ? (
-            <Select
-              value={formData.n_minus_1_confirmation_status || appointment.n_minus_1_confirmation_status}
-              onValueChange={(v) => setFormData({ ...formData, n_minus_1_confirmation_status: v })}
-            >
-              <SelectTrigger className="rounded-sm mt-1" data-testid="n1-status-select">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {settings?.n_minus_1_confirmation_statuses?.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <p className="mt-1">{appointment.n_minus_1_confirmation_status}</p>
-          )}
-        </div>
+        {/* N-1 Confirmation — only for today or tomorrow */}
+        {isTodayOrTomorrow && (
+          <div>
+            <Label className="form-label">N-1 Confirmation</Label>
+            {editMode && canEdit ? (
+              <Select
+                value={formData.n_minus_1_confirmation_status || appointment.n_minus_1_confirmation_status}
+                onValueChange={(v) => setFormData({ ...formData, n_minus_1_confirmation_status: v })}
+              >
+                <SelectTrigger className="rounded-sm mt-1" data-testid="n1-status-select">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {settings?.n_minus_1_confirmation_statuses?.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <p className="mt-1">{appointment.n_minus_1_confirmation_status}</p>
+            )}
+          </div>
+        )}
 
         {/* Flags */}
         <div className="space-y-3">
           <FlagRow label="OTS/Recall" field="ots" appointment={appointment} editMode={editMode} canEdit={canEdit} formData={formData} setFormData={setFormData} />
-          <FlagRow label="Docket Ready" field="docket_readiness" appointment={appointment} editMode={editMode} canEdit={canEdit} formData={formData} setFormData={setFormData} />
+          {/* Docket Ready — only for today or tomorrow */}
+          {isTodayOrTomorrow && (
+            <FlagRow label="Docket Ready" field="docket_readiness" appointment={appointment} editMode={editMode} canEdit={canEdit} formData={formData} setFormData={setFormData} />
+          )}
           <FlagRow label="Lost Customer" field="lost_customer" appointment={appointment} editMode={editMode} canEdit={canEdit} formData={formData} setFormData={setFormData} />
         </div>
       </CardContent>
