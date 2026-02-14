@@ -191,13 +191,39 @@ const Upcoming = () => {
   }
   futureRows = applyFilters(futureRows);
 
-  const updateN1 = async (id, val) => {
+  const handleN1Change = (id, val) => {
+    if (val === "Rescheduled" || val === "Cancelled") {
+      setN1Popup({ open: true, appointmentId: id, status: val, rescheduleDate: "", rescheduleRemarks: "", cancelReason: "" });
+    } else {
+      updateN1Direct(id, { n_minus_1_confirmation_status: val });
+    }
+  };
+
+  const updateN1Direct = async (id, data) => {
     try {
-      await axios.put(`${API}/appointments/${id}`, { n_minus_1_confirmation_status: val }, { withCredentials: true });
-      setAppointments((prev) => prev.map((r) => r.appointment_id === id ? { ...r, n_minus_1_confirmation_status: val } : r));
+      await axios.put(`${API}/appointments/${id}`, data, { withCredentials: true });
+      setAppointments((prev) => prev.map((r) => r.appointment_id === id ? { ...r, ...data } : r));
+      toast.success("N-1 status updated");
     } catch {
       toast.error("Failed to update N-1 status");
     }
+  };
+
+  const submitN1Popup = async () => {
+    const { appointmentId, status, rescheduleDate, rescheduleRemarks, cancelReason } = n1Popup;
+    const data = { n_minus_1_confirmation_status: status };
+    if (status === "Rescheduled") {
+      if (!rescheduleDate) { toast.error("Please select a reschedule date"); return; }
+      data.reschedule_date = rescheduleDate;
+      data.reschedule_remarks = rescheduleRemarks;
+      data.appointment_status = "Rescheduled";
+    } else if (status === "Cancelled") {
+      if (!cancelReason) { toast.error("Please enter a cancellation reason"); return; }
+      data.cancel_reason = cancelReason;
+      data.appointment_status = "Cancelled";
+    }
+    await updateN1Direct(appointmentId, data);
+    setN1Popup({ open: false, appointmentId: null, status: "", rescheduleDate: "", rescheduleRemarks: "", cancelReason: "" });
   };
   const toggleDocket = async (id, current) => {
     try {
