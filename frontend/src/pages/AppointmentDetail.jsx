@@ -589,11 +589,11 @@ const AppointmentDetail = () => {
               {/* N-1 Confirmation */}
               <div>
                 <Label className="form-label">N-1 Confirmation</Label>
-                {canEditN1() ? (
+                {editMode && canEdit() ? (
                   <>
                     <Select
-                      value={appointment.n_minus_1_confirmation_status}
-                      onValueChange={(v) => handleQuickUpdate("n_minus_1_confirmation_status", v)}
+                      value={formData.n_minus_1_confirmation_status || appointment.n_minus_1_confirmation_status}
+                      onValueChange={(v) => setFormData({ ...formData, n_minus_1_confirmation_status: v })}
                     >
                       <SelectTrigger className="rounded-sm mt-1" data-testid="n1-status-select">
                         <SelectValue />
@@ -608,11 +608,6 @@ const AppointmentDetail = () => {
                       placeholder="Notes..."
                       value={formData.n_minus_1_confirmation_notes || ""}
                       onChange={(e) => setFormData({ ...formData, n_minus_1_confirmation_notes: e.target.value })}
-                      onBlur={() => {
-                        if (formData.n_minus_1_confirmation_notes !== appointment.n_minus_1_confirmation_notes) {
-                          handleQuickUpdate("n_minus_1_confirmation_notes", formData.n_minus_1_confirmation_notes);
-                        }
-                      }}
                       className="rounded-sm mt-2 text-sm"
                       data-testid="n1-notes"
                     />
