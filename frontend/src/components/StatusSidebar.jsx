@@ -14,7 +14,8 @@ import {
 
 export const StatusSidebar = ({ appointment, editMode, canEdit, formData, setFormData, settings, today, tomorrow }) => {
   const isToday = appointment?.appointment_date === today;
-  const isTodayOrTomorrow = isToday || appointment?.appointment_date === tomorrow;
+  const isTomorrow = appointment?.appointment_date === tomorrow;
+  const isTodayOrTomorrow = isToday || isTomorrow;
 
   return (
     <Card className="border border-gray-200 rounded-sm shadow-none">
@@ -24,7 +25,9 @@ export const StatusSidebar = ({ appointment, editMode, canEdit, formData, setFor
       <CardContent className="p-6 space-y-6">
         {/* Day Outcome — only for today's appointments */}
         {isToday && (
-          <DayOutcomeField
+          <OutcomeField
+            label="Day Outcome"
+            statusField="appointment_status"
             appointment={appointment}
             editMode={editMode}
             canEdit={canEdit}
@@ -32,37 +35,52 @@ export const StatusSidebar = ({ appointment, editMode, canEdit, formData, setFor
             setFormData={setFormData}
             settings={settings}
             tomorrow={tomorrow}
+            testIdPrefix="status"
           />
         )}
 
-        {/* N-1 Confirmation — only for today or tomorrow */}
+        {/* N-1 Confirmation — only for today or tomorrow; full outcome logic for tomorrow */}
         {isTodayOrTomorrow && (
-          <div>
-            <Label className="form-label">N-1 Confirmation</Label>
-            {editMode && canEdit ? (
-              <Select
-                value={formData.n_minus_1_confirmation_status || appointment.n_minus_1_confirmation_status}
-                onValueChange={(v) => setFormData({ ...formData, n_minus_1_confirmation_status: v })}
-              >
-                <SelectTrigger className="rounded-sm mt-1" data-testid="n1-status-select">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {settings?.n_minus_1_confirmation_statuses?.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <p className="mt-1">{appointment.n_minus_1_confirmation_status}</p>
-            )}
-          </div>
+          isTomorrow ? (
+            <OutcomeField
+              label="N-1 Confirmation"
+              statusField="n_minus_1_confirmation_status"
+              appointment={appointment}
+              editMode={editMode}
+              canEdit={canEdit}
+              formData={formData}
+              setFormData={setFormData}
+              settings={settings}
+              tomorrow={tomorrow}
+              testIdPrefix="n1"
+            />
+          ) : (
+            <div>
+              <Label className="form-label">N-1 Confirmation</Label>
+              {editMode && canEdit ? (
+                <Select
+                  value={formData.n_minus_1_confirmation_status || appointment.n_minus_1_confirmation_status}
+                  onValueChange={(v) => setFormData({ ...formData, n_minus_1_confirmation_status: v })}
+                >
+                  <SelectTrigger className="rounded-sm mt-1" data-testid="n1-status-select">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {settings?.n_minus_1_confirmation_statuses?.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <p className="mt-1">{appointment.n_minus_1_confirmation_status}</p>
+              )}
+            </div>
+          )
         )}
 
         {/* Flags */}
         <div className="space-y-3">
           <FlagRow label="OTS/Recall" field="ots" appointment={appointment} editMode={editMode} canEdit={canEdit} formData={formData} setFormData={setFormData} />
-          {/* Docket Ready — only for today or tomorrow */}
           {isTodayOrTomorrow && (
             <FlagRow label="Docket Ready" field="docket_readiness" appointment={appointment} editMode={editMode} canEdit={canEdit} formData={formData} setFormData={setFormData} />
           )}
@@ -91,22 +109,29 @@ const FlagRow = ({ label, field, appointment, editMode, canEdit, formData, setFo
   </div>
 );
 
-const DayOutcomeField = ({ appointment, editMode, canEdit, formData, setFormData, settings, tomorrow }) => {
-  const currentStatus = formData.appointment_status || appointment.appointment_status;
+/**
+ * Reusable outcome field — used for Day Outcome (today) and N-1 Confirmation (tomorrow).
+ * Shows dropdown with conditional Reschedule (date + remarks) and Cancel (reason) fields.
+ */
+const OutcomeField = ({ label, statusField, appointment, editMode, canEdit, formData, setFormData, settings, tomorrow, testIdPrefix }) => {
+  const currentStatus = formData[statusField] || appointment[statusField];
+  const options = statusField === "appointment_status"
+    ? (settings?.appointment_day_outcomes || ["Booked", "Confirmed", "Reported", "Rescheduled", "Cancelled", "No Show"])
+    : (settings?.n_minus_1_confirmation_statuses || ["Confirmed", "Pending", "Not Reachable", "Rescheduled", "Cancelled"]);
 
   if (editMode && canEdit) {
     return (
       <div>
-        <Label className="form-label">Day Outcome</Label>
+        <Label className="form-label">{label}</Label>
         <Select
           value={currentStatus}
-          onValueChange={(v) => setFormData({ ...formData, appointment_status: v, reschedule_date: formData.reschedule_date || "", reschedule_remarks: formData.reschedule_remarks || "", cancel_reason: formData.cancel_reason || "" })}
+          onValueChange={(v) => setFormData({ ...formData, [statusField]: v, reschedule_date: formData.reschedule_date || "", reschedule_remarks: formData.reschedule_remarks || "", cancel_reason: formData.cancel_reason || "" })}
         >
-          <SelectTrigger className="rounded-sm mt-2" data-testid="status-select">
+          <SelectTrigger className="rounded-sm mt-2" data-testid={`${testIdPrefix}-select`}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {(settings?.appointment_day_outcomes || ["Booked", "Confirmed", "Reported", "Rescheduled", "Cancelled", "No Show"]).map((s) => (
+            {options.map((s) => (
               <SelectItem key={s} value={s}>{s}</SelectItem>
             ))}
           </SelectContent>
@@ -120,7 +145,7 @@ const DayOutcomeField = ({ appointment, editMode, canEdit, formData, setFormData
               value={formData.reschedule_date || ""}
               onChange={(e) => setFormData({ ...formData, reschedule_date: e.target.value })}
               className="rounded-sm text-sm"
-              data-testid="reschedule-date"
+              data-testid={`${testIdPrefix}-reschedule-date`}
             />
             <Label className="text-xs text-gray-500">Remarks</Label>
             <Textarea
@@ -128,7 +153,7 @@ const DayOutcomeField = ({ appointment, editMode, canEdit, formData, setFormData
               value={formData.reschedule_remarks || ""}
               onChange={(e) => setFormData({ ...formData, reschedule_remarks: e.target.value })}
               className="rounded-sm text-sm"
-              data-testid="reschedule-remarks"
+              data-testid={`${testIdPrefix}-reschedule-remarks`}
             />
           </div>
         )}
@@ -140,7 +165,7 @@ const DayOutcomeField = ({ appointment, editMode, canEdit, formData, setFormData
               value={formData.cancel_reason || ""}
               onChange={(e) => setFormData({ ...formData, cancel_reason: e.target.value })}
               className="rounded-sm text-sm"
-              data-testid="cancel-reason"
+              data-testid={`${testIdPrefix}-cancel-reason`}
             />
           </div>
         )}
@@ -150,7 +175,7 @@ const DayOutcomeField = ({ appointment, editMode, canEdit, formData, setFormData
 
   return (
     <div>
-      <Label className="form-label">Day Outcome</Label>
+      <Label className="form-label">{label}</Label>
       <Badge className={`rounded-sm text-sm mt-2 ${currentStatus === "Confirmed" ? "bg-black text-white" : "bg-white text-black border border-dashed border-black"}`}>
         {currentStatus}
       </Badge>
