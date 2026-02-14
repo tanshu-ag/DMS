@@ -1549,6 +1549,7 @@ async def seed_demo_appointments():
 
             appt = {
                 "appointment_id": f"apt_up_{sl:03d}",
+                "booking_id": f"#SILB{sl:04d}",
                 "sl_no": sl,
                 "branch": random.choice(branches),
                 "appointment_date": date_str,
