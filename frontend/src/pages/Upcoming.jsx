@@ -26,6 +26,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { Filter, RefreshCw, Eye, SlidersHorizontal, GripVertical } from "lucide-react";
 

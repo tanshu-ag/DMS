@@ -20,6 +20,12 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   ArrowLeft,
   Save,
   Pencil,
