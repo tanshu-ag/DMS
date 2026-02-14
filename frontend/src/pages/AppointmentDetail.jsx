@@ -214,18 +214,6 @@ const AppointmentDetail = () => {
             </h1>
             <div className="flex items-center gap-3 mt-1">
               <span className="font-mono text-sm text-gray-500">{appointment.booking_id || `#${appointment.sl_no}`}</span>
-              <Badge
-                className={`rounded-sm text-xs ${
-                  appointment.appointment_status === "Confirmed"
-                    ? "bg-black text-white"
-                    : appointment.appointment_status === "Closed"
-                    ? "bg-gray-100 text-black border border-black"
-                    : "bg-white text-black border border-dashed border-black"
-                }`}
-              >
-                {getStatusIcon(appointment.appointment_status)}
-                <span className="ml-1">{appointment.appointment_status}</span>
-              </Badge>
               {appointment.priority_customer && (
                 <Badge className="bg-black text-white rounded-sm text-xs">PRIORITY</Badge>
               )}
