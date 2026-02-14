@@ -49,7 +49,9 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - Demo data seed (424 appointments with booking_ids)
 - UI layout fix: Source (SDR) and Service Type (3FS) values now display under their labels (Feb 14)
 - Activity log fix: Only logs saved changes, filters out spurious null→empty-string changes (Feb 14)
+- Eye icon crash fix: Added missing Tooltip imports to AppointmentDetail.jsx (Feb 14)
+- Reschedule [R] tooltip: Shadcn Tooltip with "N reschedules" + dates dd-mm-yyyy, filtered before today (Feb 14)
+- Auto No-show cron: Background task marks unreported appointments as "No-show" post 7 PM IST (Feb 14)
 
 ## Backlog
-- P1: Backend cron: auto-mark "No Show" at 7pm for unreported customers
 - P2: Extract column control logic into reusable `useColumnManager` hook
