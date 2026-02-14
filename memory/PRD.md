@@ -52,6 +52,10 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - Eye icon crash fix: Added missing Tooltip imports to AppointmentDetail.jsx (Feb 14)
 - Reschedule [R] tooltip: Shadcn Tooltip with "N reschedules" + dates dd-mm-yyyy, filtered before today (Feb 14)
 - Auto No-show cron: Background task marks unreported appointments as "No-show" post 7 PM IST (Feb 14)
+- Priority flag added to Status sidebar between OTS and Lost Customer (Feb 14)
+- Status badge removed from appointment card header at all stages (Feb 14)
+- N-1 popup dialog: Rescheduled/Cancelled in Upcoming Tomorrow table triggers popup for date/remarks/reason (Feb 14)
+- N-1 in Tomorrow's card = Day Outcome logic: full dropdown with conditional reschedule/cancel fields (Feb 14)
 
 ## Backlog
 - P2: Extract column control logic into reusable `useColumnManager` hook
