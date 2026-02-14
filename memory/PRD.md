@@ -13,35 +13,32 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - Status split into "N-1" and "Status" columns
 
 ### 3. Table Functionality (Today, Upcoming, History)
-- **Header Renaming:** VEH REG NO -> REG NO, OTS NO -> OTS, TYPE OF SERVICE -> SERVICE TYPE, ALLOCATED SA NAME -> SA NAME
-- **Column Customization:** Hide/unhide MAIL ID, DOCKET READINESS, N-1, CRE NAME. STATUS always visible
-- **Column Rearrangement:** Drag-to-reorder all visible columns
-- **Persistence:** Column visibility and order saved per user in backend
-- **Status Read-Only:** STATUS column in Today table is read-only text
-- **Row Actions:** Eye icon navigates to Customer Card (appointment detail page)
-- **Customer Card Header:** Edit (pencil) icon + Message (WhatsApp) icon in top-right (phone button removed)
+- Header Renaming, Column Customization, Rearrangement with persistence
+- Status Read-Only in Today table
+- Eye icon navigates to Customer Card
+- Customer Card: Edit + Message icons in top-right (phone removed)
+
+### 4. Demo Data
+- 4 appointments per day from today through May 30, 2026
+- Endpoint: `POST /api/seed-demo-appointments`
+- History data preserved
 
 ## Architecture
 - Frontend: React + Shadcn UI + Tailwind
 - Backend: Python FastAPI + MongoDB
-- Auth: Username/password with session tokens
 
 ## Key API Endpoints
-- `GET /api/appointments` - Fetch appointments with filters (supports view=day, upcoming, month, year, custom)
-- `GET /api/user-preferences/:view` - Get column layout preferences
-- `PUT /api/user-preferences/:view` - Save column layout preferences
-- `POST /api/auth/login` - Login
+- `GET /api/appointments` - view=day|upcoming|month|year|custom
+- `GET/PUT /api/user-preferences/:view` - Column preferences
+- `POST /api/seed-demo-appointments` - Seed demo data
+- `POST /api/auth/login` - Login (admin/admin)
 
 ## Completed (Feb 2026)
-- All table enhancements (headers, columns, customization, rearrangement)
-- Registration number space stripping
-- Priority badge repositioning
-- N-1 column split
-- Status read-only in Today table
-- Eye icon in table rows navigates to Customer Card
-- Customer Card: Phone button replaced with Edit (pencil) icon, Message icon kept
-- DP role added to canEdit() for admin edit access
-- Upcoming page: Replaced demo/mock data with real API data (view=upcoming)
+- All table enhancements
+- Eye icon → Customer Card navigation (real API data on Upcoming page)
+- Customer Card: Edit/Message icons
+- DP role edit access
+- Demo data seed (424 appointments, Feb 14 - May 30, 2026)
 
 ## Backlog
 - P2: Extract column control logic into reusable `useColumnManager` hook
