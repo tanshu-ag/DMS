@@ -166,19 +166,29 @@ const Upcoming = () => {
     if (filters.dateRange === "this_month") {
       const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       const endStr = `${endOfMonth.getFullYear()}-${String(endOfMonth.getMonth() + 1).padStart(2, "0")}-${String(endOfMonth.getDate()).padStart(2, "0")}`;
-      futureRows = futureRows.filter((r) => r.date <= endStr);
+      futureRows = futureRows.filter((r) => r.appointment_date <= endStr);
     } else if (rangeMap[filters.dateRange]) {
       const endStr = makeFutureDate(rangeMap[filters.dateRange]);
-      futureRows = futureRows.filter((r) => r.date <= endStr);
+      futureRows = futureRows.filter((r) => r.appointment_date <= endStr);
     }
   }
   futureRows = applyFilters(futureRows);
 
-  const updateN1 = (id, val) => {
-    setDemoData((prev) => prev.map((r) => (r.id === id ? { ...r, n1_status: val } : r)));
+  const updateN1 = async (id, val) => {
+    try {
+      await axios.put(`${API}/appointments/${id}`, { n_minus_1_confirmation_status: val }, { withCredentials: true });
+      setAppointments((prev) => prev.map((r) => r.appointment_id === id ? { ...r, n_minus_1_confirmation_status: val } : r));
+    } catch {
+      toast.error("Failed to update N-1 status");
+    }
   };
-  const toggleDocket = (id) => {
-    setDemoData((prev) => prev.map((r) => (r.id === id ? { ...r, docket_ready: !r.docket_ready } : r)));
+  const toggleDocket = async (id, current) => {
+    try {
+      await axios.put(`${API}/appointments/${id}`, { docket_readiness: !current }, { withCredentials: true });
+      setAppointments((prev) => prev.map((r) => r.appointment_id === id ? { ...r, docket_readiness: !r.docket_readiness } : r));
+    } catch {
+      toast.error("Failed to update docket status");
+    }
   };
 
   // Visible column lists
