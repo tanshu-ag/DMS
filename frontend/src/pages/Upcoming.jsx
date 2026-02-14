@@ -199,7 +199,24 @@ const Upcoming = () => {
   const renderTmrCell = (colId, row) => {
     switch (colId) {
       case "time": return <span className="text-sm font-medium">{row.appointment_time}</span>;
-      case "customer_name": return <span className="text-sm font-medium">{row.customer_name}</span>;
+      case "customer_name": return (
+        <div className="flex items-center gap-1">
+          <span className="text-sm font-medium">{row.customer_name}</span>
+          {row.is_rescheduled && (
+            <div className="relative group">
+              <div className="w-4 h-4 bg-amber-100 text-amber-800 rounded-sm flex items-center justify-center text-[10px] font-bold shrink-0 cursor-help">R</div>
+              {row.reschedule_history?.length > 0 && (
+                <div className="absolute left-0 top-full mt-1 z-50 hidden group-hover:block bg-white border border-gray-200 shadow-lg rounded-sm p-2 min-w-[200px]">
+                  <p className="text-xs font-bold mb-1">Reschedule History</p>
+                  {row.reschedule_history.map((h, i) => (
+                    <div key={i} className="text-xs text-gray-600 mb-1">{h.from_date} → {h.to_date}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
       case "phone": return <span className="text-sm">{row.customer_phone}</span>;
       case "reg_no": return <span className="text-sm font-medium">{row.vehicle_reg || row.vehicle_reg_no}</span>;
       case "model": return <span className="text-sm">{row.vehicle_model || row.model}</span>;
