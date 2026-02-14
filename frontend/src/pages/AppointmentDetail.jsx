@@ -613,35 +613,21 @@ const AppointmentDetail = () => {
               <div>
                 <Label className="form-label">N-1 Confirmation</Label>
                 {editMode && canEdit() ? (
-                  <>
-                    <Select
-                      value={formData.n_minus_1_confirmation_status || appointment.n_minus_1_confirmation_status}
-                      onValueChange={(v) => setFormData({ ...formData, n_minus_1_confirmation_status: v })}
-                    >
-                      <SelectTrigger className="rounded-sm mt-1" data-testid="n1-status-select">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {settings?.n_minus_1_confirmation_statuses?.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Textarea
-                      placeholder="Notes..."
-                      value={formData.n_minus_1_confirmation_notes || ""}
-                      onChange={(e) => setFormData({ ...formData, n_minus_1_confirmation_notes: e.target.value })}
-                      className="rounded-sm mt-2 text-sm"
-                      data-testid="n1-notes"
-                    />
-                  </>
+                  <Select
+                    value={formData.n_minus_1_confirmation_status || appointment.n_minus_1_confirmation_status}
+                    onValueChange={(v) => setFormData({ ...formData, n_minus_1_confirmation_status: v })}
+                  >
+                    <SelectTrigger className="rounded-sm mt-1" data-testid="n1-status-select">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {settings?.n_minus_1_confirmation_statuses?.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 ) : (
-                  <>
-                    <p className="mt-1">{appointment.n_minus_1_confirmation_status}</p>
-                    {appointment.n_minus_1_confirmation_notes && (
-                      <p className="text-xs text-gray-500 mt-1">{appointment.n_minus_1_confirmation_notes}</p>
-                    )}
-                  </>
+                  <p className="mt-1">{appointment.n_minus_1_confirmation_status}</p>
                 )}
               </div>
 
