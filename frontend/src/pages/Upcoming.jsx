@@ -209,7 +209,19 @@ const Upcoming = () => {
         <div className="flex items-center gap-1">
           <span className="text-sm font-medium">{row.customer_name}</span>
           {row.is_rescheduled && (
-            <div className="w-4 h-4 bg-amber-100 text-amber-800 rounded-sm flex items-center justify-center text-[10px] font-bold shrink-0" title={row.reschedule_history?.map(h => `${h.from_date} → ${h.to_date}`).join(", ") || "Rescheduled"}>R</div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="w-4 h-4 bg-amber-100 text-amber-800 rounded-sm flex items-center justify-center text-[10px] font-bold shrink-0 cursor-help" data-testid={`reschedule-badge-${row.appointment_id}`}>R</div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-[240px] p-3">
+                  <p className="font-bold text-xs mb-1.5">{(row.reschedule_history || []).length} reschedule{(row.reschedule_history || []).length !== 1 ? "s" : ""}</p>
+                  {(row.reschedule_history || []).map((h, i) => (
+                    <p key={i} className="text-xs text-gray-600">{h.from_date ? h.from_date.split("-").reverse().join("-") : "-"}</p>
+                  ))}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       );
@@ -253,7 +265,19 @@ const Upcoming = () => {
         <div className="flex items-center gap-1">
           <span className="text-sm font-medium">{row.customer_name}</span>
           {row.is_rescheduled && (
-            <div className="w-4 h-4 bg-amber-100 text-amber-800 rounded-sm flex items-center justify-center text-[10px] font-bold shrink-0" title={row.reschedule_history?.map(h => `${h.from_date} → ${h.to_date}`).join(", ") || "Rescheduled"}>R</div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="w-4 h-4 bg-amber-100 text-amber-800 rounded-sm flex items-center justify-center text-[10px] font-bold shrink-0 cursor-help" data-testid={`reschedule-badge-${row.appointment_id}`}>R</div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-[240px] p-3">
+                  <p className="font-bold text-xs mb-1.5">{(row.reschedule_history || []).length} reschedule{(row.reschedule_history || []).length !== 1 ? "s" : ""}</p>
+                  {(row.reschedule_history || []).map((h, i) => (
+                    <p key={i} className="text-xs text-gray-600">{h.from_date ? h.from_date.split("-").reverse().join("-") : "-"}</p>
+                  ))}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       );
