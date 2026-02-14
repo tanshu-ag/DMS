@@ -186,6 +186,22 @@ const DayView = () => {
             {appt.priority_customer && (
               <div className="w-5 h-5 bg-black text-white rounded-sm flex items-center justify-center text-xs font-bold shrink-0">P</div>
             )}
+            {appt.is_rescheduled && (
+              <div className="relative group">
+                <div className="w-5 h-5 bg-amber-100 text-amber-800 rounded-sm flex items-center justify-center text-xs font-bold shrink-0 cursor-help">R</div>
+                {appt.reschedule_history?.length > 0 && (
+                  <div className="absolute left-0 top-full mt-1 z-50 hidden group-hover:block bg-white border border-gray-200 shadow-lg rounded-sm p-3 min-w-[220px]">
+                    <p className="text-xs font-bold mb-1">Reschedule History</p>
+                    {appt.reschedule_history.map((h, i) => (
+                      <div key={i} className="text-xs text-gray-600 mb-1">
+                        {h.from_date} → {h.to_date}
+                        {h.remarks && <span className="text-gray-400 ml-1">({h.remarks})</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         );
       case "phone":
