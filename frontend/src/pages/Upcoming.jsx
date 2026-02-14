@@ -156,6 +156,7 @@ const Upcoming = () => {
   };
 
   const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const tmrDate = new Date(now); tmrDate.setDate(tmrDate.getDate() + 1);
   const tmrStr = `${tmrDate.getFullYear()}-${String(tmrDate.getMonth() + 1).padStart(2, "0")}-${String(tmrDate.getDate()).padStart(2, "0")}`;
 
