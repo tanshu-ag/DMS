@@ -1597,6 +1597,82 @@ async def seed_demo_appointments():
 
     return {"message": f"Seeded {len(appointments)} appointments from {today} to {end_date} (4 per day)"}
 
+# ============== AUTO NO-SHOW CRON ==============
+
+async def mark_no_show_for_date(target_date: str):
+    """Mark all unreported appointments for a given date as No-show."""
+    # Find appointments that haven't been marked with a final day outcome
+    query = {
+        "appointment_date": target_date,
+        "appointment_status": {"$nin": ["Rescheduled", "Cancelled", "No-show", "No Show"]},
+        "$or": [
+            {"appointment_day_outcome": None},
+            {"appointment_day_outcome": {"$exists": False}},
+            {"appointment_day_outcome": ""},
+        ]
+    }
+    # Also skip appointments already reported
+    cursor = db.appointments.find(query, {"_id": 0, "appointment_id": 1, "appointment_status": 1})
+    appointments = await cursor.to_list(1000)
+    
+    count = 0
+    for appt in appointments:
+        if appt.get("appointment_status") == "Reported":
+            continue
+        await db.appointments.update_one(
+            {"appointment_id": appt["appointment_id"]},
+            {"$set": {
+                "appointment_status": "No-show",
+                "appointment_day_outcome": "No-show",
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        await log_activity(
+            appt["appointment_id"],
+            "system",
+            "System",
+            "Auto-marked as No-show (post 7 PM)"
+        )
+        count += 1
+    
+    return count
+
+async def no_show_cron_loop():
+    """Background task: every minute check if it's past 7 PM IST, and mark no-shows for today."""
+    marked_dates = set()
+    while True:
+        try:
+            # IST = UTC+5:30
+            now_utc = datetime.now(timezone.utc)
+            ist_offset = timedelta(hours=5, minutes=30)
+            now_ist = now_utc + ist_offset
+            today_str = now_ist.strftime("%Y-%m-%d")
+            
+            if now_ist.hour >= 19 and today_str not in marked_dates:
+                count = await mark_no_show_for_date(today_str)
+                marked_dates.add(today_str)
+                if count > 0:
+                    logger.info(f"Auto No-show cron: marked {count} appointments for {today_str}")
+                # Clean up old dates from memory
+                marked_dates.discard((now_ist - timedelta(days=2)).strftime("%Y-%m-%d"))
+        except Exception as e:
+            logger.error(f"No-show cron error: {e}")
+        
+        await asyncio.sleep(60)
+
+@app.on_event("startup")
+async def start_no_show_cron():
+    asyncio.create_task(no_show_cron_loop())
+
+# Also expose a manual trigger endpoint for testing
+@api_router.post("/appointments/mark-no-show")
+async def manual_mark_no_show(request: Request, date: str = None):
+    """Manually trigger no-show marking for a date (CRM/DP only)"""
+    user = await require_role(request, ["CRM", "DP"])
+    target_date = date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    count = await mark_no_show_for_date(target_date)
+    return {"message": f"Marked {count} appointments as No-show for {target_date}"}
+
 # ============== ROOT ROUTE ==============
 
 @api_router.get("/")
