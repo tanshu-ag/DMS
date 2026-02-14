@@ -1574,6 +1574,8 @@ async def seed_demo_appointments():
                 "appointment_day_outcome": random.choice(day_outcomes) if is_today else None,
                 "cre_name": random.choice(cres),
                 "lost_customer": lost,
+                "is_rescheduled": False,
+                "reschedule_history": [],
                 "rescheduled_in_n1": False,
                 "cancelled_in_n1": False,
                 "assigned_cre_user": random.choice(["user_cre_001", "user_cre_002"]),
