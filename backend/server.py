@@ -131,18 +131,18 @@ class AppointmentUpdate(BaseModel):
     vehicle_reg_no: Optional[str] = None
     model: Optional[str] = None
     current_km: Optional[int] = None
-    ots_recall: Optional[bool] = None
+    ots: Optional[bool] = None
     service_type: Optional[str] = None
     allocated_sa: Optional[str] = None
     specific_repair_request: Optional[str] = None
     priority_customer: Optional[bool] = None
     docket_readiness: Optional[bool] = None
     n_minus_1_confirmation_status: Optional[str] = None
-    n_minus_1_confirmation_notes: Optional[str] = None
     appointment_status: Optional[str] = None
-    appointment_day_outcome: Optional[str] = None
-    appointment_day_outcome_notes: Optional[str] = None
-    recovered_lost_customer: Optional[bool] = None
+    reschedule_date: Optional[str] = None
+    reschedule_remarks: Optional[str] = None
+    cancel_reason: Optional[str] = None
+    lost_customer: Optional[bool] = None
     assigned_cre_user: Optional[str] = None
 
 class Appointment(BaseModel):
