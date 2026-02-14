@@ -47,6 +47,7 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - All table enhancements, column customization, persistence
 - Customer Card: Day Outcome, booking ID, reschedule flow, editable flags
 - Demo data seed (424 appointments with booking_ids)
+- UI layout fix: Source (SDR) and Service Type (3FS) values now display under their labels (Feb 14)
 
 ## Backlog
 - P1: Backend cron: auto-mark "No Show" at 7pm for unreported customers
