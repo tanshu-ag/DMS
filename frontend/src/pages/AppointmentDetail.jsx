@@ -320,8 +320,8 @@ const AppointmentDetail = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {settings?.branches?.map((b) => (
-                          <SelectItem key={b} value={b}>{b}</SelectItem>
+                        {branches.map((b) => (
+                          <SelectItem key={b.branch_id || b.location} value={b.location}>{b.location}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
