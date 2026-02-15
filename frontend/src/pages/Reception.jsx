@@ -706,7 +706,9 @@ export default function Reception() {
               <ChevronLeft className="w-4 h-4 mr-1" /> Back
             </Button>
             {step < 3 ? (
-              <Button className="rounded-sm bg-black text-white hover:bg-gray-800" disabled={step === 1 && !canGoNext1} onClick={() => setStep(s => s + 1)} data-testid="wizard-next">
+              <Button className="rounded-sm bg-black text-white hover:bg-gray-800" 
+                disabled={(step === 1 && !canGoNext1) || (step === 2 && !receptionTime)} 
+                onClick={() => setStep(s => s + 1)} data-testid="wizard-next">
                 Next <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             ) : (
