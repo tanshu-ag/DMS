@@ -474,34 +474,34 @@ export default function Reception() {
               )}
 
               {searchResults.length > 0 && !createNew && (
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {searchResults.map((r, i) => (
-                    <div key={i} className={`p-3 border rounded-sm cursor-pointer transition-colors ${selectedVehicle === r ? "border-black bg-gray-50" : "border-gray-200 hover:border-gray-400"}`}
-                      onClick={() => selectVehicle(r)} data-testid={`search-result-${i}`}>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="text-sm font-mono font-bold">{r.vehicle_reg_no || "No Reg"}</p>
-                          <p className="text-xs text-gray-500">{r.customer_name} &middot; {r.customer_phone}</p>
+                <div className="space-y-2">
+                  <div className="max-h-48 overflow-y-auto space-y-2">
+                    {searchResults.map((r, i) => (
+                      <div key={i} className={`p-3 border rounded-sm cursor-pointer transition-colors ${selectedVehicle === r ? "border-black bg-gray-50" : "border-gray-200 hover:border-gray-400"}`}
+                        onClick={() => selectVehicle(r)} data-testid={`search-result-${i}`}>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="text-sm font-mono font-bold">{r.vehicle_reg_no || "No Reg"}</p>
+                            <p className="text-xs text-gray-500">{r.customer_name} &middot; {r.customer_phone}</p>
+                          </div>
+                          {r.model && <Badge variant="outline" className="rounded-sm text-xs">{r.model}</Badge>}
                         </div>
-                        {r.model && <Badge variant="outline" className="rounded-sm text-xs">{r.model}</Badge>}
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                   {selectedVehicle && selectedVinMissing && (
-                    <div className="p-3 border border-amber-300 bg-amber-50 rounded-sm space-y-2" onClick={e => e.stopPropagation()}>
+                    <div className="p-3 border border-amber-300 bg-amber-50 rounded-sm space-y-2">
                       <p className="text-xs text-amber-700 font-medium">VIN is missing for this vehicle. Please enter:</p>
                       <Input placeholder="Enter VIN" className="rounded-sm uppercase" value={selectedVin}
                         onChange={e => setSelectedVin(e.target.value.toUpperCase().replace(/\s/g, ""))}
-                        onFocus={e => e.stopPropagation()}
                         data-testid="missing-vin-input" />
                     </div>
                   )}
                   {selectedVehicle && !selectedVehicle.vehicle_reg_no && (
-                    <div className="p-3 border border-amber-300 bg-amber-50 rounded-sm space-y-2" onClick={e => e.stopPropagation()}>
+                    <div className="p-3 border border-amber-300 bg-amber-50 rounded-sm space-y-2">
                       <p className="text-xs text-amber-700 font-medium">Registration No is missing. Please enter:</p>
                       <Input placeholder="Enter Reg No" className="rounded-sm uppercase" value={selectedVehicle.vehicle_reg_no || ""}
                         onChange={e => setSelectedVehicle(v => ({ ...v, vehicle_reg_no: e.target.value.toUpperCase().replace(/\s/g, "") }))}
-                        onFocus={e => e.stopPropagation()}
                         data-testid="missing-reg-input" />
                     </div>
                   )}
