@@ -531,11 +531,11 @@ export default function Reception() {
                         data-testid="missing-vin-input" />
                     </div>
                   )}
-                  {selectedVehicle && !selectedVehicle.vehicle_reg_no && (
+                  {selectedVehicle && selectedRegNoMissing && (
                     <div className="p-3 border border-amber-300 bg-amber-50 rounded-sm space-y-2">
                       <p className="text-xs text-amber-700 font-medium">Registration No is missing. Please enter:</p>
-                      <Input placeholder="Enter Reg No" className="rounded-sm uppercase" value={selectedVehicle.vehicle_reg_no || ""}
-                        onChange={e => setSelectedVehicle(v => ({ ...v, vehicle_reg_no: e.target.value.toUpperCase().replace(/\s/g, "") }))}
+                      <Input placeholder="Enter Reg No" className="rounded-sm uppercase" value={selectedRegNo}
+                        onChange={e => setSelectedRegNo(e.target.value.toUpperCase().replace(/\s/g, ""))}
                         onKeyDown={e => {
                           if (e.key === "Enter") {
                             e.preventDefault();
