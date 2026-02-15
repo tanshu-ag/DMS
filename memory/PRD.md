@@ -59,6 +59,10 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - Reception module: Full register page, 3-step wizard (vehicle search/create, contact validation, doc attachment), detail view, backend CRUD (Feb 15)
 - VIN input bug fix: Fixed inline VIN/Reg input fields disappearing when typing. Root cause: object reference equality was failing during re-renders. Fixed by using index-based selection and separate state variables (Feb 15)
 - Reception wizard UX: Moved Vehicle Reception Time and Source from Step 1 to Step 2 per user request (Feb 15)
+- Reception wizard UX: Address field now takes full row, City/State/Pin on separate row below (Feb 15)
+- Reception wizard UX: Removed "Not Collected" checkbox from documents step - simplified to just Attach button with "Optional" label (Feb 15)
+- Reception action menu: Changed from single Eye icon to dropdown menu with View, Edit, Delete options (Feb 15)
+- Backend: Added DELETE /api/reception/{entry_id} endpoint for deleting reception entries (Feb 15)
 
 ## Backlog
 - P2: Extract column control logic into reusable `useColumnManager` hook
