@@ -57,7 +57,7 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - N-1 popup dialog: Rescheduled/Cancelled in Upcoming Tomorrow table triggers popup for date/remarks/reason (Feb 14)
 - N-1 in Tomorrow's card = Day Outcome logic: full dropdown with conditional reschedule/cancel fields (Feb 14)
 - Reception module: Full register page, 3-step wizard (vehicle search/create, contact validation, doc attachment), detail view, backend CRUD (Feb 15)
-- VIN input bug fix: Fixed inline VIN input field disappearing when typing. Root cause: pressing Enter or accidental re-selection would trigger search/reset. Fixed by: 1) Using separate state (selectedVin, selectedVinMissing), 2) Preventing Enter key from triggering search in VIN input, 3) Adding event propagation stops, 4) Preventing duplicate vehicle selection (Feb 15)
+- VIN input bug fix: Fixed inline VIN/Reg input fields disappearing when typing. Root cause: object reference equality (`selectedVehicle === r`) was failing during re-renders. Fixed by using index-based selection (`selectedVehicleIndex`) and separate state variables for VIN/RegNo inputs (Feb 15)
 
 ## Backlog
 - P2: Extract column control logic into reusable `useColumnManager` hook
