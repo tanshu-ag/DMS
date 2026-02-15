@@ -475,13 +475,29 @@ export default function Reception() {
                       onClick={() => selectVehicle(r)} data-testid={`search-result-${i}`}>
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="text-sm font-mono font-bold">{r.vehicle_reg_no}</p>
+                          <p className="text-sm font-mono font-bold">{r.vehicle_reg_no || "No Reg"}</p>
                           <p className="text-xs text-gray-500">{r.customer_name} &middot; {r.customer_phone}</p>
                         </div>
                         {r.model && <Badge variant="outline" className="rounded-sm text-xs">{r.model}</Badge>}
                       </div>
                     </div>
                   ))}
+                  {selectedVehicle && !selectedVehicle.vin && (
+                    <div className="p-3 border border-amber-300 bg-amber-50 rounded-sm space-y-2">
+                      <p className="text-xs text-amber-700 font-medium">VIN is missing for this vehicle. Please enter:</p>
+                      <Input placeholder="Enter VIN" className="rounded-sm uppercase" value={selectedVehicle.vin || ""}
+                        onChange={e => setSelectedVehicle(v => ({ ...v, vin: e.target.value.toUpperCase().replace(/\s/g, "") }))}
+                        data-testid="missing-vin-input" />
+                    </div>
+                  )}
+                  {selectedVehicle && !selectedVehicle.vehicle_reg_no && (
+                    <div className="p-3 border border-amber-300 bg-amber-50 rounded-sm space-y-2">
+                      <p className="text-xs text-amber-700 font-medium">Registration No is missing. Please enter:</p>
+                      <Input placeholder="Enter Reg No" className="rounded-sm uppercase" value={selectedVehicle.vehicle_reg_no || ""}
+                        onChange={e => setSelectedVehicle(v => ({ ...v, vehicle_reg_no: e.target.value.toUpperCase().replace(/\s/g, "") }))}
+                        data-testid="missing-reg-input" />
+                    </div>
+                  )}
                   <Button variant="link" className="text-xs p-0 h-auto" onClick={() => setCreateNew(true)}>Or create new vehicle</Button>
                 </div>
               )}
