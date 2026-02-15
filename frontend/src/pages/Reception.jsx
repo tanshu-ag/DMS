@@ -60,6 +60,8 @@ export default function Reception() {
   const [selectedVehicleIndex, setSelectedVehicleIndex] = useState(-1); // Store index instead of object reference
   const [selectedVin, setSelectedVin] = useState(""); // Separate state for VIN input when vehicle is missing VIN
   const [selectedVinMissing, setSelectedVinMissing] = useState(false); // Track if VIN was originally missing
+  const [selectedRegNo, setSelectedRegNo] = useState(""); // Separate state for Reg No input when missing
+  const [selectedRegNoMissing, setSelectedRegNoMissing] = useState(false); // Track if Reg No was originally missing
   const [createNew, setCreateNew] = useState(false);
   const [newVehicle, setNewVehicle] = useState({ vehicle_reg_no: "", vin: "", engine_no: "" });
   const [dupError, setDupError] = useState({ reg: false, vin: false });
