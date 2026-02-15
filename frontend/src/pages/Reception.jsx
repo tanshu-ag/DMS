@@ -198,8 +198,8 @@ export default function Reception() {
 
   // Save entry
   const handleSave = async () => {
-    const regNo = createNew ? newVehicle.vehicle_reg_no : (selectedVehicle?.vehicle_reg_no || "");
-    const vin = createNew ? newVehicle.vin : (selectedVehicle?.vin || "");
+    const regNo = createNew ? newVehicle.vehicle_reg_no : getSelectedRegNo();
+    const vin = createNew ? newVehicle.vin : getSelectedVin();
     if (!regNo || !vin) { toast.error("Vehicle Reg No and VIN are required"); return; }
     if (!receptionTime) { toast.error("Vehicle Reception Time is required"); return; }
     if (customerType === "Individual" && (!contactData.first_name || !contactData.last_name)) { toast.error("First Name and Last Name are required"); return; }
