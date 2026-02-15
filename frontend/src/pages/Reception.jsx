@@ -580,20 +580,6 @@ export default function Reception() {
                   </div>
                 </div>
               )}
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="form-label">Vehicle Reception Time *</Label>
-                  <Input type="datetime-local" value={receptionTime} onChange={e => setReceptionTime(e.target.value)} className="rounded-sm" data-testid="reception-time" />
-                </div>
-                <div>
-                  <Label className="form-label">Source</Label>
-                  <Select value={entrySource} onValueChange={setEntrySource}>
-                    <SelectTrigger className="rounded-sm" data-testid="entry-source"><SelectValue /></SelectTrigger>
-                    <SelectContent>{SOURCES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-              </div>
             </div>
           )}
 
