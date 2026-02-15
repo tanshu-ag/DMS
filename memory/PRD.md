@@ -56,6 +56,7 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - Status badge removed from appointment card header at all stages (Feb 14)
 - N-1 popup dialog: Rescheduled/Cancelled in Upcoming Tomorrow table triggers popup for date/remarks/reason (Feb 14)
 - N-1 in Tomorrow's card = Day Outcome logic: full dropdown with conditional reschedule/cancel fields (Feb 14)
+- Reception module: Full register page, 3-step wizard (vehicle search/create, contact validation, doc attachment), detail view, backend CRUD (Feb 15)
 
 ## Backlog
 - P2: Extract column control logic into reusable `useColumnManager` hook
