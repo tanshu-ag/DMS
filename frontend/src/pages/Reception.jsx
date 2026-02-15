@@ -202,7 +202,7 @@ export default function Reception() {
   // Reset wizard
   const resetWizard = () => {
     setStep(1); setSearchQuery(""); setSearchResults([]); setSearched(false);
-    setSelectedVehicle(null); setSelectedVin(""); setSelectedVinMissing(false); setCreateNew(false);
+    setSelectedVehicleIndex(-1); setSelectedVin(""); setSelectedVinMissing(false); setCreateNew(false);
     setNewVehicle({ vehicle_reg_no: "", vin: "", engine_no: "" });
     setDupError({ reg: false, vin: false });
     setReceptionTime(""); setEntrySource("Walk-in");
