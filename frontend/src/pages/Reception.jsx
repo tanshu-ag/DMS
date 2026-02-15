@@ -526,6 +526,14 @@ export default function Reception() {
                       <p className="text-xs text-amber-700 font-medium">Registration No is missing. Please enter:</p>
                       <Input placeholder="Enter Reg No" className="rounded-sm uppercase" value={selectedVehicle.vehicle_reg_no || ""}
                         onChange={e => setSelectedVehicle(v => ({ ...v, vehicle_reg_no: e.target.value.toUpperCase().replace(/\s/g, "") }))}
+                        onKeyDown={e => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }
+                        }}
+                        onClick={e => e.stopPropagation()}
+                        onMouseDown={e => e.stopPropagation()}
                         data-testid="missing-reg-input" />
                     </div>
                   )}
