@@ -250,7 +250,7 @@ export default function Reception() {
 
   // Helpers to get final reg/vin accounting for inline edits on selected vehicle
   function getSelectedRegNo() { return selectedVehicle?.vehicle_reg_no || ""; }
-  function getSelectedVin() { return selectedVehicle?.vin || ""; }
+  function getSelectedVin() { return selectedVinMissing ? selectedVin : (selectedVehicle?.vin || ""); }
 
   // ===================== RENDER =====================
 
