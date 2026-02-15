@@ -22,6 +22,7 @@ import Branches from "@/pages/Branches";
 import Roles from "@/pages/Roles";
 import UserManagement from "@/pages/UserManagement";
 import ComingSoon from "@/pages/ComingSoon";
+import Reception from "@/pages/Reception";
 import Layout from "@/components/Layout";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -106,6 +107,8 @@ const AppRouter = () => {
         <Route path="customer-relations/upcoming" element={<Upcoming />} />
         <Route path="customer-relations/history" element={<History />} />
         <Route path="customer-relations/vehicles" element={<Vehicles />} />
+        <Route path="customer-relations/reception" element={<Reception />} />
+        <Route path="customer-relations/reception/:entryId" element={<Reception />} />
         <Route path="new-appointment" element={<NewAppointment />} />
         <Route path="appointments/:id" element={<AppointmentDetail />} />
         {/* Settings routes */}
