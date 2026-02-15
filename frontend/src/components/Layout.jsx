@@ -24,6 +24,7 @@ import {
   Shield,
   UserCog,
   Users,
+  ClipboardList,
 } from "lucide-react";
 
 // Role display names mapping
@@ -50,6 +51,7 @@ const crSubmenuItems = [
   { path: "/customer-relations/appointment", label: "Today", icon: CalendarDays },
   { path: "/customer-relations/upcoming", label: "Upcoming", icon: CalendarRange },
   { path: "/customer-relations/history", label: "History", icon: Calendar },
+  { path: "/customer-relations/reception", label: "Reception", icon: ClipboardList },
   { path: "/customer-relations/vehicles", label: "Vehicles", icon: Users },
 ];
 
