@@ -733,21 +733,15 @@ const FieldWithOld = ({ label, value, oldValue, onChange, testId, mask }) => (
   </div>
 );
 
-// Helper: Document upload block
-const DocBlock = ({ title, attached, notCollected, reason, onAttach, onNotCollected, onReasonChange, testIdPrefix }) => (
+// Helper: Document upload block (simplified - no "Not Collected" checkbox)
+const DocBlock = ({ title, attached, onAttach, testIdPrefix }) => (
   <div className="p-4 border border-gray-200 rounded-sm space-y-3">
     <p className="text-sm font-bold">{title}</p>
     <div className="flex items-center gap-3">
       <Button variant={attached ? "default" : "outline"} size="sm" className="rounded-sm" onClick={onAttach} data-testid={`${testIdPrefix}-attach-btn`}>
         {attached ? <><FileCheck className="w-4 h-4 mr-1" /> Attached</> : <><Paperclip className="w-4 h-4 mr-1" /> Attach</>}
       </Button>
+      {!attached && <span className="text-xs text-gray-400">Optional</span>}
     </div>
-    <label className="flex items-center gap-2 text-sm cursor-pointer">
-      <Checkbox checked={notCollected} onCheckedChange={onNotCollected} data-testid={`${testIdPrefix}-not-collected`} />
-      Not Collected
-    </label>
-    {notCollected && (
-      <Input placeholder="Reason (optional)" value={reason} onChange={e => onReasonChange(e.target.value)} className="rounded-sm text-sm" data-testid={`${testIdPrefix}-reason`} />
-    )}
   </div>
 );
