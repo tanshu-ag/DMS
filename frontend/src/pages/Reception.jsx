@@ -269,7 +269,7 @@ export default function Reception() {
   const canGoNext1 = (selectedVehicle ? (getSelectedRegNo() && getSelectedVin()) : (createNew && newVehicle.vehicle_reg_no && newVehicle.vin && !dupError.reg && !dupError.vin)) && receptionTime;
 
   // Helpers to get final reg/vin accounting for inline edits on selected vehicle
-  function getSelectedRegNo() { return selectedVehicle?.vehicle_reg_no || ""; }
+  function getSelectedRegNo() { return selectedRegNoMissing ? selectedRegNo : (selectedVehicle?.vehicle_reg_no || ""); }
   function getSelectedVin() { return selectedVinMissing ? selectedVin : (selectedVehicle?.vin || ""); }
 
   // ===================== RENDER =====================
