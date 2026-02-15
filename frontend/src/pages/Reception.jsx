@@ -21,8 +21,11 @@ import {
 import {
   RadioGroup, RadioGroupItem,
 } from "@/components/ui/radio-group";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { Plus, RefreshCw, Eye, Search, ArrowLeft, ChevronRight, ChevronLeft, Paperclip, FileCheck, FileX } from "lucide-react";
+import { Plus, RefreshCw, Eye, Search, ArrowLeft, ChevronRight, ChevronLeft, Paperclip, FileCheck, FileX, MoreVertical, Pencil, Trash2 } from "lucide-react";
 
 const SOURCES = ["Walk-in", "Appointment", "RSA"];
 const STATUSES = ["Pending Contact Validation", "Validated", "Documents Pending", "Completed"];
