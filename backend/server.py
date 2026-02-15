@@ -1951,6 +1951,16 @@ async def update_reception_entry(request: Request, entry_id: str, data: Receptio
     updated = await db.reception_entries.find_one({"entry_id": entry_id}, {"_id": 0})
     return updated
 
+@api_router.delete("/reception/{entry_id}")
+async def delete_reception_entry(request: Request, entry_id: str):
+    """Delete a reception entry"""
+    await get_current_user(request)
+    entry = await db.reception_entries.find_one({"entry_id": entry_id})
+    if not entry:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    await db.reception_entries.delete_one({"entry_id": entry_id})
+    return {"message": "Entry deleted"}
+
 @api_router.get("/reception/vehicle/{reg_no}")
 async def get_vehicle_details(request: Request, reg_no: str):
     """Get stored vehicle + customer details for prefilling"""
