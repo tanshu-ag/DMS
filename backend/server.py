@@ -1673,6 +1673,294 @@ async def manual_mark_no_show(request: Request, date: str = None):
     count = await mark_no_show_for_date(target_date)
     return {"message": f"Marked {count} appointments as No-show for {target_date}"}
 
+# ============== RECEPTION MODULE ==============
+
+class ReceptionEntryCreate(BaseModel):
+    vehicle_reception_time: str  # ISO datetime string
+    source: str  # Walk-in / Appointment / RSA
+    vehicle_reg_no: str
+    vin: str
+    engine_no: Optional[str] = None
+    customer_type: str = "Individual"  # Individual / Company
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    company_name: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    pin: Optional[str] = None
+    contact_no: str
+    alternate_no: Optional[str] = None
+    email: Optional[str] = None
+    date_of_birth: Optional[str] = None
+    anniversary: Optional[str] = None
+    driven_by: Optional[str] = None  # Owner / User / Driver
+    preferred_contact_mode: Optional[List[str]] = None
+    preferred_contact_time: Optional[List[str]] = None
+    insurance_attached: bool = False
+    insurance_not_collected: bool = False
+    insurance_not_collected_reason: Optional[str] = None
+    rc_attached: bool = False
+    rc_not_collected: bool = False
+    rc_not_collected_reason: Optional[str] = None
+    branch: Optional[str] = None
+    linked_appointment_id: Optional[str] = None
+
+class ReceptionEntryUpdate(BaseModel):
+    status: Optional[str] = None
+    contact_no: Optional[str] = None
+    alternate_no: Optional[str] = None
+    email: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    pin: Optional[str] = None
+    insurance_attached: Optional[bool] = None
+    insurance_not_collected: Optional[bool] = None
+    insurance_not_collected_reason: Optional[str] = None
+    rc_attached: Optional[bool] = None
+    rc_not_collected: Optional[bool] = None
+    rc_not_collected_reason: Optional[str] = None
+
+@api_router.get("/reception/search-vehicle")
+async def search_vehicle(request: Request, q: str = ""):
+    """Search vehicles by Reg No, Phone, or VIN across appointments and reception entries"""
+    await get_current_user(request)
+    if not q or len(q) < 2:
+        return []
+    q_upper = q.upper().replace(" ", "")
+    q_regex = {"$regex": q, "$options": "i"}
+    q_regex_nospace = {"$regex": q_upper, "$options": "i"}
+
+    # Search in appointments
+    appt_results = []
+    appt_cursor = db.appointments.find(
+        {"$or": [
+            {"vehicle_reg_no": q_regex_nospace},
+            {"customer_phone": q_regex},
+            {"vin": q_regex_nospace},
+        ]},
+        {"_id": 0}
+    ).sort("appointment_date", -1).limit(20)
+    async for doc in appt_cursor:
+        appt_results.append({
+            "source": "appointment",
+            "vehicle_reg_no": doc.get("vehicle_reg_no", ""),
+            "vin": doc.get("vin", ""),
+            "engine_no": doc.get("engine_no", ""),
+            "model": doc.get("vehicle_model", ""),
+            "customer_name": doc.get("customer_name", ""),
+            "customer_phone": doc.get("customer_phone", ""),
+            "customer_email": doc.get("customer_email", ""),
+            "appointment_id": doc.get("appointment_id", ""),
+        })
+
+    # Search in vehicles collection
+    veh_cursor = db.vehicles.find(
+        {"$or": [
+            {"vehicle_reg_no": q_regex_nospace},
+            {"vin": q_regex_nospace},
+            {"contact_no": q_regex},
+        ]},
+        {"_id": 0}
+    ).limit(20)
+    veh_results = []
+    async for doc in veh_cursor:
+        veh_results.append({
+            "source": "vehicle_db",
+            "vehicle_reg_no": doc.get("vehicle_reg_no", ""),
+            "vin": doc.get("vin", ""),
+            "engine_no": doc.get("engine_no", ""),
+            "model": doc.get("model", ""),
+            "customer_name": f'{doc.get("first_name", "")} {doc.get("last_name", "")}'.strip() or doc.get("company_name", ""),
+            "customer_phone": doc.get("contact_no", ""),
+            "customer_email": doc.get("email", ""),
+        })
+
+    # Deduplicate by reg_no
+    seen = set()
+    combined = []
+    for r in appt_results + veh_results:
+        key = (r.get("vehicle_reg_no", "").upper().replace(" ", ""), r.get("vin", "").upper().replace(" ", ""))
+        if key not in seen:
+            seen.add(key)
+            combined.append(r)
+    return combined
+
+@api_router.get("/reception/check-duplicate")
+async def check_vehicle_duplicate(request: Request, reg_no: str = "", vin: str = ""):
+    """Check if vehicle reg no or VIN already exists"""
+    await get_current_user(request)
+    reg_clean = reg_no.upper().replace(" ", "")
+    vin_clean = vin.upper().replace(" ", "")
+    dup_reg = False
+    dup_vin = False
+    if reg_clean:
+        dup_reg = await db.vehicles.find_one({"vehicle_reg_no": reg_clean}) is not None
+        if not dup_reg:
+            dup_reg = await db.appointments.find_one({"vehicle_reg_no": reg_clean}) is not None
+    if vin_clean:
+        dup_vin = await db.vehicles.find_one({"vin": vin_clean}) is not None
+    return {"duplicate_reg": dup_reg, "duplicate_vin": dup_vin}
+
+@api_router.post("/reception", status_code=201)
+async def create_reception_entry(request: Request, data: ReceptionEntryCreate):
+    """Create a new reception entry"""
+    user = await get_current_user(request)
+    now = datetime.now(timezone.utc)
+    entry_id = f"rcpt_{uuid.uuid4().hex[:12]}"
+    reg_clean = data.vehicle_reg_no.upper().replace(" ", "")
+    vin_clean = data.vin.upper().replace(" ", "")
+
+    # Upsert vehicle in vehicles collection
+    vehicle_doc = {
+        "vehicle_reg_no": reg_clean,
+        "vin": vin_clean,
+        "engine_no": data.engine_no or "",
+        "customer_type": data.customer_type,
+        "first_name": data.first_name or "",
+        "last_name": data.last_name or "",
+        "company_name": data.company_name or "",
+        "contact_no": data.contact_no,
+        "alternate_no": data.alternate_no or "",
+        "email": data.email or "",
+        "address": data.address or "",
+        "city": data.city or "",
+        "state": data.state or "",
+        "pin": data.pin or "",
+        "date_of_birth": data.date_of_birth or "",
+        "anniversary": data.anniversary or "",
+        "driven_by": data.driven_by or "",
+        "preferred_contact_mode": data.preferred_contact_mode or [],
+        "preferred_contact_time": data.preferred_contact_time or [],
+        "updated_at": now.isoformat(),
+    }
+    await db.vehicles.update_one(
+        {"vehicle_reg_no": reg_clean},
+        {"$set": vehicle_doc, "$setOnInsert": {"created_at": now.isoformat()}},
+        upsert=True
+    )
+
+    # Determine status
+    contact_validated = bool(data.contact_no)
+    docs_ok = (data.insurance_attached or data.insurance_not_collected) and (data.rc_attached or data.rc_not_collected)
+    if contact_validated and docs_ok:
+        status = "Completed"
+    elif contact_validated:
+        status = "Documents Pending"
+    else:
+        status = "Pending Contact Validation"
+
+    customer_name = f'{data.first_name or ""} {data.last_name or ""}'.strip() if data.customer_type == "Individual" else (data.company_name or "")
+
+    entry = {
+        "entry_id": entry_id,
+        "vehicle_reception_time": data.vehicle_reception_time,
+        "entry_time": now.isoformat(),
+        "source": data.source,
+        "vehicle_reg_no": reg_clean,
+        "vin": vin_clean,
+        "engine_no": data.engine_no or "",
+        "customer_name": customer_name,
+        "customer_type": data.customer_type,
+        "first_name": data.first_name or "",
+        "last_name": data.last_name or "",
+        "company_name": data.company_name or "",
+        "contact_no": data.contact_no,
+        "alternate_no": data.alternate_no or "",
+        "email": data.email or "",
+        "address": data.address or "",
+        "city": data.city or "",
+        "state": data.state or "",
+        "pin": data.pin or "",
+        "date_of_birth": data.date_of_birth or "",
+        "anniversary": data.anniversary or "",
+        "driven_by": data.driven_by or "",
+        "preferred_contact_mode": data.preferred_contact_mode or [],
+        "preferred_contact_time": data.preferred_contact_time or [],
+        "insurance_attached": data.insurance_attached,
+        "insurance_not_collected": data.insurance_not_collected,
+        "insurance_not_collected_reason": data.insurance_not_collected_reason or "",
+        "rc_attached": data.rc_attached,
+        "rc_not_collected": data.rc_not_collected,
+        "rc_not_collected_reason": data.rc_not_collected_reason or "",
+        "contact_validation": contact_validated,
+        "status": status,
+        "branch": data.branch or "",
+        "linked_appointment_id": data.linked_appointment_id or "",
+        "created_by": user["user_id"],
+        "created_by_name": user["name"],
+        "created_at": now.isoformat(),
+        "updated_at": now.isoformat(),
+    }
+    await db.reception_entries.insert_one(entry)
+    entry.pop("_id", None)
+    return entry
+
+@api_router.get("/reception")
+async def get_reception_entries(request: Request, branch: str = None, date_filter: str = "today", source: str = None, status: str = None, date_from: str = None, date_to: str = None):
+    """Get reception entries with filters"""
+    await get_current_user(request)
+    query = {}
+    now_utc = datetime.now(timezone.utc)
+    ist_offset = timedelta(hours=5, minutes=30)
+    now_ist = now_utc + ist_offset
+    today_str = now_ist.strftime("%Y-%m-%d")
+
+    if date_filter == "today":
+        query["entry_time"] = {"$gte": today_str + "T00:00:00", "$lte": today_str + "T23:59:59"}
+    elif date_filter == "yesterday":
+        yesterday = (now_ist - timedelta(days=1)).strftime("%Y-%m-%d")
+        query["entry_time"] = {"$gte": yesterday + "T00:00:00", "$lte": yesterday + "T23:59:59"}
+    elif date_filter == "this_week":
+        week_start = (now_ist - timedelta(days=now_ist.weekday())).strftime("%Y-%m-%d")
+        query["entry_time"] = {"$gte": week_start + "T00:00:00"}
+    elif date_filter == "custom" and date_from and date_to:
+        query["entry_time"] = {"$gte": date_from + "T00:00:00", "$lte": date_to + "T23:59:59"}
+
+    if branch:
+        query["branch"] = branch
+    if source:
+        query["source"] = source
+    if status:
+        query["status"] = status
+
+    cursor = db.reception_entries.find(query, {"_id": 0}).sort("vehicle_reception_time", -1)
+    entries = await cursor.to_list(500)
+    return entries
+
+@api_router.get("/reception/{entry_id}")
+async def get_reception_entry(request: Request, entry_id: str):
+    """Get a single reception entry by ID"""
+    await get_current_user(request)
+    entry = await db.reception_entries.find_one({"entry_id": entry_id}, {"_id": 0})
+    if not entry:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    return entry
+
+@api_router.put("/reception/{entry_id}")
+async def update_reception_entry(request: Request, entry_id: str, data: ReceptionEntryUpdate):
+    """Update a reception entry"""
+    user = await get_current_user(request)
+    entry = await db.reception_entries.find_one({"entry_id": entry_id})
+    if not entry:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    update_dict = {k: v for k, v in data.model_dump(exclude_unset=True).items() if v is not None}
+    update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.reception_entries.update_one({"entry_id": entry_id}, {"$set": update_dict})
+    updated = await db.reception_entries.find_one({"entry_id": entry_id}, {"_id": 0})
+    return updated
+
+@api_router.get("/reception/vehicle/{reg_no}")
+async def get_vehicle_details(request: Request, reg_no: str):
+    """Get stored vehicle + customer details for prefilling"""
+    await get_current_user(request)
+    reg_clean = reg_no.upper().replace(" ", "")
+    vehicle = await db.vehicles.find_one({"vehicle_reg_no": reg_clean}, {"_id": 0})
+    if not vehicle:
+        return None
+    return vehicle
+
 # ============== ROOT ROUTE ==============
 
 @api_router.get("/")
