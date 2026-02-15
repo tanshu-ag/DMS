@@ -496,7 +496,12 @@ export default function Reception() {
                     <div className="p-3 border border-amber-300 bg-amber-50 rounded-sm space-y-2">
                       <p className="text-xs text-amber-700 font-medium">VIN is missing for this vehicle. Please enter:</p>
                       <Input placeholder="Enter VIN" className="rounded-sm uppercase" value={selectedVin}
-                        onChange={e => setSelectedVin(e.target.value.toUpperCase().replace(/\s/g, ""))}
+                        onChange={e => {
+                          console.log('[VIN Input] onChange:', e.target.value);
+                          setSelectedVin(e.target.value.toUpperCase().replace(/\s/g, ""));
+                        }}
+                        onClick={e => e.stopPropagation()}
+                        onMouseDown={e => e.stopPropagation()}
                         data-testid="missing-vin-input" />
                     </div>
                   )}
