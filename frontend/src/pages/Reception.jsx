@@ -627,8 +627,9 @@ export default function Reception() {
               </div>
               <FieldWithOld label="Email" value={contactData.email} oldValue={oldContactData?.email} onChange={v => setContactData(d => ({ ...d, email: v }))} testId="email" mask={maskValue} />
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <FieldWithOld label="Address" value={contactData.address} oldValue={oldContactData?.address} onChange={v => setContactData(d => ({ ...d, address: v }))} testId="address" mask={maskValue} />
+              <FieldWithOld label="Address" value={contactData.address} oldValue={oldContactData?.address} onChange={v => setContactData(d => ({ ...d, address: v }))} testId="address" mask={maskValue} />
+
+              <div className="grid grid-cols-3 gap-3">
                 <FieldWithOld label="City" value={contactData.city} oldValue={oldContactData?.city} onChange={v => setContactData(d => ({ ...d, city: v }))} testId="city" mask={maskValue} />
                 <FieldWithOld label="State" value={contactData.state} oldValue={oldContactData?.state} onChange={v => setContactData(d => ({ ...d, state: v }))} testId="state" mask={maskValue} />
                 <FieldWithOld label="Pin" value={contactData.pin} oldValue={oldContactData?.pin} onChange={v => setContactData(d => ({ ...d, pin: v }))} testId="pin" mask={maskValue} />
