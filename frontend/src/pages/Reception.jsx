@@ -58,6 +58,8 @@ export default function Reception() {
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedVin, setSelectedVin] = useState(""); // Separate state for VIN input when vehicle is missing VIN
+  const [selectedVinMissing, setSelectedVinMissing] = useState(false); // Track if VIN was originally missing
   const [createNew, setCreateNew] = useState(false);
   const [newVehicle, setNewVehicle] = useState({ vehicle_reg_no: "", vin: "", engine_no: "" });
   const [dupError, setDupError] = useState({ reg: false, vin: false });
