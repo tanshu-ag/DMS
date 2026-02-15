@@ -488,18 +488,20 @@ export default function Reception() {
                     </div>
                   ))}
                   {selectedVehicle && selectedVinMissing && (
-                    <div className="p-3 border border-amber-300 bg-amber-50 rounded-sm space-y-2">
+                    <div className="p-3 border border-amber-300 bg-amber-50 rounded-sm space-y-2" onClick={e => e.stopPropagation()}>
                       <p className="text-xs text-amber-700 font-medium">VIN is missing for this vehicle. Please enter:</p>
                       <Input placeholder="Enter VIN" className="rounded-sm uppercase" value={selectedVin}
                         onChange={e => setSelectedVin(e.target.value.toUpperCase().replace(/\s/g, ""))}
+                        onFocus={e => e.stopPropagation()}
                         data-testid="missing-vin-input" />
                     </div>
                   )}
                   {selectedVehicle && !selectedVehicle.vehicle_reg_no && (
-                    <div className="p-3 border border-amber-300 bg-amber-50 rounded-sm space-y-2">
+                    <div className="p-3 border border-amber-300 bg-amber-50 rounded-sm space-y-2" onClick={e => e.stopPropagation()}>
                       <p className="text-xs text-amber-700 font-medium">Registration No is missing. Please enter:</p>
                       <Input placeholder="Enter Reg No" className="rounded-sm uppercase" value={selectedVehicle.vehicle_reg_no || ""}
                         onChange={e => setSelectedVehicle(v => ({ ...v, vehicle_reg_no: e.target.value.toUpperCase().replace(/\s/g, "") }))}
+                        onFocus={e => e.stopPropagation()}
                         data-testid="missing-reg-input" />
                     </div>
                   )}
