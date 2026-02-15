@@ -241,7 +241,11 @@ export default function Reception() {
     } catch { return iso; }
   };
 
-  const canGoNext1 = (selectedVehicle || (createNew && newVehicle.vehicle_reg_no && newVehicle.vin && !dupError.reg && !dupError.vin)) && receptionTime;
+  const canGoNext1 = (selectedVehicle ? (getSelectedRegNo() && getSelectedVin()) : (createNew && newVehicle.vehicle_reg_no && newVehicle.vin && !dupError.reg && !dupError.vin)) && receptionTime;
+
+  // Helpers to get final reg/vin accounting for inline edits on selected vehicle
+  function getSelectedRegNo() { return selectedVehicle?.vehicle_reg_no || ""; }
+  function getSelectedVin() { return selectedVehicle?.vin || ""; }
 
   // ===================== RENDER =====================
 
