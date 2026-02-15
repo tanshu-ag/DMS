@@ -469,9 +469,24 @@ export default function Reception() {
                 </TableCell>
                 <TableCell><Badge className={`rounded-sm text-xs ${e.status === "Completed" ? "bg-green-100 text-green-800" : e.status === "Documents Pending" ? "bg-amber-100 text-amber-800" : "bg-gray-100 text-gray-800"}`}>{e.status}</Badge></TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-sm" onClick={() => { setDetailEntry(e); setDetailOpen(true); }} data-testid={`action-btn-${e.entry_id}`}>
-                    <Eye className="w-4 h-4" strokeWidth={1.5} />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-sm" data-testid={`action-btn-${e.entry_id}`}>
+                        <MoreVertical className="w-4 h-4" strokeWidth={1.5} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-36">
+                      <DropdownMenuItem onClick={() => { setDetailEntry(e); setDetailOpen(true); }} data-testid={`view-btn-${e.entry_id}`}>
+                        <Eye className="w-4 h-4 mr-2" strokeWidth={1.5} /> View
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => toast.info("Edit functionality coming soon")} data-testid={`edit-btn-${e.entry_id}`}>
+                        <Pencil className="w-4 h-4 mr-2" strokeWidth={1.5} /> Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDelete(e.entry_id)} className="text-red-600 focus:text-red-600" data-testid={`delete-btn-${e.entry_id}`}>
+                        <Trash2 className="w-4 h-4 mr-2" strokeWidth={1.5} /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))}
