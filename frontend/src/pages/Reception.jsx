@@ -57,7 +57,7 @@ export default function Reception() {
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedVehicleIndex, setSelectedVehicleIndex] = useState(-1); // Store index instead of object reference
   const [selectedVin, setSelectedVin] = useState(""); // Separate state for VIN input when vehicle is missing VIN
   const [selectedVinMissing, setSelectedVinMissing] = useState(false); // Track if VIN was originally missing
   const [createNew, setCreateNew] = useState(false);
@@ -65,6 +65,9 @@ export default function Reception() {
   const [dupError, setDupError] = useState({ reg: false, vin: false });
   const [receptionTime, setReceptionTime] = useState("");
   const [entrySource, setEntrySource] = useState("Walk-in");
+  
+  // Computed: get selected vehicle from index
+  const selectedVehicle = selectedVehicleIndex >= 0 ? searchResults[selectedVehicleIndex] : null;
 
   // Step 2 state
   const [customerType, setCustomerType] = useState("Individual");
