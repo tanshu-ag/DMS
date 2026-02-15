@@ -481,7 +481,12 @@ export default function Reception() {
                   <div className="max-h-48 overflow-y-auto space-y-2">
                     {searchResults.map((r, i) => (
                       <div key={i} className={`p-3 border rounded-sm cursor-pointer transition-colors ${selectedVehicle === r ? "border-black bg-gray-50" : "border-gray-200 hover:border-gray-400"}`}
-                        onClick={() => selectVehicle(r)} data-testid={`search-result-${i}`}>
+                        onClick={() => {
+                          // Only select if not already selected (prevents re-triggering)
+                          if (selectedVehicle !== r) {
+                            selectVehicle(r);
+                          }
+                        }} data-testid={`search-result-${i}`}>
                         <div className="flex justify-between items-start">
                           <div>
                             <p className="text-sm font-mono font-bold">{r.vehicle_reg_no || "No Reg"}</p>
