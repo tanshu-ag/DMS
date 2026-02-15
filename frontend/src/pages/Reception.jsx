@@ -151,8 +151,11 @@ export default function Reception() {
   };
 
   // Select existing vehicle → prefill contact data
-  const selectVehicle = async (v) => {
-    setSelectedVehicle(v);
+  const selectVehicle = async (index) => {
+    const v = searchResults[index];
+    if (!v) return;
+    
+    setSelectedVehicleIndex(index);
     setCreateNew(false);
     // Track if VIN was originally missing
     const vinMissing = !v.vin;
