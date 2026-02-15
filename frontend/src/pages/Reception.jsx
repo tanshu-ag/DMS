@@ -149,12 +149,10 @@ export default function Reception() {
 
   // Select existing vehicle → prefill contact data
   const selectVehicle = async (v) => {
-    console.log('[selectVehicle] Called with:', v.vehicle_reg_no, 'VIN:', v.vin);
     setSelectedVehicle(v);
     setCreateNew(false);
     // Track if VIN was originally missing
     const vinMissing = !v.vin;
-    console.log('[selectVehicle] VIN missing?', vinMissing);
     setSelectedVinMissing(vinMissing);
     setSelectedVin(v.vin || "");
     // Try to get full stored customer data
