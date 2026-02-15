@@ -125,7 +125,11 @@ export default function Reception() {
   // Search vehicle
   const handleSearch = async () => {
     if (!searchQuery || searchQuery.length < 2) { toast.error("Enter at least 2 characters"); return; }
-    setSearching(true); setSearched(true); setSelectedVehicle(null); setCreateNew(false);
+    setSearching(true); setSearched(true); setCreateNew(false);
+    // Only reset selectedVehicle if doing a NEW search, not when just pressing search button again
+    setSelectedVehicle(null);
+    setSelectedVin("");
+    setSelectedVinMissing(false);
     try {
       const res = await axios.get(`${API}/reception/search-vehicle?q=${encodeURIComponent(searchQuery)}`, { withCredentials: true });
       setSearchResults(res.data || []);
