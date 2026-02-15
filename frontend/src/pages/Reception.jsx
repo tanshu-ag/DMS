@@ -135,6 +135,8 @@ export default function Reception() {
     setSelectedVehicleIndex(-1);
     setSelectedVin("");
     setSelectedVinMissing(false);
+    setSelectedRegNo("");
+    setSelectedRegNoMissing(false);
     try {
       const res = await axios.get(`${API}/reception/search-vehicle?q=${encodeURIComponent(searchQuery)}`, { withCredentials: true });
       setSearchResults(res.data || []);
