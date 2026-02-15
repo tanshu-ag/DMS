@@ -586,6 +586,21 @@ export default function Reception() {
           {/* STEP 2: Validate Contact */}
           {step === 2 && (
             <div className="space-y-4 py-2" data-testid="wizard-step-2">
+              {/* Reception Time & Source - moved from Step 1 */}
+              <div className="grid grid-cols-2 gap-4 p-3 bg-gray-50 rounded-sm border border-gray-200">
+                <div>
+                  <Label className="form-label">Vehicle Reception Time *</Label>
+                  <Input type="datetime-local" value={receptionTime} onChange={e => setReceptionTime(e.target.value)} className="rounded-sm bg-white" data-testid="reception-time" />
+                </div>
+                <div>
+                  <Label className="form-label">Source</Label>
+                  <Select value={entrySource} onValueChange={setEntrySource}>
+                    <SelectTrigger className="rounded-sm bg-white" data-testid="entry-source"><SelectValue /></SelectTrigger>
+                    <SelectContent>{SOURCES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div>
                 <Label className="form-label">Customer Type</Label>
                 <Select value={customerType} onValueChange={setCustomerType}>
