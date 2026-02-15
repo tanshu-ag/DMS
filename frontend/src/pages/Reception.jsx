@@ -163,6 +163,10 @@ export default function Reception() {
     const vinMissing = !v.vin;
     setSelectedVinMissing(vinMissing);
     setSelectedVin(v.vin || "");
+    // Track if Reg No was originally missing
+    const regNoMissing = !v.vehicle_reg_no;
+    setSelectedRegNoMissing(regNoMissing);
+    setSelectedRegNo(v.vehicle_reg_no || "");
     // Try to get full stored customer data
     try {
       const res = await axios.get(`${API}/reception/vehicle/${encodeURIComponent(v.vehicle_reg_no)}`, { withCredentials: true });
