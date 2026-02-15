@@ -682,21 +682,13 @@ export default function Reception() {
               <DocBlock
                 title="Insurance Document"
                 attached={docs.insurance_attached}
-                notCollected={docs.insurance_not_collected}
-                reason={docs.insurance_reason}
-                onAttach={() => setDocs(d => ({ ...d, insurance_attached: !d.insurance_attached, insurance_not_collected: false }))}
-                onNotCollected={v => setDocs(d => ({ ...d, insurance_not_collected: v, insurance_attached: false }))}
-                onReasonChange={v => setDocs(d => ({ ...d, insurance_reason: v }))}
+                onAttach={() => setDocs(d => ({ ...d, insurance_attached: !d.insurance_attached }))}
                 testIdPrefix="ins"
               />
               <DocBlock
                 title="Registration (RC) Document"
                 attached={docs.rc_attached}
-                notCollected={docs.rc_not_collected}
-                reason={docs.rc_reason}
-                onAttach={() => setDocs(d => ({ ...d, rc_attached: !d.rc_attached, rc_not_collected: false }))}
-                onNotCollected={v => setDocs(d => ({ ...d, rc_not_collected: v, rc_attached: false }))}
-                onReasonChange={v => setDocs(d => ({ ...d, rc_reason: v }))}
+                onAttach={() => setDocs(d => ({ ...d, rc_attached: !d.rc_attached }))}
                 testIdPrefix="rc"
               />
             </div>
