@@ -509,6 +509,13 @@ export default function Reception() {
                           console.log('[VIN Input] onChange:', e.target.value);
                           setSelectedVin(e.target.value.toUpperCase().replace(/\s/g, ""));
                         }}
+                        onKeyDown={e => {
+                          // Prevent Enter from triggering search
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }
+                        }}
                         onClick={e => e.stopPropagation()}
                         onMouseDown={e => e.stopPropagation()}
                         data-testid="missing-vin-input" />
