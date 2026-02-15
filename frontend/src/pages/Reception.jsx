@@ -261,6 +261,23 @@ export default function Reception() {
     }
   };
 
+  // Delete reception entry
+  const handleDelete = async (entryId) => {
+    if (!window.confirm("Are you sure you want to delete this entry?")) return;
+    try {
+      await axios.delete(`${API}/reception/${entryId}`, { withCredentials: true });
+      toast.success("Entry deleted");
+      fetchEntries();
+      if (detailOpen && detailEntry?.entry_id === entryId) {
+        setDetailOpen(false);
+        setDetailEntry(null);
+        navigate("/customer-relations/reception");
+      }
+    } catch (e) {
+      toast.error(e.response?.data?.detail || "Failed to delete entry");
+    }
+  };
+
   const fmtTime = (iso) => {
     if (!iso) return "-";
     try {
