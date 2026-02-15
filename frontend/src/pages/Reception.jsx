@@ -298,15 +298,25 @@ export default function Reception() {
   if (detailOpen && detailEntry) {
     return (
       <div className="space-y-6" data-testid="reception-detail">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => { setDetailOpen(false); setDetailEntry(null); navigate("/customer-relations/reception"); }} data-testid="back-btn">
-            <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
-          </Button>
-          <div>
-            <h1 className="font-heading font-black text-2xl tracking-tight uppercase">{detailEntry.vehicle_reg_no}</h1>
-            <p className="text-sm text-gray-500 font-mono">{detailEntry.entry_id}</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => { setDetailOpen(false); setDetailEntry(null); navigate("/customer-relations/reception"); }} data-testid="back-btn">
+              <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+            </Button>
+            <div>
+              <h1 className="font-heading font-black text-2xl tracking-tight uppercase">{detailEntry.vehicle_reg_no}</h1>
+              <p className="text-sm text-gray-500 font-mono">{detailEntry.entry_id}</p>
+            </div>
+            <Badge className={`ml-2 rounded-sm text-xs ${detailEntry.status === "Completed" ? "bg-green-100 text-green-800" : detailEntry.status === "Documents Pending" ? "bg-amber-100 text-amber-800" : "bg-gray-100 text-gray-800"}`}>{detailEntry.status}</Badge>
           </div>
-          <Badge className={`ml-2 rounded-sm text-xs ${detailEntry.status === "Completed" ? "bg-green-100 text-green-800" : detailEntry.status === "Documents Pending" ? "bg-amber-100 text-amber-800" : "bg-gray-100 text-gray-800"}`}>{detailEntry.status}</Badge>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="rounded-sm" onClick={() => toast.info("Edit functionality coming soon")} data-testid="detail-edit-btn">
+              <Pencil className="w-4 h-4 mr-1" strokeWidth={1.5} /> Edit
+            </Button>
+            <Button variant="outline" size="sm" className="rounded-sm text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700" onClick={() => handleDelete(detailEntry.entry_id)} data-testid="detail-delete-btn">
+              <Trash2 className="w-4 h-4 mr-1" strokeWidth={1.5} /> Delete
+            </Button>
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
