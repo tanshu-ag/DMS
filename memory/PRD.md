@@ -63,6 +63,12 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - Reception wizard UX: Removed "Not Collected" checkbox from documents step - simplified to just Attach button with "Optional" label (Feb 15)
 - Reception action menu: Changed from single Eye icon to dropdown menu with View, Edit, Delete options (Feb 15)
 - Backend: Added DELETE /api/reception/{entry_id} endpoint for deleting reception entries (Feb 15)
+- Vehicles Module: Built complete CRUD with master model list from Other Settings (Feb 23)
+  - Model dropdown only shows models from Other Settings → Vehicle Models
+  - Unmapped models show "(Unmapped)" with warning icon in table
+  - Edit modal shows stored model value with warning to select valid model
+  - Search only searches by Reg No / VIN / Engine No / Phone / Customer (NOT model)
+  - Backend API endpoints: GET/POST/PUT/DELETE /api/vehicles
 
 ## Backlog
 - P2: Extract column control logic into reusable `useColumnManager` hook
