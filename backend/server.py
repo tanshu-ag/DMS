@@ -1971,6 +1971,173 @@ async def get_vehicle_details(request: Request, reg_no: str):
         return None
     return vehicle
 
+# ============== VEHICLES MODULE ==============
+
+class VehicleCreate(BaseModel):
+    vehicle_reg_no: str
+    vin: Optional[str] = None
+    engine_no: Optional[str] = None
+    model: Optional[str] = None
+    customer_name: Optional[str] = None
+    customer_phone: Optional[str] = None
+
+class VehicleUpdate(BaseModel):
+    vehicle_reg_no: Optional[str] = None
+    vin: Optional[str] = None
+    engine_no: Optional[str] = None
+    model: Optional[str] = None
+    customer_name: Optional[str] = None
+    customer_phone: Optional[str] = None
+
+@api_router.get("/vehicles")
+async def get_vehicles(request: Request, model: str = None, search: str = None):
+    """Get all vehicles with optional filters"""
+    await get_current_user(request)
+    
+    # Get master model list from settings
+    settings = await db.settings.find_one({"settings_id": "main"})
+    master_models = settings.get("vehicle_models", []) if settings else []
+    
+    query = {}
+    
+    # Filter by model (only if it's in master list)
+    if model and model in master_models:
+        query["model"] = model
+    
+    # Search by reg_no, vin, engine_no, customer_name, customer_phone (NOT by model if not in master)
+    if search:
+        search_clean = search.strip()
+        query["$or"] = [
+            {"vehicle_reg_no": {"$regex": search_clean, "$options": "i"}},
+            {"vin": {"$regex": search_clean, "$options": "i"}},
+            {"engine_no": {"$regex": search_clean, "$options": "i"}},
+            {"customer_name": {"$regex": search_clean, "$options": "i"}},
+            {"customer_phone": {"$regex": search_clean, "$options": "i"}},
+        ]
+    
+    cursor = db.vehicles.find(query, {"_id": 0}).sort("created_at", -1)
+    vehicles = await cursor.to_list(500)
+    
+    # Add is_model_valid flag to each vehicle
+    for v in vehicles:
+        v["is_model_valid"] = v.get("model") in master_models if v.get("model") else False
+    
+    return vehicles
+
+@api_router.get("/vehicles/{vehicle_id}")
+async def get_vehicle(request: Request, vehicle_id: str):
+    """Get a single vehicle by ID"""
+    await get_current_user(request)
+    vehicle = await db.vehicles.find_one({"vehicle_id": vehicle_id}, {"_id": 0})
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    # Check if model is valid
+    settings = await db.settings.find_one({"settings_id": "main"})
+    master_models = settings.get("vehicle_models", []) if settings else []
+    vehicle["is_model_valid"] = vehicle.get("model") in master_models if vehicle.get("model") else False
+    
+    return vehicle
+
+@api_router.post("/vehicles", status_code=201)
+async def create_vehicle(request: Request, data: VehicleCreate):
+    """Create a new vehicle"""
+    await get_current_user(request)
+    
+    # Check model is from master list
+    settings = await db.settings.find_one({"settings_id": "main"})
+    master_models = settings.get("vehicle_models", []) if settings else []
+    
+    if data.model and data.model not in master_models:
+        raise HTTPException(status_code=400, detail="Model must be from the master list in Other Settings")
+    
+    if not data.model:
+        raise HTTPException(status_code=400, detail="Model is required")
+    
+    # Check for duplicate reg_no
+    reg_clean = data.vehicle_reg_no.upper().replace(" ", "")
+    existing = await db.vehicles.find_one({"vehicle_reg_no": reg_clean})
+    if existing:
+        raise HTTPException(status_code=400, detail="Vehicle with this registration number already exists")
+    
+    # Check for duplicate VIN if provided
+    if data.vin:
+        vin_clean = data.vin.upper().replace(" ", "")
+        existing_vin = await db.vehicles.find_one({"vin": vin_clean})
+        if existing_vin:
+            raise HTTPException(status_code=400, detail="Vehicle with this VIN already exists")
+    
+    vehicle_id = f"VEH-{datetime.now().strftime('%Y%m%d%H%M%S')}-{reg_clean[-4:]}"
+    
+    vehicle = {
+        "vehicle_id": vehicle_id,
+        "vehicle_reg_no": reg_clean,
+        "vin": data.vin.upper().replace(" ", "") if data.vin else None,
+        "engine_no": data.engine_no.upper() if data.engine_no else None,
+        "model": data.model,
+        "customer_name": data.customer_name,
+        "customer_phone": data.customer_phone,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    
+    await db.vehicles.insert_one(vehicle)
+    del vehicle["_id"]
+    vehicle["is_model_valid"] = True
+    return vehicle
+
+@api_router.put("/vehicles/{vehicle_id}")
+async def update_vehicle(request: Request, vehicle_id: str, data: VehicleUpdate):
+    """Update a vehicle"""
+    await get_current_user(request)
+    
+    vehicle = await db.vehicles.find_one({"vehicle_id": vehicle_id})
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    # Check model is from master list if being updated
+    if data.model:
+        settings = await db.settings.find_one({"settings_id": "main"})
+        master_models = settings.get("vehicle_models", []) if settings else []
+        if data.model not in master_models:
+            raise HTTPException(status_code=400, detail="Model must be from the master list in Other Settings")
+    
+    update_dict = {}
+    if data.vehicle_reg_no:
+        update_dict["vehicle_reg_no"] = data.vehicle_reg_no.upper().replace(" ", "")
+    if data.vin:
+        update_dict["vin"] = data.vin.upper().replace(" ", "")
+    if data.engine_no:
+        update_dict["engine_no"] = data.engine_no.upper()
+    if data.model:
+        update_dict["model"] = data.model
+    if data.customer_name:
+        update_dict["customer_name"] = data.customer_name
+    if data.customer_phone:
+        update_dict["customer_phone"] = data.customer_phone
+    
+    update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.vehicles.update_one({"vehicle_id": vehicle_id}, {"$set": update_dict})
+    updated = await db.vehicles.find_one({"vehicle_id": vehicle_id}, {"_id": 0})
+    
+    # Check if model is valid
+    settings = await db.settings.find_one({"settings_id": "main"})
+    master_models = settings.get("vehicle_models", []) if settings else []
+    updated["is_model_valid"] = updated.get("model") in master_models if updated.get("model") else False
+    
+    return updated
+
+@api_router.delete("/vehicles/{vehicle_id}")
+async def delete_vehicle(request: Request, vehicle_id: str):
+    """Delete a vehicle"""
+    await get_current_user(request)
+    vehicle = await db.vehicles.find_one({"vehicle_id": vehicle_id})
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    await db.vehicles.delete_one({"vehicle_id": vehicle_id})
+    return {"message": "Vehicle deleted"}
+
 # ============== ROOT ROUTE ==============
 
 @api_router.get("/")
