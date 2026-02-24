@@ -52,8 +52,10 @@ const crSubmenuItems = [
   { path: "/customer-relations/upcoming", label: "Upcoming", icon: CalendarRange },
   { path: "/customer-relations/history", label: "History", icon: Calendar },
   { path: "/customer-relations/reception", label: "Reception", icon: ClipboardList },
-  { path: "/customer-relations/vehicles", label: "Vehicles", icon: Users },
 ];
+
+// Vehicles - standalone top-level item
+const vehiclesItem = { path: "/customer-relations/vehicles", label: "Vehicles", icon: Car };
 
 // Other module items (Coming Soon)
 const moduleItems = [
