@@ -154,6 +154,21 @@ const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
             </CollapsibleContent>
           </Collapsible>
 
+          {/* Vehicles - Top-level item */}
+          <Button
+            variant="ghost"
+            className={`w-full justify-start h-10 px-3 rounded-sm font-medium text-sm ${
+              isActive(vehiclesItem.path)
+                ? "bg-black text-white hover:bg-gray-800"
+                : "hover:bg-gray-100"
+            }`}
+            onClick={() => onNavigate(vehiclesItem.path)}
+            data-testid="nav-vehicles"
+          >
+            <vehiclesItem.icon className="w-4 h-4 mr-3" strokeWidth={1.5} />
+            {vehiclesItem.label}
+          </Button>
+
           {/* Other Modules */}
           {moduleItems.map((item) => (
             <Button
