@@ -54,8 +54,11 @@ const crSubmenuItems = [
   { path: "/customer-relations/reception", label: "Reception", icon: ClipboardList },
 ];
 
-// Vehicles - standalone top-level item
-const vehiclesItem = { path: "/customer-relations/vehicles", label: "Vehicles", icon: Car };
+// Vehicles submenu items
+const vehiclesSubmenuItems = [
+  { path: "/vehicles/renault", label: "Renault", icon: Car },
+  { path: "/vehicles/other-brands", label: "Other Brands", icon: Car },
+];
 
 // Other module items (Coming Soon)
 const moduleItems = [
@@ -75,6 +78,9 @@ const adminItems = [
 const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
   const [crOpen, setCrOpen] = useState(
     currentPath.startsWith("/customer-relations")
+  );
+  const [vehiclesOpen, setVehiclesOpen] = useState(
+    currentPath.startsWith("/vehicles")
   );
   
   const isActive = (path) => currentPath === path;
