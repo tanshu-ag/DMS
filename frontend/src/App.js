@@ -107,9 +107,14 @@ const AppRouter = () => {
         <Route path="customer-relations/appointment" element={<Appointment />} />
         <Route path="customer-relations/upcoming" element={<Upcoming />} />
         <Route path="customer-relations/history" element={<History />} />
-        <Route path="customer-relations/vehicles" element={<Vehicles />} />
         <Route path="customer-relations/reception" element={<Reception />} />
         <Route path="customer-relations/reception/:entryId" element={<Reception />} />
+        {/* Vehicles routes */}
+        <Route path="vehicles" element={<Navigate to="/vehicles/renault" replace />} />
+        <Route path="vehicles/renault" element={<Vehicles />} />
+        <Route path="vehicles/other-brands" element={<VehiclesOtherBrands />} />
+        {/* Legacy vehicles route redirect */}
+        <Route path="customer-relations/vehicles" element={<Navigate to="/vehicles/renault" replace />} />
         <Route path="new-appointment" element={<NewAppointment />} />
         <Route path="appointments/:id" element={<AppointmentDetail />} />
         {/* Settings routes */}
