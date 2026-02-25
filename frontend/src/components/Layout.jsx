@@ -161,20 +161,46 @@ const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
             </CollapsibleContent>
           </Collapsible>
 
-          {/* Vehicles - Top-level item */}
-          <Button
-            variant="ghost"
-            className={`w-full justify-start h-10 px-3 rounded-sm font-medium text-sm ${
-              isActive(vehiclesItem.path)
-                ? "bg-black text-white hover:bg-gray-800"
-                : "hover:bg-gray-100"
-            }`}
-            onClick={() => onNavigate(vehiclesItem.path)}
-            data-testid="nav-vehicles"
-          >
-            <vehiclesItem.icon className="w-4 h-4 mr-3" strokeWidth={1.5} />
-            {vehiclesItem.label}
-          </Button>
+          {/* Vehicles - Collapsible */}
+          <Collapsible open={vehiclesOpen} onOpenChange={setVehiclesOpen}>
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className={`w-full justify-start h-10 px-3 rounded-sm font-medium text-sm ${
+                  isVehiclesActive
+                    ? "bg-gray-100"
+                    : "hover:bg-gray-100"
+                }`}
+                data-testid="nav-vehicles"
+              >
+                <Car className="w-4 h-4 mr-3" strokeWidth={1.5} />
+                Vehicles
+                {vehiclesOpen ? (
+                  <ChevronDown className="w-4 h-4 ml-auto" strokeWidth={1.5} />
+                ) : (
+                  <ChevronRight className="w-4 h-4 ml-auto" strokeWidth={1.5} />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pl-4 space-y-1 mt-1">
+              {vehiclesSubmenuItems.map((item) => (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  className={`w-full justify-start h-9 px-3 rounded-sm font-medium text-sm ${
+                    isActive(item.path)
+                      ? "bg-black text-white hover:bg-gray-800"
+                      : "hover:bg-gray-100"
+                  }`}
+                  onClick={() => onNavigate(item.path)}
+                  data-testid={`nav-${item.path.slice(1).replace(/\//g, '-')}`}
+                >
+                  <item.icon className="w-4 h-4 mr-3" strokeWidth={1.5} />
+                  {item.label}
+                </Button>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Other Modules */}
           {moduleItems.map((item) => (
