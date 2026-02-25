@@ -85,6 +85,7 @@ const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
   
   const isActive = (path) => currentPath === path;
   const isCrActive = crSubmenuItems.some(item => currentPath === item.path);
+  const isVehiclesActive = vehiclesSubmenuItems.some(item => currentPath === item.path);
 
   return (
     <div className="flex flex-col h-full">
