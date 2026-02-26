@@ -25,6 +25,7 @@ import {
   UserCog,
   Users,
   ClipboardList,
+  HeartHandshake,
 } from "lucide-react";
 
 // Role display names mapping
