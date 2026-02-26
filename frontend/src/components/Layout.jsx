@@ -133,7 +133,7 @@ const NavContent = ({ user, onNavigate, onLogout, currentPath }) => {
                 }`}
                 data-testid="nav-customer-relations"
               >
-                <Car className="w-4 h-4 mr-3" strokeWidth={1.5} />
+                <HeartHandshake className="w-4 h-4 mr-3" strokeWidth={1.5} />
                 Customer Relations
                 {crOpen ? (
                   <ChevronDown className="w-4 h-4 ml-auto" strokeWidth={1.5} />
