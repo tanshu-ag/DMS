@@ -70,7 +70,7 @@ const VehiclesOtherBrands = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-gray-700 text-white rounded-sm flex items-center justify-center">
+          <div className="w-12 h-12 bg-black text-white rounded-sm flex items-center justify-center">
             <Car className="w-6 h-6" strokeWidth={1.5} />
           </div>
           <div>
@@ -84,7 +84,7 @@ const VehiclesOtherBrands = () => {
           <Button variant="outline" size="icon" className="rounded-sm" onClick={fetchVehicles} data-testid="refresh-btn">
             <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
           </Button>
-          <Button className="rounded-sm bg-gray-700 text-white hover:bg-gray-800" onClick={handleAdd} data-testid="add-vehicle-btn">
+          <Button className="rounded-sm bg-black text-white hover:bg-gray-800" onClick={handleAdd} data-testid="add-vehicle-btn">
             <Plus className="w-4 h-4 mr-1" strokeWidth={1.5} /> Add Vehicle
           </Button>
         </div>
