@@ -180,11 +180,11 @@ const VehicleProfile = ({ brand = "renault" }) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="rounded-sm" onClick={() => navigate(`/vehicles/${isRenault ? 'renault' : 'other-brands'}/${vehicleId}/edit`)} data-testid="edit-btn">
-            <Pencil className="w-4 h-4 mr-2" strokeWidth={1.5} /> Edit
+          <Button variant="outline" size="icon" className="rounded-sm" onClick={() => navigate(`/vehicles/${isRenault ? 'renault' : 'other-brands'}/${vehicleId}/edit`)} data-testid="edit-btn">
+            <Pencil className="w-4 h-4" strokeWidth={1.5} />
           </Button>
-          <Button variant="outline" className="rounded-sm text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDeleteVehicle} data-testid="delete-btn">
-            <Trash2 className="w-4 h-4 mr-2" strokeWidth={1.5} /> Delete
+          <Button variant="outline" size="icon" className="rounded-sm text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDeleteVehicle} data-testid="delete-btn">
+            <Trash2 className="w-4 h-4" strokeWidth={1.5} />
           </Button>
         </div>
       </div>
