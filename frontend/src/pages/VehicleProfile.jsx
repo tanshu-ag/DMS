@@ -145,11 +145,6 @@ const VehicleProfile = ({ brand = "renault" }) => {
         </TabsContent>
 
         {/* TAB 2 — Customer */}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* TAB 3 — Customer */}
         <TabsContent value="customer" className="mt-6">
           <Card className="border border-gray-200 rounded-sm shadow-none">
             <CardContent className="p-6">
