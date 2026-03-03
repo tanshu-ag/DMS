@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { API } from "@/App";
 import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,9 +17,10 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Car, Plus, RefreshCw, Search, Pencil, Trash2, X, AlertTriangle } from "lucide-react";
+import { Car, Plus, RefreshCw, Search, Pencil, Trash2, Eye, AlertTriangle } from "lucide-react";
 
 const Vehicles = () => {
+  const navigate = useNavigate();
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [masterModels, setMasterModels] = useState([]);
