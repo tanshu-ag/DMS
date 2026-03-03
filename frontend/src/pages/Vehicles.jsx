@@ -57,6 +57,7 @@ const Vehicles = () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
+      params.append("brand", "renault");
       if (modelFilter && modelFilter !== "all") {
         params.append("model", modelFilter);
       }

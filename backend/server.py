@@ -1978,6 +1978,8 @@ class VehicleCreate(BaseModel):
     vin: Optional[str] = None
     engine_no: Optional[str] = None
     model: Optional[str] = None
+    brand: str = "renault"  # "renault" or "other"
+    make: Optional[str] = None  # For other brands (e.g., "Toyota", "Honda")
     customer_name: Optional[str] = None
     customer_phone: Optional[str] = None
 
@@ -1986,11 +1988,13 @@ class VehicleUpdate(BaseModel):
     vin: Optional[str] = None
     engine_no: Optional[str] = None
     model: Optional[str] = None
+    brand: Optional[str] = None
+    make: Optional[str] = None
     customer_name: Optional[str] = None
     customer_phone: Optional[str] = None
 
 @api_router.get("/vehicles")
-async def get_vehicles(request: Request, model: str = None, search: str = None):
+async def get_vehicles(request: Request, model: str = None, search: str = None, brand: str = None):
     """Get all vehicles with optional filters"""
     await get_current_user(request)
     
@@ -2000,20 +2004,33 @@ async def get_vehicles(request: Request, model: str = None, search: str = None):
     
     query = {}
     
+    # Filter by brand (renault or other)
+    if brand:
+        if brand == "renault":
+            query["$or"] = [{"brand": "renault"}, {"brand": {"$exists": False}}]
+        elif brand == "other":
+            query["brand"] = "other"
+    
     # Filter by model (only if it's in master list)
     if model and model in master_models:
         query["model"] = model
     
-    # Search by reg_no, vin, engine_no, customer_name, customer_phone (NOT by model if not in master)
+    # Search by reg_no, vin, engine_no, customer_name, customer_phone, make (NOT by model if not in master)
     if search:
         search_clean = search.strip()
-        query["$or"] = [
+        search_query = [
             {"vehicle_reg_no": {"$regex": search_clean, "$options": "i"}},
             {"vin": {"$regex": search_clean, "$options": "i"}},
             {"engine_no": {"$regex": search_clean, "$options": "i"}},
             {"customer_name": {"$regex": search_clean, "$options": "i"}},
             {"customer_phone": {"$regex": search_clean, "$options": "i"}},
+            {"make": {"$regex": search_clean, "$options": "i"}},
         ]
+        if "$or" in query:
+            # Combine brand filter with search
+            query = {"$and": [{"$or": query["$or"]}, {"$or": search_query}]}
+        else:
+            query["$or"] = search_query
     
     cursor = db.vehicles.find(query, {"_id": 0}).sort("created_at", -1)
     vehicles = await cursor.to_list(500)
@@ -2044,15 +2061,22 @@ async def create_vehicle(request: Request, data: VehicleCreate):
     """Create a new vehicle"""
     await get_current_user(request)
     
-    # Check model is from master list
-    settings = await db.settings.find_one({"settings_id": "main"})
-    master_models = settings.get("vehicle_models", []) if settings else []
+    is_renault = data.brand == "renault"
     
-    if data.model and data.model not in master_models:
-        raise HTTPException(status_code=400, detail="Model must be from the master list in Other Settings")
-    
-    if not data.model:
-        raise HTTPException(status_code=400, detail="Model is required")
+    # Check model is from master list only for Renault vehicles
+    if is_renault:
+        settings = await db.settings.find_one({"settings_id": "main"})
+        master_models = settings.get("vehicle_models", []) if settings else []
+        
+        if data.model and data.model not in master_models:
+            raise HTTPException(status_code=400, detail="Model must be from the master list in Other Settings")
+        
+        if not data.model:
+            raise HTTPException(status_code=400, detail="Model is required for Renault vehicles")
+    else:
+        # For other brands, make is required
+        if not data.make:
+            raise HTTPException(status_code=400, detail="Make (brand name) is required for Other Brands vehicles")
     
     # Check for duplicate reg_no
     reg_clean = data.vehicle_reg_no.upper().replace(" ", "")
@@ -2075,6 +2099,8 @@ async def create_vehicle(request: Request, data: VehicleCreate):
         "vin": data.vin.upper().replace(" ", "") if data.vin else None,
         "engine_no": data.engine_no.upper() if data.engine_no else None,
         "model": data.model,
+        "brand": data.brand,
+        "make": data.make,
         "customer_name": data.customer_name,
         "customer_phone": data.customer_phone,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -2083,7 +2109,7 @@ async def create_vehicle(request: Request, data: VehicleCreate):
     
     await db.vehicles.insert_one(vehicle)
     del vehicle["_id"]
-    vehicle["is_model_valid"] = True
+    vehicle["is_model_valid"] = True if is_renault else None
     return vehicle
 
 @api_router.put("/vehicles/{vehicle_id}")
@@ -2095,8 +2121,13 @@ async def update_vehicle(request: Request, vehicle_id: str, data: VehicleUpdate)
     if not vehicle:
         raise HTTPException(status_code=404, detail="Vehicle not found")
     
-    # Check model is from master list if being updated
-    if data.model:
+    # Determine brand (use existing if not updating)
+    current_brand = vehicle.get("brand", "renault")
+    new_brand = data.brand if data.brand else current_brand
+    is_renault = new_brand == "renault"
+    
+    # Check model is from master list if being updated for Renault vehicles
+    if data.model and is_renault:
         settings = await db.settings.find_one({"settings_id": "main"})
         master_models = settings.get("vehicle_models", []) if settings else []
         if data.model not in master_models:
@@ -2111,6 +2142,10 @@ async def update_vehicle(request: Request, vehicle_id: str, data: VehicleUpdate)
         update_dict["engine_no"] = data.engine_no.upper()
     if data.model:
         update_dict["model"] = data.model
+    if data.brand:
+        update_dict["brand"] = data.brand
+    if data.make:
+        update_dict["make"] = data.make
     if data.customer_name:
         update_dict["customer_name"] = data.customer_name
     if data.customer_phone:
@@ -2121,10 +2156,13 @@ async def update_vehicle(request: Request, vehicle_id: str, data: VehicleUpdate)
     await db.vehicles.update_one({"vehicle_id": vehicle_id}, {"$set": update_dict})
     updated = await db.vehicles.find_one({"vehicle_id": vehicle_id}, {"_id": 0})
     
-    # Check if model is valid
-    settings = await db.settings.find_one({"settings_id": "main"})
-    master_models = settings.get("vehicle_models", []) if settings else []
-    updated["is_model_valid"] = updated.get("model") in master_models if updated.get("model") else False
+    # Check if model is valid (only for Renault)
+    if updated.get("brand", "renault") == "renault":
+        settings = await db.settings.find_one({"settings_id": "main"})
+        master_models = settings.get("vehicle_models", []) if settings else []
+        updated["is_model_valid"] = updated.get("model") in master_models if updated.get("model") else False
+    else:
+        updated["is_model_valid"] = None
     
     return updated
 
