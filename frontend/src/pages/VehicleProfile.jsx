@@ -223,7 +223,7 @@ const VehicleProfile = ({ brand = "renault" }) => {
           </Card>
         </TabsContent>
 
-        {/* TAB 6 — Dealer (Renault only) */}
+        {/* TAB 5 — Dealer (Renault only) */}
         {isRenault && (
           <TabsContent value="dealer" className="mt-6">
             <Card className="border border-gray-200 rounded-sm shadow-none">
