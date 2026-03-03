@@ -388,10 +388,10 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
       </div>
 
       {/* Step Indicator */}
-      <div className="flex items-center justify-center gap-0">
-        {steps.map((step, index) => (
-          <div key={step.id} className="flex items-center">
-            <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center">
+        <div className="flex items-center">
+          {steps.map((step, index) => (
+            <div key={step.id} className="flex items-center">
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
                   index < currentStep
@@ -403,15 +403,26 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
               >
                 {index < currentStep ? <Check className="w-4 h-4" /> : index + 1}
               </div>
-              <span className={`text-xs mt-1.5 font-medium whitespace-nowrap ${index === currentStep ? "text-black" : "text-gray-400"}`}>
-                {step.label}
-              </span>
+              {index < steps.length - 1 && (
+                <div className={`h-0.5 w-12 md:w-16 ${index < currentStep ? "bg-green-500" : "bg-gray-200"}`} />
+              )}
             </div>
-            {index < steps.length - 1 && (
-              <div className={`h-0.5 w-12 md:w-16 mx-1 ${index < currentStep ? "bg-green-500" : "bg-gray-200"}`} />
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
+        <div className="flex items-center mt-2">
+          {steps.map((step, index) => (
+            <div key={step.id} className="flex items-center">
+              <div className="w-9 flex justify-center">
+                <span className={`text-xs font-medium whitespace-nowrap ${index === currentStep ? "text-black" : "text-gray-400"}`}>
+                  {step.label}
+                </span>
+              </div>
+              {index < steps.length - 1 && (
+                <div className="w-12 md:w-16" />
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Step Content */}
