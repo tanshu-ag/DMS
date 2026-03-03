@@ -2064,6 +2064,10 @@ async def create_vehicle(request: Request, data: VehicleCreate):
     
     is_renault = data.brand == "renault"
     
+    # VIN is required for all vehicles
+    if not data.vin:
+        raise HTTPException(status_code=400, detail="VIN is required")
+    
     # Check model is from master list only for Renault vehicles
     if is_renault:
         settings = await db.settings.find_one({"settings_id": "main"})
@@ -2085,12 +2089,11 @@ async def create_vehicle(request: Request, data: VehicleCreate):
     if existing:
         raise HTTPException(status_code=400, detail="Vehicle with this registration number already exists")
     
-    # Check for duplicate VIN if provided
-    if data.vin:
-        vin_clean = data.vin.upper().replace(" ", "")
-        existing_vin = await db.vehicles.find_one({"vin": vin_clean})
-        if existing_vin:
-            raise HTTPException(status_code=400, detail="Vehicle with this VIN already exists")
+    # Check for duplicate VIN
+    vin_clean = data.vin.upper().replace(" ", "")
+    existing_vin = await db.vehicles.find_one({"vin": vin_clean})
+    if existing_vin:
+        raise HTTPException(status_code=400, detail="Vehicle with this VIN already exists")
     
     vehicle_id = f"VEH-{datetime.now().strftime('%Y%m%d%H%M%S')}-{reg_clean[-4:]}"
     

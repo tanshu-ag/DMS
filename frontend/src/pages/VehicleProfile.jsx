@@ -127,6 +127,17 @@ const VehicleProfile = ({ brand = "renault" }) => {
     }
   };
 
+  const handleDeleteVehicle = async () => {
+    if (!window.confirm("Are you sure you want to delete this vehicle? This action cannot be undone.")) return;
+    try {
+      await axios.delete(`${API}/vehicles/${vehicleId}`, { withCredentials: true });
+      toast.success("Vehicle deleted successfully");
+      handleBack();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Failed to delete vehicle");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -168,9 +179,14 @@ const VehicleProfile = ({ brand = "renault" }) => {
             </p>
           </div>
         </div>
-        <Button variant="outline" className="rounded-sm" onClick={() => navigate(`/vehicles/${isRenault ? 'renault' : 'other-brands'}/${vehicleId}/edit`)} data-testid="edit-btn">
-          <Pencil className="w-4 h-4 mr-2" strokeWidth={1.5} /> Edit
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="rounded-sm" onClick={() => navigate(`/vehicles/${isRenault ? 'renault' : 'other-brands'}/${vehicleId}/edit`)} data-testid="edit-btn">
+            <Pencil className="w-4 h-4 mr-2" strokeWidth={1.5} /> Edit
+          </Button>
+          <Button variant="outline" className="rounded-sm text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleDeleteVehicle} data-testid="delete-btn">
+            <Trash2 className="w-4 h-4 mr-2" strokeWidth={1.5} /> Delete
+          </Button>
+        </div>
       </div>
 
       {/* Tabs */}

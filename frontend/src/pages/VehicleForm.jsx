@@ -273,6 +273,10 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
         toast.error("Registration number is required");
         return false;
       }
+      if (!formData.vin) {
+        toast.error("VIN is required");
+        return false;
+      }
       if (isRenault && !formData.model) {
         toast.error("Model is required for Renault vehicles");
         return false;
@@ -456,6 +460,7 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
                   value={formData.vin} 
                   onChange={(v) => updateField("vin", v.toUpperCase())} 
                   placeholder="Vehicle Identification Number"
+                  required
                 />
                 <FormField 
                   label="Engine #" 

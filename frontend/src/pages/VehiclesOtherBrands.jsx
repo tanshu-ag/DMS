@@ -11,7 +11,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Car, Plus, RefreshCw, Search, Pencil, Trash2, Eye } from "lucide-react";
+import { Car, Plus, RefreshCw, Search } from "lucide-react";
 
 const VehiclesOtherBrands = () => {
   const navigate = useNavigate();
@@ -48,21 +48,9 @@ const VehiclesOtherBrands = () => {
     navigate("/vehicles/other-brands/new");
   };
 
-  // Navigate to edit vehicle page
-  const handleEdit = (vehicle) => {
-    navigate(`/vehicles/other-brands/${vehicle.vehicle_id}/edit`);
-  };
-
-  // Delete vehicle
-  const handleDelete = async (vehicleId) => {
-    if (!window.confirm("Are you sure you want to delete this vehicle?")) return;
-    try {
-      await axios.delete(`${API}/vehicles/${vehicleId}`, { withCredentials: true });
-      toast.success("Vehicle deleted");
-      fetchVehicles();
-    } catch (e) {
-      toast.error(e.response?.data?.detail || "Failed to delete vehicle");
-    }
+  // Navigate to vehicle profile when clicking VIN
+  const handleVinClick = (vehicleId) => {
+    navigate(`/vehicles/other-brands/${vehicleId}`);
   };
 
   return (
@@ -125,27 +113,37 @@ const VehiclesOtherBrands = () => {
               <TableHead className="text-xs font-bold uppercase tracking-wider">Model</TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider">Customer</TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider">Phone</TableHead>
-              <TableHead className="text-xs font-bold uppercase tracking-wider w-20">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   <div className="w-6 h-6 border-2 border-gray-700 border-t-transparent rounded-full animate-spin mx-auto"></div>
                 </TableCell>
               </TableRow>
             ) : vehicles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                   No vehicles found
                 </TableCell>
               </TableRow>
             ) : (
               vehicles.map(v => (
-                <TableRow key={v.vehicle_id} className="border-b border-gray-100 hover:bg-gray-50/50">
+                <TableRow 
+                  key={v.vehicle_id} 
+                  className="border-b border-gray-100 hover:bg-gray-50/50 cursor-pointer"
+                  onClick={() => handleVinClick(v.vehicle_id)}
+                >
                   <TableCell className="font-mono text-sm font-medium">{v.vehicle_reg_no}</TableCell>
-                  <TableCell className="font-mono text-xs text-gray-500">{v.vin || "-"}</TableCell>
+                  <TableCell>
+                    <span 
+                      className="font-mono text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                      data-testid={`vin-${v.vehicle_id}`}
+                    >
+                      {v.vin || "-"}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="rounded-sm text-xs bg-gray-100">
                       {v.make || "-"}
@@ -154,19 +152,6 @@ const VehiclesOtherBrands = () => {
                   <TableCell className="text-sm">{v.model || "-"}</TableCell>
                   <TableCell className="text-sm">{v.customer_name || "-"}</TableCell>
                   <TableCell className="font-mono text-xs">{v.customer_phone || "-"}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-sm" onClick={() => navigate(`/vehicles/other-brands/${v.vehicle_id}`)} data-testid={`view-${v.vehicle_id}`}>
-                        <Eye className="w-4 h-4" strokeWidth={1.5} />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-sm" onClick={() => handleEdit(v)} data-testid={`edit-${v.vehicle_id}`}>
-                        <Pencil className="w-4 h-4" strokeWidth={1.5} />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-sm text-red-500 hover:text-red-600" onClick={() => handleDelete(v.vehicle_id)} data-testid={`delete-${v.vehicle_id}`}>
-                        <Trash2 className="w-4 h-4" strokeWidth={1.5} />
-                      </Button>
-                    </div>
-                  </TableCell>
                 </TableRow>
               ))
             )}
