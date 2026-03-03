@@ -78,10 +78,10 @@ const VehicleProfile = ({ brand = "renault" }) => {
     );
   }
 
-  // Determine which tabs to show
+  // Determine which tabs to show (Vehicle+Service combined, so 5 tabs for Renault, 4 for Other)
   const tabs = isRenault
-    ? ["vehicle", "service", "customer", "insurance", "dates", "dealer"]
-    : ["vehicle", "service", "customer", "insurance", "dates"]; // Hide Dealer for Other Brands
+    ? ["vehicle", "customer", "insurance", "dates", "dealer"]
+    : ["vehicle", "customer", "insurance", "dates"]; // Hide Dealer for Other Brands
 
   return (
     <div className="space-y-6" data-testid="vehicle-profile">
@@ -120,11 +120,11 @@ const VehicleProfile = ({ brand = "renault" }) => {
           ))}
         </TabsList>
 
-        {/* TAB 1 — Vehicle */}
+        {/* TAB 1 — Vehicle (combined with Service) */}
         <TabsContent value="vehicle" className="mt-6">
           <Card className="border border-gray-200 rounded-sm shadow-none">
             <CardContent className="p-6">
-              <Section>
+              <Section title="Vehicle Details">
                 <FieldRow label="VIN #" value={vehicle.vin} />
                 <FieldRow label="Engine #" value={vehicle.engine_no} />
                 <FieldRow label="Temporary/Registration No" value={vehicle.vehicle_reg_no} />
@@ -135,19 +135,16 @@ const VehicleProfile = ({ brand = "renault" }) => {
                 <FieldRow label="Exterior Colour" value={vehicle.exterior_colour} />
                 <FieldRow label="Exterior Colour Code" value={vehicle.exterior_colour_code} />
               </Section>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* TAB 2 — Service */}
-        <TabsContent value="service" className="mt-6">
-          <Card className="border border-gray-200 rounded-sm shadow-none">
-            <CardContent className="p-6">
-              <Section>
+              <Section title="Service">
                 <FieldRow label="Last Service Date" value={vehicle.last_service_date} />
                 <FieldRow label="Next Service Due" value={vehicle.next_service_due} />
                 <FieldRow label="Last Odometer Reading" value={vehicle.last_odometer_reading} />
               </Section>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* TAB 2 — Customer */}
             </CardContent>
           </Card>
         </TabsContent>
