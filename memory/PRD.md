@@ -42,6 +42,24 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - `PUT /api/appointments/:id` - Update with reschedule logic
 - `GET /api/branches` - Branch list from settings
 - `POST /api/seed-demo-appointments` - Seed demo data
+- `GET /api/vehicles?brand=renault|other` - Get vehicles filtered by brand
+- `POST /api/vehicles` - Create vehicle (brand, make fields added)
+- `PUT /api/vehicles/{id}` - Update vehicle with make/brand support
+- `DELETE /api/vehicles/{id}` - Delete vehicle
+
+## Completed (Mar 2026)
+- Other Brands Vehicles Page: Full CRUD operations for non-Renault vehicles (Mar 3)
+  - New page at /vehicles/other-brands replacing "Coming Soon" placeholder
+  - Uses "Make" (brand name) text input instead of model dropdown
+  - Table shows: Reg No, VIN, Make, Model, Customer, Phone, Actions
+  - Backend supports brand filter (brand=renault vs brand=other)
+- Vehicle Profile Edit Functionality: Edit modal directly on profile page (Mar 3)
+  - Edit button opens modal with vehicle details
+  - Renault vehicles: Model dropdown from master list
+  - Other Brands: Make text input + Model text input
+  - Customer details editable (Name, Phone, Email)
+  - Toast notifications for save/update operations
+- Vehicle Profile conditional rendering: Other Brands hides Dealer tab (4 tabs vs 5 for Renault)
 
 ## Completed (Feb 2026)
 - All table enhancements, column customization, persistence
@@ -73,3 +91,4 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 ## Backlog
 - P2: Extract column control logic into reusable `useColumnManager` hook
 - P2: Implement real document storage (Google Drive or similar) to replace mocked document upload in Reception wizard
+- P2: Refactor large files (Reception.jsx ~800 lines, Vehicles.jsx ~400 lines) into smaller components
