@@ -288,10 +288,10 @@ const VehicleProfile = ({ brand = "renault" }) => {
             <Card className="border border-gray-200 rounded-sm shadow-none">
               <CardContent className="p-6">
                 <Section title="Vehicle Details">
+                  <FieldRow label="Brand" value={isRenault ? "Renault" : vehicle.make} />
                   <FieldRow label="VIN #" value={vehicle.vin} />
                   <FieldRow label="Engine #" value={vehicle.engine_no} />
                   <FieldRow label="Temporary/Registration No" value={vehicle.vehicle_reg_no} />
-                  {!isRenault && <FieldRow label="Make" value={vehicle.make} />}
                   <FieldRow label="Model Description" value={vehicle.model} />
                   {isRenault && (
                     <>
