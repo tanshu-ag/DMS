@@ -368,25 +368,23 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
     <div className="space-y-6" data-testid="vehicle-form-page">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="rounded-full bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700" 
-            onClick={handleBack} 
-            data-testid="cancel-btn"
-          >
-            <X className="w-5 h-5" strokeWidth={2} />
-          </Button>
-          <div>
-            <h1 className="font-heading font-black text-3xl md:text-4xl tracking-tighter uppercase">
-              {isEdit ? "Edit Vehicle" : "Add Vehicle"}
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              {isRenault ? "Renault Vehicle" : "Other Brand Vehicle"}
-            </p>
-          </div>
+        <div>
+          <h1 className="font-heading font-black text-3xl md:text-4xl tracking-tighter uppercase">
+            {isEdit ? "Edit Vehicle" : "Add Vehicle"}
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            {isRenault ? "Renault Vehicle" : "Other Brand Vehicle"}
+          </p>
         </div>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="rounded-full bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700" 
+          onClick={handleBack} 
+          data-testid="cancel-btn"
+        >
+          <X className="w-5 h-5" strokeWidth={2} />
+        </Button>
       </div>
 
       {/* Step Indicator */}
