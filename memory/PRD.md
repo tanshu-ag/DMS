@@ -48,6 +48,13 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
 - `DELETE /api/vehicles/{id}` - Delete vehicle
 
 ## Completed (Mar 2026)
+- **Tabbed Edit Vehicle Form** (Mar 3): Replaced single long scrollable page with a tabbed interface
+  - Uses Shadcn Tabs component for navigation between sections
+  - 4 tabs for Other Brands: Vehicle, Customer, Insurance, Dates & Programs
+  - 5 tabs for Renault: Vehicle, Customer, Insurance, Dates & Programs, Dealer
+  - Each tab has an icon (Car, User, Shield, Calendar, Building)
+  - Tab content shows relevant form sections with proper data population
+  - Save/Cancel buttons remain in the header for quick access
 - Other Brands Vehicles Page: Full CRUD operations for non-Renault vehicles (Mar 3)
   - New page at /vehicles/other-brands replacing "Coming Soon" placeholder
   - Uses "Make" (brand name) text input instead of model dropdown
@@ -89,6 +96,10 @@ Implement enhancements for the "Customer Relations" module, focusing on the "Tod
   - Backend API endpoints: GET/POST/PUT/DELETE /api/vehicles
 
 ## Backlog
+- P1: Enhance "Other Brands" Module (awaiting user direction on features - bulk import, filtering, service history)
+- P2: Implement persistent cloud storage for documents (currently saves to local `/app/uploads`)
+- P2: Refactor `VehicleForm.jsx` - handles both wizard (add) and tabs (edit), plus dual vehicle types
+- P2: Refactor duplicate code in `Vehicles.jsx` and `VehiclesOtherBrands.jsx` into reusable `VehicleList` component
 - P2: Extract column control logic into reusable `useColumnManager` hook
 - P2: Implement real document storage (Google Drive or similar) to replace mocked document upload in Reception wizard
 - P2: Refactor large files (Reception.jsx ~800 lines, Vehicles.jsx ~400 lines) into smaller components
