@@ -267,6 +267,9 @@ const Vehicles = () => {
                   <TableCell className="font-mono text-xs">{v.customer_phone || "-"}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-sm" onClick={() => navigate(`/vehicles/renault/${v.vehicle_id}`)} data-testid={`view-${v.vehicle_id}`}>
+                        <Eye className="w-4 h-4" strokeWidth={1.5} />
+                      </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7 rounded-sm" onClick={() => handleEdit(v)} data-testid={`edit-${v.vehicle_id}`}>
                         <Pencil className="w-4 h-4" strokeWidth={1.5} />
                       </Button>
