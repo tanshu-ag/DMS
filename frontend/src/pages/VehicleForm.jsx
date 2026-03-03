@@ -388,12 +388,12 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
       </div>
 
       {/* Step Indicator */}
-      <div className="flex items-center justify-between px-4">
+      <div className="flex items-center justify-center gap-0">
         {steps.map((step, index) => (
           <div key={step.id} className="flex items-center">
             <div className="flex flex-col items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
+                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
                   index < currentStep
                     ? "bg-green-500 text-white"
                     : index === currentStep
@@ -401,14 +401,14 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
                     : "bg-gray-200 text-gray-500"
                 }`}
               >
-                {index < currentStep ? <Check className="w-5 h-5" /> : index + 1}
+                {index < currentStep ? <Check className="w-4 h-4" /> : index + 1}
               </div>
-              <span className={`text-xs mt-2 font-medium ${index === currentStep ? "text-black" : "text-gray-400"}`}>
+              <span className={`text-xs mt-1.5 font-medium whitespace-nowrap ${index === currentStep ? "text-black" : "text-gray-400"}`}>
                 {step.label}
               </span>
             </div>
             {index < steps.length - 1 && (
-              <div className={`h-0.5 w-16 md:w-24 lg:w-32 mx-2 ${index < currentStep ? "bg-green-500" : "bg-gray-200"}`} />
+              <div className={`h-0.5 w-12 md:w-16 mx-1 ${index < currentStep ? "bg-green-500" : "bg-gray-200"}`} />
             )}
           </div>
         ))}
