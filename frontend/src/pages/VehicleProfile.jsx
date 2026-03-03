@@ -186,21 +186,30 @@ const VehicleProfile = ({ brand = "renault" }) => {
       {/* Tabs */}
       <div className="border-b border-gray-200">
         <div className="flex gap-1 overflow-x-auto pb-px">
-          {tabs.map((tab) => (
-            <Button
-              key={tab}
-              variant="ghost"
-              className={`px-4 py-2 rounded-none border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeTab === tab
-                  ? "border-black text-black"
-                  : "border-transparent text-gray-500 hover:text-black hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab(tab)}
-              data-testid={`tab-${tab}`}
-            >
-              {tab === "dates" ? "Dates & Programs" : tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </Button>
-          ))}
+          {tabs.map((tab) => {
+            const tabLabels = {
+              vehicle: "Vehicle",
+              customer: "Customer",
+              insurance: "Insurance",
+              dates: "Dates & Programs",
+              dealer: "Dealer"
+            };
+            return (
+              <Button
+                key={tab}
+                variant="ghost"
+                className={`px-4 py-2 rounded-none border-b-2 font-medium text-sm whitespace-nowrap ${
+                  activeTab === tab
+                    ? "border-black text-black"
+                    : "border-transparent text-gray-500 hover:text-black hover:border-gray-300"
+                }`}
+                onClick={() => setActiveTab(tab)}
+                data-testid={`tab-${tab}`}
+              >
+                {tabLabels[tab]}
+              </Button>
+            );
+          })}
         </div>
       </div>
 
