@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, ArrowRight, Save, Check, Upload, Copy, FileText, Trash2, Eye } from "lucide-react";
+import { ArrowLeft, ArrowRight, Save, Check, Upload, Copy, FileText, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 // Country codes list
@@ -369,8 +369,14 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="rounded-sm" onClick={handleBack} data-testid="back-btn">
-            <ArrowLeft className="w-5 h-5" strokeWidth={1.5} />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="rounded-full bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700" 
+            onClick={handleBack} 
+            data-testid="cancel-btn"
+          >
+            <X className="w-5 h-5" strokeWidth={2} />
           </Button>
           <div>
             <h1 className="font-heading font-black text-3xl md:text-4xl tracking-tighter uppercase">
