@@ -14,6 +14,7 @@ import Appointment from "@/pages/Appointment";
 import History from "@/pages/History";
 import Vehicles from "@/pages/Vehicles";
 import VehiclesOtherBrands from "@/pages/VehiclesOtherBrands";
+import VehicleProfile from "@/pages/VehicleProfile";
 import Upcoming from "@/pages/Upcoming";
 import NewAppointment from "@/pages/NewAppointment";
 import AppointmentDetail from "@/pages/AppointmentDetail";
