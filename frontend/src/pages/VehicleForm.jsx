@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { API } from "@/App";
 import axios from "axios";
@@ -9,8 +9,18 @@ import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, ArrowRight, Save, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Save, Check, Upload, Copy, FileText, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
+
+// Country codes list
+const countryCodes = [
+  { code: "+91", country: "India" },
+  { code: "+1", country: "USA" },
+  { code: "+44", country: "UK" },
+  { code: "+971", country: "UAE" },
+  { code: "+65", country: "Singapore" },
+  { code: "+61", country: "Australia" },
+];
 
 // Reusable input field component
 const FormField = ({ label, value, onChange, placeholder, type = "text", required = false, disabled = false }) => (
@@ -29,10 +39,41 @@ const FormField = ({ label, value, onChange, placeholder, type = "text", require
   </div>
 );
 
+// Phone field with country code
+const PhoneField = ({ label, countryCode, phone, onCountryCodeChange, onPhoneChange, required = false }) => (
+  <div className="space-y-1">
+    <Label className="text-xs text-gray-500 uppercase tracking-wider">
+      {label} {required && <span className="text-red-500">*</span>}
+    </Label>
+    <div className="flex gap-2">
+      <Select value={countryCode || "+91"} onValueChange={onCountryCodeChange}>
+        <SelectTrigger className="rounded-sm w-24">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {countryCodes.map(c => (
+            <SelectItem key={c.code} value={c.code}>{c.code}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Input
+        type="tel"
+        value={phone || ""}
+        onChange={(e) => onPhoneChange(e.target.value)}
+        placeholder="Mobile number"
+        className="rounded-sm flex-1"
+      />
+    </div>
+  </div>
+);
+
 // Section component
-const Section = ({ title, children }) => (
+const Section = ({ title, children, action }) => (
   <div className="mb-6">
-    {title && <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">{title}</h3>}
+    <div className="flex items-center justify-between mb-4">
+      {title && <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">{title}</h3>}
+      {action}
+    </div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {children}
     </div>
@@ -46,6 +87,16 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
   const [saving, setSaving] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [masterModels, setMasterModels] = useState([]);
+  
+  // File upload refs
+  const odPolicyFileRef = useRef(null);
+  const tpPolicyFileRef = useRef(null);
+  
+  // Insurance document state
+  const [odPolicyFile, setOdPolicyFile] = useState(null);
+  const [tpPolicyFile, setTpPolicyFile] = useState(null);
+  const [uploadingOd, setUploadingOd] = useState(false);
+  const [uploadingTp, setUploadingTp] = useState(false);
 
   const isRenault = brand === "renault";
   const isEdit = mode === "edit";
@@ -53,14 +104,14 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
   // Define steps
   const steps = isRenault
     ? [
-        { id: "vehicle", label: "Vehicle", description: "Vehicle details and service info" },
+        { id: "vehicle", label: "Vehicle", description: "Vehicle details" },
         { id: "customer", label: "Customer", description: "Contact information" },
         { id: "insurance", label: "Insurance", description: "Insurance policies" },
         { id: "dates", label: "Dates & Programs", description: "Warranty and programs" },
         { id: "dealer", label: "Dealer", description: "Dealer information" },
       ]
     : [
-        { id: "vehicle", label: "Vehicle", description: "Vehicle details and service info" },
+        { id: "vehicle", label: "Vehicle", description: "Vehicle details" },
         { id: "customer", label: "Customer", description: "Contact information" },
         { id: "insurance", label: "Insurance", description: "Insurance policies" },
         { id: "dates", label: "Dates & Programs", description: "Warranty and programs" },
@@ -79,12 +130,13 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
     color_type: "",
     exterior_colour: "",
     exterior_colour_code: "",
-    // Service
+    // Service (only for edit mode)
     last_service_date: "",
     next_service_due: "",
     last_odometer_reading: "",
     // Customer
     customer_name: "",
+    customer_country_code: "+91",
     customer_phone: "",
     customer_email: "",
     contact_address: "",
@@ -99,11 +151,13 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
     od_policy_end_date: "",
     od_insurer: "",
     od_policy_number: "",
+    od_policy_document: null,
     // Insurance - TP
     tp_policy_start_date: "",
     tp_policy_end_date: "",
     tp_insurer: "",
     tp_policy_number: "",
+    tp_policy_document: null,
     // Dates & Programs
     invoiced_date: "",
     delivery_date: "",
@@ -134,6 +188,45 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
   // Update a single field
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Copy OD policy details to TP
+  const copyOdToTp = () => {
+    setFormData(prev => ({
+      ...prev,
+      tp_policy_start_date: prev.od_policy_start_date,
+      tp_policy_end_date: prev.od_policy_end_date,
+      tp_insurer: prev.od_insurer,
+      tp_policy_number: prev.od_policy_number,
+    }));
+    toast.success("OD policy details copied to TP");
+  };
+
+  // Handle policy file upload
+  const handlePolicyUpload = async (file, type) => {
+    if (!file) return;
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+    
+    // Validate file type
+    const allowedTypes = [".pdf", ".jpg", ".jpeg", ".png"];
+    const ext = file.name.toLowerCase().substring(file.name.lastIndexOf("."));
+    if (!allowedTypes.includes(ext)) {
+      toast.error("Only PDF, JPG, JPEG, PNG files are allowed");
+      return;
+    }
+
+    if (type === "od") {
+      setOdPolicyFile(file);
+      toast.success("OD Policy document selected");
+    } else {
+      setTpPolicyFile(file);
+      toast.success("TP Policy document selected");
+    }
   };
 
   // Fetch master models for Renault
@@ -207,18 +300,51 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
 
     setSaving(true);
     try {
+      // Combine country code with phone
+      const fullPhone = formData.customer_phone 
+        ? `${formData.customer_country_code || '+91'}${formData.customer_phone}`
+        : "";
+      
       const payload = {
         ...formData,
+        customer_phone: fullPhone,
         brand: isRenault ? "renault" : "other",
       };
 
+      let savedVehicle;
       if (isEdit) {
-        await axios.put(`${API}/vehicles/${vehicleId}`, payload, { withCredentials: true });
+        const res = await axios.put(`${API}/vehicles/${vehicleId}`, payload, { withCredentials: true });
+        savedVehicle = res.data;
         toast.success("Vehicle updated successfully");
       } else {
-        await axios.post(`${API}/vehicles`, payload, { withCredentials: true });
+        const res = await axios.post(`${API}/vehicles`, payload, { withCredentials: true });
+        savedVehicle = res.data;
         toast.success("Vehicle added successfully");
       }
+
+      // Upload policy documents if selected
+      if (odPolicyFile && savedVehicle.vehicle_id) {
+        const formDataFile = new FormData();
+        formDataFile.append("file", odPolicyFile);
+        formDataFile.append("document_type", "OD Insurance Policy");
+        await axios.post(
+          `${API}/vehicles/${savedVehicle.vehicle_id}/documents`,
+          formDataFile,
+          { withCredentials: true, headers: { "Content-Type": "multipart/form-data" } }
+        );
+      }
+      
+      if (tpPolicyFile && savedVehicle.vehicle_id) {
+        const formDataFile = new FormData();
+        formDataFile.append("file", tpPolicyFile);
+        formDataFile.append("document_type", "TP Insurance Policy");
+        await axios.post(
+          `${API}/vehicles/${savedVehicle.vehicle_id}/documents`,
+          formDataFile,
+          { withCredentials: true, headers: { "Content-Type": "multipart/form-data" } }
+        );
+      }
+
       handleBack();
     } catch (err) {
       toast.error(err.response?.data?.detail || "Failed to save vehicle");
@@ -384,26 +510,29 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
                 )}
               </Section>
 
-              <Section title="Service">
-                <FormField 
-                  label="Last Service Date" 
-                  value={formData.last_service_date} 
-                  onChange={(v) => updateField("last_service_date", v)} 
-                  type="date"
-                />
-                <FormField 
-                  label="Next Service Due" 
-                  value={formData.next_service_due} 
-                  onChange={(v) => updateField("next_service_due", v)} 
-                  type="date"
-                />
-                <FormField 
-                  label="Last Odometer Reading" 
-                  value={formData.last_odometer_reading} 
-                  onChange={(v) => updateField("last_odometer_reading", v)} 
-                  placeholder="e.g., 45000"
-                />
-              </Section>
+              {/* Service section only in Edit mode */}
+              {isEdit && (
+                <Section title="Service">
+                  <FormField 
+                    label="Last Service Date" 
+                    value={formData.last_service_date} 
+                    onChange={(v) => updateField("last_service_date", v)} 
+                    type="date"
+                  />
+                  <FormField 
+                    label="Next Service Due" 
+                    value={formData.next_service_due} 
+                    onChange={(v) => updateField("next_service_due", v)} 
+                    type="date"
+                  />
+                  <FormField 
+                    label="Last Odometer Reading" 
+                    value={formData.last_odometer_reading} 
+                    onChange={(v) => updateField("last_odometer_reading", v)} 
+                    placeholder="e.g., 45000"
+                  />
+                </Section>
+              )}
             </>
           )}
 
@@ -417,11 +546,12 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
                   onChange={(v) => updateField("customer_name", v)} 
                   placeholder="Full name"
                 />
-                <FormField 
-                  label="Phone" 
-                  value={formData.customer_phone} 
-                  onChange={(v) => updateField("customer_phone", v)} 
-                  placeholder="Mobile number"
+                <PhoneField 
+                  label="Phone"
+                  countryCode={formData.customer_country_code}
+                  phone={formData.customer_phone}
+                  onCountryCodeChange={(v) => updateField("customer_country_code", v)}
+                  onPhoneChange={(v) => updateField("customer_phone", v)}
                 />
                 <FormField 
                   label="Email" 
@@ -501,9 +631,60 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
                   value={formData.od_policy_number} 
                   onChange={(v) => updateField("od_policy_number", v)} 
                 />
+                {/* OD Policy Upload */}
+                <div className="space-y-1 col-span-full lg:col-span-1">
+                  <Label className="text-xs text-gray-500 uppercase tracking-wider">Upload OD Policy</Label>
+                  <input 
+                    type="file" 
+                    ref={odPolicyFileRef}
+                    onChange={(e) => handlePolicyUpload(e.target.files?.[0], "od")}
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="hidden"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      className="rounded-sm flex-1"
+                      onClick={() => odPolicyFileRef.current?.click()}
+                    >
+                      <Upload className="w-4 h-4 mr-2" strokeWidth={1.5} />
+                      {odPolicyFile ? "Change File" : "Select File"}
+                    </Button>
+                  </div>
+                  {odPolicyFile && (
+                    <div className="flex items-center gap-2 mt-2 p-2 bg-green-50 border border-green-200 rounded-sm">
+                      <FileText className="w-4 h-4 text-green-600" />
+                      <span className="text-xs text-green-700 flex-1 truncate">{odPolicyFile.name}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6"
+                        onClick={() => setOdPolicyFile(null)}
+                      >
+                        <Trash2 className="w-3 h-3 text-red-500" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </Section>
 
-              <Section title="Third Party (TP)">
+              <Section 
+                title="Third Party (TP)"
+                action={
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    size="sm"
+                    className="rounded-sm"
+                    onClick={copyOdToTp}
+                    data-testid="copy-od-to-tp"
+                  >
+                    <Copy className="w-3 h-3 mr-2" strokeWidth={1.5} />
+                    Same as OD Policy
+                  </Button>
+                }
+              >
                 <FormField 
                   label="TP Policy Start Date" 
                   value={formData.tp_policy_start_date} 
@@ -527,6 +708,42 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
                   value={formData.tp_policy_number} 
                   onChange={(v) => updateField("tp_policy_number", v)} 
                 />
+                {/* TP Policy Upload */}
+                <div className="space-y-1 col-span-full lg:col-span-1">
+                  <Label className="text-xs text-gray-500 uppercase tracking-wider">Upload TP Policy</Label>
+                  <input 
+                    type="file" 
+                    ref={tpPolicyFileRef}
+                    onChange={(e) => handlePolicyUpload(e.target.files?.[0], "tp")}
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="hidden"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      className="rounded-sm flex-1"
+                      onClick={() => tpPolicyFileRef.current?.click()}
+                    >
+                      <Upload className="w-4 h-4 mr-2" strokeWidth={1.5} />
+                      {tpPolicyFile ? "Change File" : "Select File"}
+                    </Button>
+                  </div>
+                  {tpPolicyFile && (
+                    <div className="flex items-center gap-2 mt-2 p-2 bg-green-50 border border-green-200 rounded-sm">
+                      <FileText className="w-4 h-4 text-green-600" />
+                      <span className="text-xs text-green-700 flex-1 truncate">{tpPolicyFile.name}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6"
+                        onClick={() => setTpPolicyFile(null)}
+                      >
+                        <Trash2 className="w-3 h-3 text-red-500" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </Section>
             </>
           )}
