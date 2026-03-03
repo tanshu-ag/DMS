@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -185,131 +184,145 @@ const VehicleProfile = ({ brand = "renault" }) => {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full justify-start border-b border-gray-200 bg-transparent p-0 h-auto rounded-none">
+      <div className="border-b border-gray-200">
+        <div className="flex gap-1 overflow-x-auto pb-px">
           {tabs.map((tab) => (
-            <TabsTrigger
+            <Button
               key={tab}
-              value={tab}
-              className="px-4 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:shadow-none font-medium text-sm uppercase tracking-wider"
+              variant="ghost"
+              className={`px-4 py-2 rounded-none border-b-2 font-medium text-sm whitespace-nowrap ${
+                activeTab === tab
+                  ? "border-black text-black"
+                  : "border-transparent text-gray-500 hover:text-black hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab(tab)}
               data-testid={`tab-${tab}`}
             >
               {tab === "dates" ? "Dates & Programs" : tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </TabsTrigger>
+            </Button>
           ))}
-        </TabsList>
+        </div>
+      </div>
 
         {/* TAB 1 — Vehicle (combined with Service) */}
-        <TabsContent value="vehicle" className="mt-6">
-          <Card className="border border-gray-200 rounded-sm shadow-none">
-            <CardContent className="p-6">
-              <Section title="Vehicle Details">
-                <FieldRow label="VIN #" value={vehicle.vin} />
-                <FieldRow label="Engine #" value={vehicle.engine_no} />
-                <FieldRow label="Temporary/Registration No" value={vehicle.vehicle_reg_no} />
-                {!isRenault && <FieldRow label="Make" value={vehicle.make} />}
-                <FieldRow label="Model Description" value={vehicle.model} />
-                {isRenault && (
-                  <>
-                    <FieldRow label="Variant Description" value={vehicle.variant_description} />
-                    <FieldRow label="Model Code" value={vehicle.model_code} />
-                    <FieldRow label="Color Type" value={vehicle.color_type} />
-                    <FieldRow label="Exterior Colour" value={vehicle.exterior_colour} />
-                    <FieldRow label="Exterior Colour Code" value={vehicle.exterior_colour_code} />
-                  </>
-                )}
-              </Section>
-              <Section title="Service">
-                <FieldRow label="Last Service Date" value={vehicle.last_service_date} />
-                <FieldRow label="Next Service Due" value={vehicle.next_service_due} />
-                <FieldRow label="Last Odometer Reading" value={vehicle.last_odometer_reading} />
-              </Section>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {activeTab === "vehicle" && (
+          <div className="mt-6">
+            <Card className="border border-gray-200 rounded-sm shadow-none">
+              <CardContent className="p-6">
+                <Section title="Vehicle Details">
+                  <FieldRow label="VIN #" value={vehicle.vin} />
+                  <FieldRow label="Engine #" value={vehicle.engine_no} />
+                  <FieldRow label="Temporary/Registration No" value={vehicle.vehicle_reg_no} />
+                  {!isRenault && <FieldRow label="Make" value={vehicle.make} />}
+                  <FieldRow label="Model Description" value={vehicle.model} />
+                  {isRenault && (
+                    <>
+                      <FieldRow label="Variant Description" value={vehicle.variant_description} />
+                      <FieldRow label="Model Code" value={vehicle.model_code} />
+                      <FieldRow label="Color Type" value={vehicle.color_type} />
+                      <FieldRow label="Exterior Colour" value={vehicle.exterior_colour} />
+                      <FieldRow label="Exterior Colour Code" value={vehicle.exterior_colour_code} />
+                    </>
+                  )}
+                </Section>
+                <Section title="Service">
+                  <FieldRow label="Last Service Date" value={vehicle.last_service_date} />
+                  <FieldRow label="Next Service Due" value={vehicle.next_service_due} />
+                  <FieldRow label="Last Odometer Reading" value={vehicle.last_odometer_reading} />
+                </Section>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* TAB 2 — Customer */}
-        <TabsContent value="customer" className="mt-6">
-          <Card className="border border-gray-200 rounded-sm shadow-none">
-            <CardContent className="p-6">
-              <Section>
-                <FieldRow label="Contact Name" value={vehicle.customer_name} />
-                <FieldRow label="Phone" value={vehicle.customer_phone} />
-                <FieldRow label="Email" value={vehicle.customer_email} />
-                <FieldRow label="Contact Address" value={vehicle.contact_address} />
-                <FieldRow label="Contact Address2" value={vehicle.contact_address2} />
-                <FieldRow label="Contact City" value={vehicle.contact_city} />
-                <FieldRow label="Contact District" value={vehicle.contact_district} />
-                <FieldRow label="Contact State" value={vehicle.contact_state} />
-                <FieldRow label="Contact Country" value={vehicle.contact_country} />
-                <FieldRow label="Contact Zipcode" value={vehicle.contact_zipcode} />
-              </Section>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {activeTab === "customer" && (
+          <div className="mt-6">
+            <Card className="border border-gray-200 rounded-sm shadow-none">
+              <CardContent className="p-6">
+                <Section>
+                  <FieldRow label="Contact Name" value={vehicle.customer_name} />
+                  <FieldRow label="Phone" value={vehicle.customer_phone} />
+                  <FieldRow label="Email" value={vehicle.customer_email} />
+                  <FieldRow label="Contact Address" value={vehicle.contact_address} />
+                  <FieldRow label="Contact Address2" value={vehicle.contact_address2} />
+                  <FieldRow label="Contact City" value={vehicle.contact_city} />
+                  <FieldRow label="Contact District" value={vehicle.contact_district} />
+                  <FieldRow label="Contact State" value={vehicle.contact_state} />
+                  <FieldRow label="Contact Country" value={vehicle.contact_country} />
+                  <FieldRow label="Contact Zipcode" value={vehicle.contact_zipcode} />
+                </Section>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* TAB 3 — Insurance */}
-        <TabsContent value="insurance" className="mt-6">
-          <Card className="border border-gray-200 rounded-sm shadow-none">
-            <CardContent className="p-6">
-              <Section title="Own Damage (OD)">
-                <FieldRow label="OD Policy Start Date" value={vehicle.od_policy_start_date} />
-                <FieldRow label="OD Policy End Date" value={vehicle.od_policy_end_date} />
-                <FieldRow label="Own Damage Insurer" value={vehicle.od_insurer} />
-                <FieldRow label="OD Policy Number" value={vehicle.od_policy_number} />
-              </Section>
-              <Section title="Third Party (TP)">
-                <FieldRow label="TP Policy Start Date" value={vehicle.tp_policy_start_date} />
-                <FieldRow label="TP Policy End Date" value={vehicle.tp_policy_end_date} />
-                <FieldRow label="Third Party Insurer" value={vehicle.tp_insurer} />
-                <FieldRow label="TP Policy Number" value={vehicle.tp_policy_number} />
-              </Section>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {activeTab === "insurance" && (
+          <div className="mt-6">
+            <Card className="border border-gray-200 rounded-sm shadow-none">
+              <CardContent className="p-6">
+                <Section title="Own Damage (OD)">
+                  <FieldRow label="OD Policy Start Date" value={vehicle.od_policy_start_date} />
+                  <FieldRow label="OD Policy End Date" value={vehicle.od_policy_end_date} />
+                  <FieldRow label="Own Damage Insurer" value={vehicle.od_insurer} />
+                  <FieldRow label="OD Policy Number" value={vehicle.od_policy_number} />
+                </Section>
+                <Section title="Third Party (TP)">
+                  <FieldRow label="TP Policy Start Date" value={vehicle.tp_policy_start_date} />
+                  <FieldRow label="TP Policy End Date" value={vehicle.tp_policy_end_date} />
+                  <FieldRow label="Third Party Insurer" value={vehicle.tp_insurer} />
+                  <FieldRow label="TP Policy Number" value={vehicle.tp_policy_number} />
+                </Section>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* TAB 4 — Dates & Programs */}
-        <TabsContent value="dates" className="mt-6">
-          <Card className="border border-gray-200 rounded-sm shadow-none">
-            <CardContent className="p-6">
-              <Section title="Common Dates">
-                <FieldRow label="Invoiced Date" value={vehicle.invoiced_date} />
-                <FieldRow label="Vehicle Delivery Date" value={vehicle.delivery_date} />
-                <FieldRow label="VIN Mfg Year" value={vehicle.vin_mfg_year} />
-                <FieldRow label="Warranty Start Date" value={vehicle.warranty_start_date} />
-                <FieldRow label="Warranty End Date" value={vehicle.warranty_end_date} />
-                <FieldRow label="Warranty End Km" value={vehicle.warranty_end_km} />
-              </Section>
+        {activeTab === "dates" && (
+          <div className="mt-6">
+            <Card className="border border-gray-200 rounded-sm shadow-none">
+              <CardContent className="p-6">
+                <Section title="Common Dates">
+                  <FieldRow label="Invoiced Date" value={vehicle.invoiced_date} />
+                  <FieldRow label="Vehicle Delivery Date" value={vehicle.delivery_date} />
+                  <FieldRow label="VIN Mfg Year" value={vehicle.vin_mfg_year} />
+                  <FieldRow label="Warranty Start Date" value={vehicle.warranty_start_date} />
+                  <FieldRow label="Warranty End Date" value={vehicle.warranty_end_date} />
+                  <FieldRow label="Warranty End Km" value={vehicle.warranty_end_km} />
+                </Section>
 
-              {/* Renault-only fields */}
-              {isRenault && (
-                <>
-                  <Section title="Extended Warranty">
-                    <FieldRow label="Extended Warranty Start Date" value={vehicle.ext_warranty_start_date} />
-                    <FieldRow label="Extended Warranty End Date" value={vehicle.ext_warranty_end_date} />
-                    <FieldRow label="Extended Warranty End Km" value={vehicle.ext_warranty_end_km} />
-                  </Section>
-                  <Section title="Easy Care">
-                    <FieldRow label="Easy Care Name" value={vehicle.easy_care_name} />
-                    <FieldRow label="Easy Care Start Date" value={vehicle.easy_care_start_date} />
-                    <FieldRow label="Easy Care End Date" value={vehicle.easy_care_end_date} />
-                    <FieldRow label="Easy Care End KM" value={vehicle.easy_care_end_km} />
-                  </Section>
-                  <Section title="RSA (Roadside Assistance)">
-                    <FieldRow label="RSA Product Name" value={vehicle.rsa_product_name} />
-                    <FieldRow label="RSA Certification Number" value={vehicle.rsa_certification_number} />
-                    <FieldRow label="RSA Start Date" value={vehicle.rsa_start_date} />
-                    <FieldRow label="RSA End Date" value={vehicle.rsa_end_date} />
-                  </Section>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                {/* Renault-only fields */}
+                {isRenault && (
+                  <>
+                    <Section title="Extended Warranty">
+                      <FieldRow label="Extended Warranty Start Date" value={vehicle.ext_warranty_start_date} />
+                      <FieldRow label="Extended Warranty End Date" value={vehicle.ext_warranty_end_date} />
+                      <FieldRow label="Extended Warranty End Km" value={vehicle.ext_warranty_end_km} />
+                    </Section>
+                    <Section title="Easy Care">
+                      <FieldRow label="Easy Care Name" value={vehicle.easy_care_name} />
+                      <FieldRow label="Easy Care Start Date" value={vehicle.easy_care_start_date} />
+                      <FieldRow label="Easy Care End Date" value={vehicle.easy_care_end_date} />
+                      <FieldRow label="Easy Care End KM" value={vehicle.easy_care_end_km} />
+                    </Section>
+                    <Section title="RSA (Roadside Assistance)">
+                      <FieldRow label="RSA Product Name" value={vehicle.rsa_product_name} />
+                      <FieldRow label="RSA Certification Number" value={vehicle.rsa_certification_number} />
+                      <FieldRow label="RSA Start Date" value={vehicle.rsa_start_date} />
+                      <FieldRow label="RSA End Date" value={vehicle.rsa_end_date} />
+                    </Section>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* TAB 5 — Dealer (Renault only) */}
-        {isRenault && (
-          <TabsContent value="dealer" className="mt-6">
+        {isRenault && activeTab === "dealer" && (
+          <div className="mt-6">
             <Card className="border border-gray-200 rounded-sm shadow-none">
               <CardContent className="p-6">
                 <Section>
@@ -321,9 +334,8 @@ const VehicleProfile = ({ brand = "renault" }) => {
                 </Section>
               </CardContent>
             </Card>
-          </TabsContent>
+          </div>
         )}
-      </Tabs>
 
       {/* Edit Modal */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
