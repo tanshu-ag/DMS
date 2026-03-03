@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, File, UploadFile
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -15,6 +15,7 @@ import csv
 import hashlib
 import secrets
 import asyncio
+import base64
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -2175,6 +2176,112 @@ async def delete_vehicle(request: Request, vehicle_id: str):
         raise HTTPException(status_code=404, detail="Vehicle not found")
     await db.vehicles.delete_one({"vehicle_id": vehicle_id})
     return {"message": "Vehicle deleted"}
+
+# ============== VEHICLE DOCUMENTS ==============
+
+@api_router.get("/vehicles/{vehicle_id}/documents")
+async def get_vehicle_documents(request: Request, vehicle_id: str):
+    """Get all documents for a vehicle"""
+    await get_current_user(request)
+    
+    vehicle = await db.vehicles.find_one({"vehicle_id": vehicle_id})
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    cursor = db.vehicle_documents.find({"vehicle_id": vehicle_id}, {"_id": 0, "file_data": 0}).sort("uploaded_at", -1)
+    documents = await cursor.to_list(100)
+    
+    # Add file_url to each document
+    for doc in documents:
+        doc["file_url"] = f"/api/vehicles/{vehicle_id}/documents/{doc['document_id']}/download"
+    
+    return documents
+
+@api_router.post("/vehicles/{vehicle_id}/documents", status_code=201)
+async def upload_vehicle_document(
+    request: Request, 
+    vehicle_id: str, 
+    file: UploadFile = File(...),
+    document_type: str = "general"
+):
+    """Upload a document for a vehicle"""
+    await get_current_user(request)
+    
+    vehicle = await db.vehicles.find_one({"vehicle_id": vehicle_id})
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    # Validate file size (max 5MB)
+    content = await file.read()
+    if len(content) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File size must be less than 5MB")
+    
+    # Validate file type
+    allowed_extensions = [".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx"]
+    file_ext = Path(file.filename).suffix.lower()
+    if file_ext not in allowed_extensions:
+        raise HTTPException(status_code=400, detail=f"File type not allowed. Allowed: {', '.join(allowed_extensions)}")
+    
+    # Create document record
+    document_id = f"DOC-{datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6]}"
+    
+    # Store file content as base64 (for simplicity - in production, use S3/GCS)
+    file_data = base64.b64encode(content).decode("utf-8")
+    
+    document = {
+        "document_id": document_id,
+        "vehicle_id": vehicle_id,
+        "file_name": file.filename,
+        "file_type": file.content_type,
+        "file_size": len(content),
+        "file_data": file_data,
+        "document_type": document_type,
+        "uploaded_at": datetime.now(timezone.utc).isoformat(),
+    }
+    
+    await db.vehicle_documents.insert_one(document)
+    
+    # Return without file_data (too large for response)
+    return {
+        "document_id": document_id,
+        "vehicle_id": vehicle_id,
+        "file_name": file.filename,
+        "file_type": file.content_type,
+        "file_size": len(content),
+        "document_type": document_type,
+        "uploaded_at": document["uploaded_at"],
+        "file_url": f"/api/vehicles/{vehicle_id}/documents/{document_id}/download"
+    }
+
+@api_router.get("/vehicles/{vehicle_id}/documents/{document_id}/download")
+async def download_vehicle_document(request: Request, vehicle_id: str, document_id: str):
+    """Download a vehicle document"""
+    await get_current_user(request)
+    
+    document = await db.vehicle_documents.find_one({"document_id": document_id, "vehicle_id": vehicle_id})
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    # Decode file content
+    file_content = base64.b64decode(document["file_data"])
+    
+    return StreamingResponse(
+        io.BytesIO(file_content),
+        media_type=document["file_type"],
+        headers={"Content-Disposition": f"attachment; filename={document['file_name']}"}
+    )
+
+@api_router.delete("/vehicles/{vehicle_id}/documents/{document_id}")
+async def delete_vehicle_document(request: Request, vehicle_id: str, document_id: str):
+    """Delete a vehicle document"""
+    await get_current_user(request)
+    
+    document = await db.vehicle_documents.find_one({"document_id": document_id, "vehicle_id": vehicle_id})
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    await db.vehicle_documents.delete_one({"document_id": document_id})
+    return {"message": "Document deleted"}
 
 # ============== ROOT ROUTE ==============
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { API } from "@/App";
 import axios from "axios";
@@ -12,7 +12,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft, Pencil, Upload, FileText, Trash2, Download, Eye } from "lucide-react";
 import { toast } from "sonner";
 
 // Helper to display value or dash
@@ -51,6 +51,11 @@ const VehicleProfile = ({ brand = "renault" }) => {
   const [editFormData, setEditFormData] = useState({});
   const [saving, setSaving] = useState(false);
 
+  // Documents state
+  const [documents, setDocuments] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
   const isRenault = brand === "renault";
 
   // Fetch master models for Renault
@@ -82,8 +87,71 @@ const VehicleProfile = ({ brand = "renault" }) => {
     if (vehicleId) fetchVehicle();
   }, [vehicleId]);
 
+  // Fetch documents for this vehicle
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const res = await axios.get(`${API}/vehicles/${vehicleId}/documents`, { withCredentials: true });
+        setDocuments(res.data);
+      } catch (e) {
+        console.error("Failed to fetch documents", e);
+      }
+    };
+    if (vehicleId) fetchDocuments();
+  }, [vehicleId]);
+
   const handleBack = () => {
     navigate(isRenault ? "/vehicles/renault" : "/vehicles/other-brands");
+  };
+
+  // Document handlers
+  const handleFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("document_type", "general");
+
+      const res = await axios.post(
+        `${API}/vehicles/${vehicleId}/documents`,
+        formData,
+        { 
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" }
+        }
+      );
+      setDocuments([...documents, res.data]);
+      toast.success("Document uploaded successfully");
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Failed to upload document");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleDeleteDocument = async (docId) => {
+    if (!window.confirm("Are you sure you want to delete this document?")) return;
+    try {
+      await axios.delete(`${API}/vehicles/${vehicleId}/documents/${docId}`, { withCredentials: true });
+      setDocuments(documents.filter(d => d.document_id !== docId));
+      toast.success("Document deleted");
+    } catch (err) {
+      toast.error("Failed to delete document");
+    }
   };
 
   const handleOpenEdit = () => {
@@ -156,10 +224,10 @@ const VehicleProfile = ({ brand = "renault" }) => {
     );
   }
 
-  // Determine which tabs to show (Vehicle+Service combined, so 5 tabs for Renault, 4 for Other)
+  // Determine which tabs to show
   const tabs = isRenault
-    ? ["vehicle", "customer", "insurance", "dates", "dealer"]
-    : ["vehicle", "customer", "insurance", "dates"]; // Hide Dealer for Other Brands
+    ? ["vehicle", "customer", "insurance", "dates", "documents", "dealer"]
+    : ["vehicle", "customer", "insurance", "dates", "documents"];
 
   return (
     <div className="space-y-6" data-testid="vehicle-profile">
@@ -192,6 +260,7 @@ const VehicleProfile = ({ brand = "renault" }) => {
               customer: "Customer",
               insurance: "Insurance",
               dates: "Dates & Programs",
+              documents: "Documents",
               dealer: "Dealer"
             };
             return (
@@ -329,7 +398,109 @@ const VehicleProfile = ({ brand = "renault" }) => {
           </div>
         )}
 
-        {/* TAB 5 — Dealer (Renault only) */}
+        {/* TAB 5 — Documents */}
+        {activeTab === "documents" && (
+          <div className="mt-6">
+            <Card className="border border-gray-200 rounded-sm shadow-none">
+              <CardContent className="p-6">
+                {/* Upload Section */}
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Vehicle Documents</h3>
+                  <div>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    />
+                    <Button
+                      variant="outline"
+                      className="rounded-sm"
+                      onClick={handleFileSelect}
+                      disabled={uploading}
+                      data-testid="upload-document-btn"
+                    >
+                      <Upload className="w-4 h-4 mr-2" strokeWidth={1.5} />
+                      {uploading ? "Uploading..." : "Upload Document"}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Documents List */}
+                {documents.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" strokeWidth={1} />
+                    <p className="text-sm">No documents uploaded yet</p>
+                    <p className="text-xs text-gray-400 mt-1">Upload RC, Insurance, or other vehicle documents</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {documents.map((doc) => (
+                      <div
+                        key={doc.document_id}
+                        className="flex items-center justify-between p-3 border border-gray-200 rounded-sm hover:bg-gray-50"
+                        data-testid={`document-${doc.document_id}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gray-100 rounded-sm flex items-center justify-center">
+                            <FileText className="w-5 h-5 text-gray-500" strokeWidth={1.5} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">{doc.file_name}</p>
+                            <p className="text-xs text-gray-500">
+                              {doc.document_type} • {(doc.file_size / 1024).toFixed(1)} KB • {new Date(doc.uploaded_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {doc.file_url && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 rounded-sm"
+                                onClick={() => window.open(doc.file_url, "_blank")}
+                                data-testid={`view-doc-${doc.document_id}`}
+                              >
+                                <Eye className="w-4 h-4" strokeWidth={1.5} />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 rounded-sm"
+                                onClick={() => {
+                                  const link = document.createElement("a");
+                                  link.href = doc.file_url;
+                                  link.download = doc.file_name;
+                                  link.click();
+                                }}
+                                data-testid={`download-doc-${doc.document_id}`}
+                              >
+                                <Download className="w-4 h-4" strokeWidth={1.5} />
+                              </Button>
+                            </>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-sm text-red-500 hover:text-red-600"
+                            onClick={() => handleDeleteDocument(doc.document_id)}
+                            data-testid={`delete-doc-${doc.document_id}`}
+                          >
+                            <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* TAB 6 — Dealer (Renault only) */}
         {isRenault && activeTab === "dealer" && (
           <div className="mt-6">
             <Card className="border border-gray-200 rounded-sm shadow-none">
