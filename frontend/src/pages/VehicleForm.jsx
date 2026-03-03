@@ -95,13 +95,11 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
   // Insurance document state
   const [odPolicyFile, setOdPolicyFile] = useState(null);
   const [tpPolicyFile, setTpPolicyFile] = useState(null);
-  const [uploadingOd, setUploadingOd] = useState(false);
-  const [uploadingTp, setUploadingTp] = useState(false);
 
   const isRenault = brand === "renault";
   const isEdit = mode === "edit";
 
-  // Define steps
+  // Define steps (only used for Add mode)
   const steps = isRenault
     ? [
         { id: "vehicle", label: "Vehicle", description: "Vehicle details" },
@@ -130,7 +128,7 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
     color_type: "",
     exterior_colour: "",
     exterior_colour_code: "",
-    // Service (only for edit mode)
+    // Service
     last_service_date: "",
     next_service_due: "",
     last_odometer_reading: "",
@@ -151,13 +149,11 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
     od_policy_end_date: "",
     od_insurer: "",
     od_policy_number: "",
-    od_policy_document: null,
     // Insurance - TP
     tp_policy_start_date: "",
     tp_policy_end_date: "",
     tp_insurer: "",
     tp_policy_number: "",
-    tp_policy_document: null,
     // Dates & Programs
     invoiced_date: "",
     delivery_date: "",
@@ -206,13 +202,11 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
   const handlePolicyUpload = async (file, type) => {
     if (!file) return;
     
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error("File size must be less than 5MB");
       return;
     }
     
-    // Validate file type
     const allowedTypes = [".pdf", ".jpg", ".jpeg", ".png"];
     const ext = file.name.toLowerCase().substring(file.name.lastIndexOf("."));
     if (!allowedTypes.includes(ext)) {
@@ -265,6 +259,26 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
     navigate(isRenault ? "/vehicles/renault" : "/vehicles/other-brands");
   };
 
+  const validateForm = () => {
+    if (!formData.vehicle_reg_no) {
+      toast.error("Registration number is required");
+      return false;
+    }
+    if (!formData.vin) {
+      toast.error("VIN is required");
+      return false;
+    }
+    if (isRenault && !formData.model) {
+      toast.error("Model is required for Renault vehicles");
+      return false;
+    }
+    if (!isRenault && !formData.make) {
+      toast.error("Brand is required");
+      return false;
+    }
+    return true;
+  };
+
   const validateCurrentStep = () => {
     const step = steps[currentStep];
     
@@ -300,11 +314,14 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
   };
 
   const handleSave = async () => {
-    if (!validateCurrentStep()) return;
+    if (isEdit) {
+      if (!validateForm()) return;
+    } else {
+      if (!validateCurrentStep()) return;
+    }
 
     setSaving(true);
     try {
-      // Combine country code with phone
       const fullPhone = formData.customer_phone 
         ? `${formData.customer_country_code || '+91'}${formData.customer_phone}`
         : "";
@@ -368,13 +385,239 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
     );
   }
 
+  // EDIT MODE - Show all fields on one page
+  if (isEdit) {
+    return (
+      <div className="space-y-6" data-testid="vehicle-form-page">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-heading font-black text-3xl md:text-4xl tracking-tighter uppercase">
+              Edit Vehicle
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              {isRenault ? "Renault Vehicle" : "Other Brand Vehicle"}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button 
+              className="rounded-sm bg-black text-white hover:bg-gray-800"
+              onClick={handleSave}
+              disabled={saving}
+              data-testid="save-btn"
+            >
+              <Save className="w-4 h-4 mr-2" strokeWidth={1.5} />
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-sm bg-red-600 hover:bg-red-700 text-white h-8 w-8" 
+              onClick={handleBack} 
+              data-testid="cancel-btn"
+            >
+              <X className="w-4 h-4" strokeWidth={2.5} />
+            </Button>
+          </div>
+        </div>
+
+        {/* Vehicle Details */}
+        <Card className="border border-gray-200 rounded-sm shadow-none">
+          <CardContent className="p-6">
+            <Section title="Vehicle Details">
+              {isRenault ? (
+                <div className="space-y-1">
+                  <Label className="text-xs text-gray-500 uppercase tracking-wider">Brand</Label>
+                  <Input value="Renault" disabled className="rounded-sm bg-gray-50" />
+                </div>
+              ) : (
+                <FormField 
+                  label="Brand" 
+                  value={formData.make} 
+                  onChange={(v) => updateField("make", v)} 
+                  placeholder="e.g., Toyota, Honda, Maruti"
+                  required
+                />
+              )}
+              <FormField 
+                label="VIN #" 
+                value={formData.vin} 
+                onChange={(v) => updateField("vin", v.toUpperCase())} 
+                placeholder="Vehicle Identification Number"
+                required
+              />
+              <FormField 
+                label="Engine #" 
+                value={formData.engine_no} 
+                onChange={(v) => updateField("engine_no", v.toUpperCase())} 
+                placeholder="Engine Number"
+              />
+              <FormField 
+                label="Temporary/Registration No" 
+                value={formData.vehicle_reg_no} 
+                onChange={(v) => updateField("vehicle_reg_no", v.toUpperCase())} 
+                placeholder="e.g., MH01AB1234"
+                required
+              />
+              {isRenault ? (
+                <div className="space-y-1">
+                  <Label className="text-xs text-gray-500 uppercase tracking-wider">
+                    Model Description <span className="text-red-500">*</span>
+                  </Label>
+                  <Select value={formData.model || ""} onValueChange={(v) => updateField("model", v)}>
+                    <SelectTrigger className="rounded-sm">
+                      <SelectValue placeholder="Select model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {masterModels.map(m => (
+                        <SelectItem key={m} value={m}>{m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <FormField 
+                  label="Model Description" 
+                  value={formData.model} 
+                  onChange={(v) => updateField("model", v)} 
+                  placeholder="e.g., Corolla, City, Swift"
+                />
+              )}
+              {isRenault && (
+                <>
+                  <FormField label="Variant Description" value={formData.variant_description} onChange={(v) => updateField("variant_description", v)} />
+                  <FormField label="Model Code" value={formData.model_code} onChange={(v) => updateField("model_code", v)} />
+                  <FormField label="Color Type" value={formData.color_type} onChange={(v) => updateField("color_type", v)} />
+                  <FormField label="Exterior Colour" value={formData.exterior_colour} onChange={(v) => updateField("exterior_colour", v)} />
+                  <FormField label="Exterior Colour Code" value={formData.exterior_colour_code} onChange={(v) => updateField("exterior_colour_code", v)} />
+                </>
+              )}
+            </Section>
+
+            <Section title="Service">
+              <FormField label="Last Service Date" value={formData.last_service_date} onChange={(v) => updateField("last_service_date", v)} type="date" />
+              <FormField label="Next Service Due" value={formData.next_service_due} onChange={(v) => updateField("next_service_due", v)} type="date" />
+              <FormField label="Last Odometer Reading" value={formData.last_odometer_reading} onChange={(v) => updateField("last_odometer_reading", v)} placeholder="e.g., 45000" />
+            </Section>
+          </CardContent>
+        </Card>
+
+        {/* Customer Details */}
+        <Card className="border border-gray-200 rounded-sm shadow-none">
+          <CardContent className="p-6">
+            <Section title="Contact Information">
+              <FormField label="Contact Name" value={formData.customer_name} onChange={(v) => updateField("customer_name", v)} placeholder="Full name" />
+              <PhoneField 
+                label="Phone"
+                countryCode={formData.customer_country_code}
+                phone={formData.customer_phone}
+                onCountryCodeChange={(v) => updateField("customer_country_code", v)}
+                onPhoneChange={(v) => updateField("customer_phone", v)}
+              />
+              <FormField label="Email" value={formData.customer_email} onChange={(v) => updateField("customer_email", v)} type="email" placeholder="Email address" />
+            </Section>
+
+            <Section title="Address">
+              <FormField label="Contact Address" value={formData.contact_address} onChange={(v) => updateField("contact_address", v)} placeholder="Street address" />
+              <FormField label="Contact Address 2" value={formData.contact_address2} onChange={(v) => updateField("contact_address2", v)} placeholder="Apartment, suite, etc." />
+              <FormField label="City" value={formData.contact_city} onChange={(v) => updateField("contact_city", v)} />
+              <FormField label="District" value={formData.contact_district} onChange={(v) => updateField("contact_district", v)} />
+              <FormField label="State" value={formData.contact_state} onChange={(v) => updateField("contact_state", v)} />
+              <FormField label="Country" value={formData.contact_country} onChange={(v) => updateField("contact_country", v)} />
+              <FormField label="Zipcode" value={formData.contact_zipcode} onChange={(v) => updateField("contact_zipcode", v)} />
+            </Section>
+          </CardContent>
+        </Card>
+
+        {/* Insurance */}
+        <Card className="border border-gray-200 rounded-sm shadow-none">
+          <CardContent className="p-6">
+            <Section title="Own Damage (OD)">
+              <FormField label="OD Policy Start Date" value={formData.od_policy_start_date} onChange={(v) => updateField("od_policy_start_date", v)} type="date" />
+              <FormField label="OD Policy End Date" value={formData.od_policy_end_date} onChange={(v) => updateField("od_policy_end_date", v)} type="date" />
+              <FormField label="Own Damage Insurer" value={formData.od_insurer} onChange={(v) => updateField("od_insurer", v)} placeholder="Insurance company name" />
+              <FormField label="OD Policy Number" value={formData.od_policy_number} onChange={(v) => updateField("od_policy_number", v)} />
+            </Section>
+
+            <Section 
+              title="Third Party (TP)"
+              action={
+                <Button type="button" variant="outline" size="sm" className="rounded-sm" onClick={copyOdToTp} data-testid="copy-od-to-tp">
+                  <Copy className="w-3 h-3 mr-2" strokeWidth={1.5} />
+                  Same as OD Policy
+                </Button>
+              }
+            >
+              <FormField label="TP Policy Start Date" value={formData.tp_policy_start_date} onChange={(v) => updateField("tp_policy_start_date", v)} type="date" />
+              <FormField label="TP Policy End Date" value={formData.tp_policy_end_date} onChange={(v) => updateField("tp_policy_end_date", v)} type="date" />
+              <FormField label="Third Party Insurer" value={formData.tp_insurer} onChange={(v) => updateField("tp_insurer", v)} placeholder="Insurance company name" />
+              <FormField label="TP Policy Number" value={formData.tp_policy_number} onChange={(v) => updateField("tp_policy_number", v)} />
+            </Section>
+          </CardContent>
+        </Card>
+
+        {/* Dates & Programs */}
+        <Card className="border border-gray-200 rounded-sm shadow-none">
+          <CardContent className="p-6">
+            <Section title="Common Dates">
+              <FormField label="Invoiced Date" value={formData.invoiced_date} onChange={(v) => updateField("invoiced_date", v)} type="date" />
+              <FormField label="Vehicle Delivery Date" value={formData.delivery_date} onChange={(v) => updateField("delivery_date", v)} type="date" />
+              <FormField label="VIN Mfg Year" value={formData.vin_mfg_year} onChange={(v) => updateField("vin_mfg_year", v)} placeholder="e.g., 2024" />
+              <FormField label="Warranty Start Date" value={formData.warranty_start_date} onChange={(v) => updateField("warranty_start_date", v)} type="date" />
+              <FormField label="Warranty End Date" value={formData.warranty_end_date} onChange={(v) => updateField("warranty_end_date", v)} type="date" />
+              <FormField label="Warranty End Km" value={formData.warranty_end_km} onChange={(v) => updateField("warranty_end_km", v)} placeholder="e.g., 100000" />
+            </Section>
+
+            {isRenault && (
+              <>
+                <Section title="Extended Warranty">
+                  <FormField label="Extended Warranty Start Date" value={formData.ext_warranty_start_date} onChange={(v) => updateField("ext_warranty_start_date", v)} type="date" />
+                  <FormField label="Extended Warranty End Date" value={formData.ext_warranty_end_date} onChange={(v) => updateField("ext_warranty_end_date", v)} type="date" />
+                  <FormField label="Extended Warranty End Km" value={formData.ext_warranty_end_km} onChange={(v) => updateField("ext_warranty_end_km", v)} />
+                </Section>
+                <Section title="Easy Care">
+                  <FormField label="Easy Care Name" value={formData.easy_care_name} onChange={(v) => updateField("easy_care_name", v)} />
+                  <FormField label="Easy Care Start Date" value={formData.easy_care_start_date} onChange={(v) => updateField("easy_care_start_date", v)} type="date" />
+                  <FormField label="Easy Care End Date" value={formData.easy_care_end_date} onChange={(v) => updateField("easy_care_end_date", v)} type="date" />
+                  <FormField label="Easy Care End KM" value={formData.easy_care_end_km} onChange={(v) => updateField("easy_care_end_km", v)} />
+                </Section>
+                <Section title="RSA (Roadside Assistance)">
+                  <FormField label="RSA Product Name" value={formData.rsa_product_name} onChange={(v) => updateField("rsa_product_name", v)} />
+                  <FormField label="RSA Certification Number" value={formData.rsa_certification_number} onChange={(v) => updateField("rsa_certification_number", v)} />
+                  <FormField label="RSA Start Date" value={formData.rsa_start_date} onChange={(v) => updateField("rsa_start_date", v)} type="date" />
+                  <FormField label="RSA End Date" value={formData.rsa_end_date} onChange={(v) => updateField("rsa_end_date", v)} type="date" />
+                </Section>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Dealer (Renault only) */}
+        {isRenault && (
+          <Card className="border border-gray-200 rounded-sm shadow-none">
+            <CardContent className="p-6">
+              <Section title="Dealer Information">
+                <FormField label="Dealer Code" value={formData.dealer_code} onChange={(v) => updateField("dealer_code", v)} />
+                <FormField label="Dealer Name" value={formData.dealer_name} onChange={(v) => updateField("dealer_name", v)} />
+                <FormField label="Dealer Group" value={formData.dealer_group} onChange={(v) => updateField("dealer_group", v)} />
+                <FormField label="Last Servicing Dealer" value={formData.last_servicing_dealer} onChange={(v) => updateField("last_servicing_dealer", v)} />
+                <FormField label="Penultimate Servicing Dealer" value={formData.penultimate_servicing_dealer} onChange={(v) => updateField("penultimate_servicing_dealer", v)} />
+              </Section>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  // ADD MODE - Step-based wizard
   return (
     <div className="space-y-6" data-testid="vehicle-form-page">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-heading font-black text-3xl md:text-4xl tracking-tighter uppercase">
-            {isEdit ? "Edit Vehicle" : "Add Vehicle"}
+            Add Vehicle
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             {isRenault ? "Renault Vehicle" : "Other Brand Vehicle"}
@@ -447,112 +690,32 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
                     <Input value="Renault" disabled className="rounded-sm bg-gray-50" />
                   </div>
                 ) : (
-                  <FormField 
-                    label="Brand" 
-                    value={formData.make} 
-                    onChange={(v) => updateField("make", v)} 
-                    placeholder="e.g., Toyota, Honda, Maruti"
-                    required
-                  />
+                  <FormField label="Brand" value={formData.make} onChange={(v) => updateField("make", v)} placeholder="e.g., Toyota, Honda, Maruti" required />
                 )}
-                <FormField 
-                  label="VIN #" 
-                  value={formData.vin} 
-                  onChange={(v) => updateField("vin", v.toUpperCase())} 
-                  placeholder="Vehicle Identification Number"
-                  required
-                />
-                <FormField 
-                  label="Engine #" 
-                  value={formData.engine_no} 
-                  onChange={(v) => updateField("engine_no", v.toUpperCase())} 
-                  placeholder="Engine Number"
-                />
-                <FormField 
-                  label="Temporary/Registration No" 
-                  value={formData.vehicle_reg_no} 
-                  onChange={(v) => updateField("vehicle_reg_no", v.toUpperCase())} 
-                  placeholder="e.g., MH01AB1234"
-                  required
-                />
+                <FormField label="VIN #" value={formData.vin} onChange={(v) => updateField("vin", v.toUpperCase())} placeholder="Vehicle Identification Number" required />
+                <FormField label="Engine #" value={formData.engine_no} onChange={(v) => updateField("engine_no", v.toUpperCase())} placeholder="Engine Number" />
+                <FormField label="Temporary/Registration No" value={formData.vehicle_reg_no} onChange={(v) => updateField("vehicle_reg_no", v.toUpperCase())} placeholder="e.g., MH01AB1234" required />
                 {isRenault ? (
                   <div className="space-y-1">
-                    <Label className="text-xs text-gray-500 uppercase tracking-wider">
-                      Model Description <span className="text-red-500">*</span>
-                    </Label>
+                    <Label className="text-xs text-gray-500 uppercase tracking-wider">Model Description <span className="text-red-500">*</span></Label>
                     <Select value={formData.model || ""} onValueChange={(v) => updateField("model", v)}>
-                      <SelectTrigger className="rounded-sm">
-                        <SelectValue placeholder="Select model" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {masterModels.map(m => (
-                          <SelectItem key={m} value={m}>{m}</SelectItem>
-                        ))}
-                      </SelectContent>
+                      <SelectTrigger className="rounded-sm"><SelectValue placeholder="Select model" /></SelectTrigger>
+                      <SelectContent>{masterModels.map(m => (<SelectItem key={m} value={m}>{m}</SelectItem>))}</SelectContent>
                     </Select>
                   </div>
                 ) : (
-                  <FormField 
-                    label="Model Description" 
-                    value={formData.model} 
-                    onChange={(v) => updateField("model", v)} 
-                    placeholder="e.g., Corolla, City, Swift"
-                  />
+                  <FormField label="Model Description" value={formData.model} onChange={(v) => updateField("model", v)} placeholder="e.g., Corolla, City, Swift" />
                 )}
                 {isRenault && (
                   <>
-                    <FormField 
-                      label="Variant Description" 
-                      value={formData.variant_description} 
-                      onChange={(v) => updateField("variant_description", v)} 
-                    />
-                    <FormField 
-                      label="Model Code" 
-                      value={formData.model_code} 
-                      onChange={(v) => updateField("model_code", v)} 
-                    />
-                    <FormField 
-                      label="Color Type" 
-                      value={formData.color_type} 
-                      onChange={(v) => updateField("color_type", v)} 
-                    />
-                    <FormField 
-                      label="Exterior Colour" 
-                      value={formData.exterior_colour} 
-                      onChange={(v) => updateField("exterior_colour", v)} 
-                    />
-                    <FormField 
-                      label="Exterior Colour Code" 
-                      value={formData.exterior_colour_code} 
-                      onChange={(v) => updateField("exterior_colour_code", v)} 
-                    />
+                    <FormField label="Variant Description" value={formData.variant_description} onChange={(v) => updateField("variant_description", v)} />
+                    <FormField label="Model Code" value={formData.model_code} onChange={(v) => updateField("model_code", v)} />
+                    <FormField label="Color Type" value={formData.color_type} onChange={(v) => updateField("color_type", v)} />
+                    <FormField label="Exterior Colour" value={formData.exterior_colour} onChange={(v) => updateField("exterior_colour", v)} />
+                    <FormField label="Exterior Colour Code" value={formData.exterior_colour_code} onChange={(v) => updateField("exterior_colour_code", v)} />
                   </>
                 )}
               </Section>
-
-              {/* Service section only in Edit mode */}
-              {isEdit && (
-                <Section title="Service">
-                  <FormField 
-                    label="Last Service Date" 
-                    value={formData.last_service_date} 
-                    onChange={(v) => updateField("last_service_date", v)} 
-                    type="date"
-                  />
-                  <FormField 
-                    label="Next Service Due" 
-                    value={formData.next_service_due} 
-                    onChange={(v) => updateField("next_service_due", v)} 
-                    type="date"
-                  />
-                  <FormField 
-                    label="Last Odometer Reading" 
-                    value={formData.last_odometer_reading} 
-                    onChange={(v) => updateField("last_odometer_reading", v)} 
-                    placeholder="e.g., 45000"
-                  />
-                </Section>
-              )}
             </>
           )}
 
@@ -560,66 +723,18 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
           {currentStep === 1 && (
             <>
               <Section title="Contact Information">
-                <FormField 
-                  label="Contact Name" 
-                  value={formData.customer_name} 
-                  onChange={(v) => updateField("customer_name", v)} 
-                  placeholder="Full name"
-                />
-                <PhoneField 
-                  label="Phone"
-                  countryCode={formData.customer_country_code}
-                  phone={formData.customer_phone}
-                  onCountryCodeChange={(v) => updateField("customer_country_code", v)}
-                  onPhoneChange={(v) => updateField("customer_phone", v)}
-                />
-                <FormField 
-                  label="Email" 
-                  value={formData.customer_email} 
-                  onChange={(v) => updateField("customer_email", v)} 
-                  type="email"
-                  placeholder="Email address"
-                />
+                <FormField label="Contact Name" value={formData.customer_name} onChange={(v) => updateField("customer_name", v)} placeholder="Full name" />
+                <PhoneField label="Phone" countryCode={formData.customer_country_code} phone={formData.customer_phone} onCountryCodeChange={(v) => updateField("customer_country_code", v)} onPhoneChange={(v) => updateField("customer_phone", v)} />
+                <FormField label="Email" value={formData.customer_email} onChange={(v) => updateField("customer_email", v)} type="email" placeholder="Email address" />
               </Section>
-
               <Section title="Address">
-                <FormField 
-                  label="Contact Address" 
-                  value={formData.contact_address} 
-                  onChange={(v) => updateField("contact_address", v)} 
-                  placeholder="Street address"
-                />
-                <FormField 
-                  label="Contact Address 2" 
-                  value={formData.contact_address2} 
-                  onChange={(v) => updateField("contact_address2", v)} 
-                  placeholder="Apartment, suite, etc."
-                />
-                <FormField 
-                  label="City" 
-                  value={formData.contact_city} 
-                  onChange={(v) => updateField("contact_city", v)} 
-                />
-                <FormField 
-                  label="District" 
-                  value={formData.contact_district} 
-                  onChange={(v) => updateField("contact_district", v)} 
-                />
-                <FormField 
-                  label="State" 
-                  value={formData.contact_state} 
-                  onChange={(v) => updateField("contact_state", v)} 
-                />
-                <FormField 
-                  label="Country" 
-                  value={formData.contact_country} 
-                  onChange={(v) => updateField("contact_country", v)} 
-                />
-                <FormField 
-                  label="Zipcode" 
-                  value={formData.contact_zipcode} 
-                  onChange={(v) => updateField("contact_zipcode", v)} 
-                />
+                <FormField label="Contact Address" value={formData.contact_address} onChange={(v) => updateField("contact_address", v)} placeholder="Street address" />
+                <FormField label="Contact Address 2" value={formData.contact_address2} onChange={(v) => updateField("contact_address2", v)} placeholder="Apartment, suite, etc." />
+                <FormField label="City" value={formData.contact_city} onChange={(v) => updateField("contact_city", v)} />
+                <FormField label="District" value={formData.contact_district} onChange={(v) => updateField("contact_district", v)} />
+                <FormField label="State" value={formData.contact_state} onChange={(v) => updateField("contact_state", v)} />
+                <FormField label="Country" value={formData.contact_country} onChange={(v) => updateField("contact_country", v)} />
+                <FormField label="Zipcode" value={formData.contact_zipcode} onChange={(v) => updateField("contact_zipcode", v)} />
               </Section>
             </>
           )}
@@ -628,139 +743,41 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
           {currentStep === 2 && (
             <>
               <Section title="Own Damage (OD)">
-                <FormField 
-                  label="OD Policy Start Date" 
-                  value={formData.od_policy_start_date} 
-                  onChange={(v) => updateField("od_policy_start_date", v)} 
-                  type="date"
-                />
-                <FormField 
-                  label="OD Policy End Date" 
-                  value={formData.od_policy_end_date} 
-                  onChange={(v) => updateField("od_policy_end_date", v)} 
-                  type="date"
-                />
-                <FormField 
-                  label="Own Damage Insurer" 
-                  value={formData.od_insurer} 
-                  onChange={(v) => updateField("od_insurer", v)} 
-                  placeholder="Insurance company name"
-                />
-                <FormField 
-                  label="OD Policy Number" 
-                  value={formData.od_policy_number} 
-                  onChange={(v) => updateField("od_policy_number", v)} 
-                />
-                {/* OD Policy Upload */}
+                <FormField label="OD Policy Start Date" value={formData.od_policy_start_date} onChange={(v) => updateField("od_policy_start_date", v)} type="date" />
+                <FormField label="OD Policy End Date" value={formData.od_policy_end_date} onChange={(v) => updateField("od_policy_end_date", v)} type="date" />
+                <FormField label="Own Damage Insurer" value={formData.od_insurer} onChange={(v) => updateField("od_insurer", v)} placeholder="Insurance company name" />
+                <FormField label="OD Policy Number" value={formData.od_policy_number} onChange={(v) => updateField("od_policy_number", v)} />
                 <div className="space-y-1 col-span-full lg:col-span-1">
                   <Label className="text-xs text-gray-500 uppercase tracking-wider">Upload OD Policy</Label>
-                  <input 
-                    type="file" 
-                    ref={odPolicyFileRef}
-                    onChange={(e) => handlePolicyUpload(e.target.files?.[0], "od")}
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    className="hidden"
-                  />
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      type="button"
-                      variant="outline" 
-                      className="rounded-sm flex-1"
-                      onClick={() => odPolicyFileRef.current?.click()}
-                    >
-                      <Upload className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                      {odPolicyFile ? "Change File" : "Select File"}
-                    </Button>
-                  </div>
+                  <input type="file" ref={odPolicyFileRef} onChange={(e) => handlePolicyUpload(e.target.files?.[0], "od")} accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
+                  <Button type="button" variant="outline" className="rounded-sm w-full" onClick={() => odPolicyFileRef.current?.click()}>
+                    <Upload className="w-4 h-4 mr-2" strokeWidth={1.5} />{odPolicyFile ? "Change File" : "Select File"}
+                  </Button>
                   {odPolicyFile && (
                     <div className="flex items-center gap-2 mt-2 p-2 bg-green-50 border border-green-200 rounded-sm">
                       <FileText className="w-4 h-4 text-green-600" />
                       <span className="text-xs text-green-700 flex-1 truncate">{odPolicyFile.name}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6"
-                        onClick={() => setOdPolicyFile(null)}
-                      >
-                        <Trash2 className="w-3 h-3 text-red-500" />
-                      </Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setOdPolicyFile(null)}><Trash2 className="w-3 h-3 text-red-500" /></Button>
                     </div>
                   )}
                 </div>
               </Section>
-
-              <Section 
-                title="Third Party (TP)"
-                action={
-                  <Button 
-                    type="button"
-                    variant="outline" 
-                    size="sm"
-                    className="rounded-sm"
-                    onClick={copyOdToTp}
-                    data-testid="copy-od-to-tp"
-                  >
-                    <Copy className="w-3 h-3 mr-2" strokeWidth={1.5} />
-                    Same as OD Policy
-                  </Button>
-                }
-              >
-                <FormField 
-                  label="TP Policy Start Date" 
-                  value={formData.tp_policy_start_date} 
-                  onChange={(v) => updateField("tp_policy_start_date", v)} 
-                  type="date"
-                />
-                <FormField 
-                  label="TP Policy End Date" 
-                  value={formData.tp_policy_end_date} 
-                  onChange={(v) => updateField("tp_policy_end_date", v)} 
-                  type="date"
-                />
-                <FormField 
-                  label="Third Party Insurer" 
-                  value={formData.tp_insurer} 
-                  onChange={(v) => updateField("tp_insurer", v)} 
-                  placeholder="Insurance company name"
-                />
-                <FormField 
-                  label="TP Policy Number" 
-                  value={formData.tp_policy_number} 
-                  onChange={(v) => updateField("tp_policy_number", v)} 
-                />
-                {/* TP Policy Upload */}
+              <Section title="Third Party (TP)" action={<Button type="button" variant="outline" size="sm" className="rounded-sm" onClick={copyOdToTp} data-testid="copy-od-to-tp"><Copy className="w-3 h-3 mr-2" strokeWidth={1.5} />Same as OD Policy</Button>}>
+                <FormField label="TP Policy Start Date" value={formData.tp_policy_start_date} onChange={(v) => updateField("tp_policy_start_date", v)} type="date" />
+                <FormField label="TP Policy End Date" value={formData.tp_policy_end_date} onChange={(v) => updateField("tp_policy_end_date", v)} type="date" />
+                <FormField label="Third Party Insurer" value={formData.tp_insurer} onChange={(v) => updateField("tp_insurer", v)} placeholder="Insurance company name" />
+                <FormField label="TP Policy Number" value={formData.tp_policy_number} onChange={(v) => updateField("tp_policy_number", v)} />
                 <div className="space-y-1 col-span-full lg:col-span-1">
                   <Label className="text-xs text-gray-500 uppercase tracking-wider">Upload TP Policy</Label>
-                  <input 
-                    type="file" 
-                    ref={tpPolicyFileRef}
-                    onChange={(e) => handlePolicyUpload(e.target.files?.[0], "tp")}
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    className="hidden"
-                  />
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      type="button"
-                      variant="outline" 
-                      className="rounded-sm flex-1"
-                      onClick={() => tpPolicyFileRef.current?.click()}
-                    >
-                      <Upload className="w-4 h-4 mr-2" strokeWidth={1.5} />
-                      {tpPolicyFile ? "Change File" : "Select File"}
-                    </Button>
-                  </div>
+                  <input type="file" ref={tpPolicyFileRef} onChange={(e) => handlePolicyUpload(e.target.files?.[0], "tp")} accept=".pdf,.jpg,.jpeg,.png" className="hidden" />
+                  <Button type="button" variant="outline" className="rounded-sm w-full" onClick={() => tpPolicyFileRef.current?.click()}>
+                    <Upload className="w-4 h-4 mr-2" strokeWidth={1.5} />{tpPolicyFile ? "Change File" : "Select File"}
+                  </Button>
                   {tpPolicyFile && (
                     <div className="flex items-center gap-2 mt-2 p-2 bg-green-50 border border-green-200 rounded-sm">
                       <FileText className="w-4 h-4 text-green-600" />
                       <span className="text-xs text-green-700 flex-1 truncate">{tpPolicyFile.name}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6"
-                        onClick={() => setTpPolicyFile(null)}
-                      >
-                        <Trash2 className="w-3 h-3 text-red-500" />
-                      </Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setTpPolicyFile(null)}><Trash2 className="w-3 h-3 text-red-500" /></Button>
                     </div>
                   )}
                 </div>
@@ -772,114 +789,31 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
           {currentStep === 3 && (
             <>
               <Section title="Common Dates">
-                <FormField 
-                  label="Invoiced Date" 
-                  value={formData.invoiced_date} 
-                  onChange={(v) => updateField("invoiced_date", v)} 
-                  type="date"
-                />
-                <FormField 
-                  label="Vehicle Delivery Date" 
-                  value={formData.delivery_date} 
-                  onChange={(v) => updateField("delivery_date", v)} 
-                  type="date"
-                />
-                <FormField 
-                  label="VIN Mfg Year" 
-                  value={formData.vin_mfg_year} 
-                  onChange={(v) => updateField("vin_mfg_year", v)} 
-                  placeholder="e.g., 2024"
-                />
-                <FormField 
-                  label="Warranty Start Date" 
-                  value={formData.warranty_start_date} 
-                  onChange={(v) => updateField("warranty_start_date", v)} 
-                  type="date"
-                />
-                <FormField 
-                  label="Warranty End Date" 
-                  value={formData.warranty_end_date} 
-                  onChange={(v) => updateField("warranty_end_date", v)} 
-                  type="date"
-                />
-                <FormField 
-                  label="Warranty End Km" 
-                  value={formData.warranty_end_km} 
-                  onChange={(v) => updateField("warranty_end_km", v)} 
-                  placeholder="e.g., 100000"
-                />
+                <FormField label="Invoiced Date" value={formData.invoiced_date} onChange={(v) => updateField("invoiced_date", v)} type="date" />
+                <FormField label="Vehicle Delivery Date" value={formData.delivery_date} onChange={(v) => updateField("delivery_date", v)} type="date" />
+                <FormField label="VIN Mfg Year" value={formData.vin_mfg_year} onChange={(v) => updateField("vin_mfg_year", v)} placeholder="e.g., 2024" />
+                <FormField label="Warranty Start Date" value={formData.warranty_start_date} onChange={(v) => updateField("warranty_start_date", v)} type="date" />
+                <FormField label="Warranty End Date" value={formData.warranty_end_date} onChange={(v) => updateField("warranty_end_date", v)} type="date" />
+                <FormField label="Warranty End Km" value={formData.warranty_end_km} onChange={(v) => updateField("warranty_end_km", v)} placeholder="e.g., 100000" />
               </Section>
-
               {isRenault && (
                 <>
                   <Section title="Extended Warranty">
-                    <FormField 
-                      label="Extended Warranty Start Date" 
-                      value={formData.ext_warranty_start_date} 
-                      onChange={(v) => updateField("ext_warranty_start_date", v)} 
-                      type="date"
-                    />
-                    <FormField 
-                      label="Extended Warranty End Date" 
-                      value={formData.ext_warranty_end_date} 
-                      onChange={(v) => updateField("ext_warranty_end_date", v)} 
-                      type="date"
-                    />
-                    <FormField 
-                      label="Extended Warranty End Km" 
-                      value={formData.ext_warranty_end_km} 
-                      onChange={(v) => updateField("ext_warranty_end_km", v)} 
-                    />
+                    <FormField label="Extended Warranty Start Date" value={formData.ext_warranty_start_date} onChange={(v) => updateField("ext_warranty_start_date", v)} type="date" />
+                    <FormField label="Extended Warranty End Date" value={formData.ext_warranty_end_date} onChange={(v) => updateField("ext_warranty_end_date", v)} type="date" />
+                    <FormField label="Extended Warranty End Km" value={formData.ext_warranty_end_km} onChange={(v) => updateField("ext_warranty_end_km", v)} />
                   </Section>
-
                   <Section title="Easy Care">
-                    <FormField 
-                      label="Easy Care Name" 
-                      value={formData.easy_care_name} 
-                      onChange={(v) => updateField("easy_care_name", v)} 
-                    />
-                    <FormField 
-                      label="Easy Care Start Date" 
-                      value={formData.easy_care_start_date} 
-                      onChange={(v) => updateField("easy_care_start_date", v)} 
-                      type="date"
-                    />
-                    <FormField 
-                      label="Easy Care End Date" 
-                      value={formData.easy_care_end_date} 
-                      onChange={(v) => updateField("easy_care_end_date", v)} 
-                      type="date"
-                    />
-                    <FormField 
-                      label="Easy Care End KM" 
-                      value={formData.easy_care_end_km} 
-                      onChange={(v) => updateField("easy_care_end_km", v)} 
-                    />
+                    <FormField label="Easy Care Name" value={formData.easy_care_name} onChange={(v) => updateField("easy_care_name", v)} />
+                    <FormField label="Easy Care Start Date" value={formData.easy_care_start_date} onChange={(v) => updateField("easy_care_start_date", v)} type="date" />
+                    <FormField label="Easy Care End Date" value={formData.easy_care_end_date} onChange={(v) => updateField("easy_care_end_date", v)} type="date" />
+                    <FormField label="Easy Care End KM" value={formData.easy_care_end_km} onChange={(v) => updateField("easy_care_end_km", v)} />
                   </Section>
-
                   <Section title="RSA (Roadside Assistance)">
-                    <FormField 
-                      label="RSA Product Name" 
-                      value={formData.rsa_product_name} 
-                      onChange={(v) => updateField("rsa_product_name", v)} 
-                    />
-                    <FormField 
-                      label="RSA Certification Number" 
-                      value={formData.rsa_certification_number} 
-                      onChange={(v) => updateField("rsa_certification_number", v)} 
-                    />
-                    <FormField 
-                      label="RSA Start Date" 
-                      value={formData.rsa_start_date} 
-                      onChange={(v) => updateField("rsa_start_date", v)} 
-                      type="date"
-                    />
-                    <FormField 
-                      label="RSA End Date" 
-                      value={formData.rsa_end_date} 
-                      onChange={(v) => updateField("rsa_end_date", v)} 
-                      type="date"
-                    />
+                    <FormField label="RSA Product Name" value={formData.rsa_product_name} onChange={(v) => updateField("rsa_product_name", v)} />
+                    <FormField label="RSA Certification Number" value={formData.rsa_certification_number} onChange={(v) => updateField("rsa_certification_number", v)} />
+                    <FormField label="RSA Start Date" value={formData.rsa_start_date} onChange={(v) => updateField("rsa_start_date", v)} type="date" />
+                    <FormField label="RSA End Date" value={formData.rsa_end_date} onChange={(v) => updateField("rsa_end_date", v)} type="date" />
                   </Section>
                 </>
               )}
@@ -889,31 +823,11 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
           {/* STEP 5 — Dealer (Renault only) */}
           {isRenault && currentStep === 4 && (
             <Section title="Dealer Information">
-              <FormField 
-                label="Dealer Code" 
-                value={formData.dealer_code} 
-                onChange={(v) => updateField("dealer_code", v)} 
-              />
-              <FormField 
-                label="Dealer Name" 
-                value={formData.dealer_name} 
-                onChange={(v) => updateField("dealer_name", v)} 
-              />
-              <FormField 
-                label="Dealer Group" 
-                value={formData.dealer_group} 
-                onChange={(v) => updateField("dealer_group", v)} 
-              />
-              <FormField 
-                label="Last Servicing Dealer" 
-                value={formData.last_servicing_dealer} 
-                onChange={(v) => updateField("last_servicing_dealer", v)} 
-              />
-              <FormField 
-                label="Penultimate Servicing Dealer" 
-                value={formData.penultimate_servicing_dealer} 
-                onChange={(v) => updateField("penultimate_servicing_dealer", v)} 
-              />
+              <FormField label="Dealer Code" value={formData.dealer_code} onChange={(v) => updateField("dealer_code", v)} />
+              <FormField label="Dealer Name" value={formData.dealer_name} onChange={(v) => updateField("dealer_name", v)} />
+              <FormField label="Dealer Group" value={formData.dealer_group} onChange={(v) => updateField("dealer_group", v)} />
+              <FormField label="Last Servicing Dealer" value={formData.last_servicing_dealer} onChange={(v) => updateField("last_servicing_dealer", v)} />
+              <FormField label="Penultimate Servicing Dealer" value={formData.penultimate_servicing_dealer} onChange={(v) => updateField("penultimate_servicing_dealer", v)} />
             </Section>
           )}
         </CardContent>
@@ -921,36 +835,17 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
 
       {/* Navigation Buttons */}
       <div className="flex items-center justify-between">
-        <Button
-          variant="outline"
-          className="rounded-sm"
-          onClick={handlePrevious}
-          disabled={isFirstStep}
-          data-testid="prev-btn"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={1.5} />
-          Previous
+        <Button variant="outline" className="rounded-sm" onClick={handlePrevious} disabled={isFirstStep} data-testid="prev-btn">
+          <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={1.5} />Previous
         </Button>
-
         <div className="flex gap-2">
           {!isLastStep ? (
-            <Button
-              className="rounded-sm bg-black text-white hover:bg-gray-800"
-              onClick={handleNext}
-              data-testid="next-btn"
-            >
-              Next
-              <ArrowRight className="w-4 h-4 ml-2" strokeWidth={1.5} />
+            <Button className="rounded-sm bg-black text-white hover:bg-gray-800" onClick={handleNext} data-testid="next-btn">
+              Next<ArrowRight className="w-4 h-4 ml-2" strokeWidth={1.5} />
             </Button>
           ) : (
-            <Button
-              className="rounded-sm bg-green-600 text-white hover:bg-green-700"
-              onClick={handleSave}
-              disabled={saving}
-              data-testid="save-btn"
-            >
-              <Save className="w-4 h-4 mr-2" strokeWidth={1.5} />
-              {saving ? "Saving..." : isEdit ? "Update Vehicle" : "Save Vehicle"}
+            <Button className="rounded-sm bg-green-600 text-white hover:bg-green-700" onClick={handleSave} disabled={saving} data-testid="save-btn">
+              <Save className="w-4 h-4 mr-2" strokeWidth={1.5} />{saving ? "Saving..." : "Save Vehicle"}
             </Button>
           )}
         </div>
