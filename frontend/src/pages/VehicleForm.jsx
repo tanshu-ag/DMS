@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, ArrowRight, Save, Check } from "lucide-react";
 import { toast } from "sonner";
 
 // Reusable input field component
@@ -31,7 +31,7 @@ const FormField = ({ label, value, onChange, placeholder, type = "text", require
 
 // Section component
 const Section = ({ title, children }) => (
-  <div className="mb-8">
+  <div className="mb-6">
     {title && <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">{title}</h3>}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {children}
@@ -44,11 +44,27 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(mode === "edit");
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState("vehicle");
+  const [currentStep, setCurrentStep] = useState(0);
   const [masterModels, setMasterModels] = useState([]);
 
   const isRenault = brand === "renault";
   const isEdit = mode === "edit";
+
+  // Define steps
+  const steps = isRenault
+    ? [
+        { id: "vehicle", label: "Vehicle", description: "Vehicle details and service info" },
+        { id: "customer", label: "Customer", description: "Contact information" },
+        { id: "insurance", label: "Insurance", description: "Insurance policies" },
+        { id: "dates", label: "Dates & Programs", description: "Warranty and programs" },
+        { id: "dealer", label: "Dealer", description: "Dealer information" },
+      ]
+    : [
+        { id: "vehicle", label: "Vehicle", description: "Vehicle details and service info" },
+        { id: "customer", label: "Customer", description: "Contact information" },
+        { id: "insurance", label: "Insurance", description: "Insurance policies" },
+        { id: "dates", label: "Dates & Programs", description: "Warranty and programs" },
+      ];
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -156,23 +172,38 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
     navigate(isRenault ? "/vehicles/renault" : "/vehicles/other-brands");
   };
 
+  const validateCurrentStep = () => {
+    const step = steps[currentStep];
+    
+    if (step.id === "vehicle") {
+      if (!formData.vehicle_reg_no) {
+        toast.error("Registration number is required");
+        return false;
+      }
+      if (isRenault && !formData.model) {
+        toast.error("Model is required for Renault vehicles");
+        return false;
+      }
+      if (!isRenault && !formData.make) {
+        toast.error("Brand is required");
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handleNext = () => {
+    if (validateCurrentStep()) {
+      setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
+    }
+  };
+
+  const handlePrevious = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 0));
+  };
+
   const handleSave = async () => {
-    // Validation
-    if (!formData.vehicle_reg_no) {
-      toast.error("Registration number is required");
-      setActiveTab("vehicle");
-      return;
-    }
-    if (isRenault && !formData.model) {
-      toast.error("Model is required for Renault vehicles");
-      setActiveTab("vehicle");
-      return;
-    }
-    if (!isRenault && !formData.make) {
-      toast.error("Brand is required");
-      setActiveTab("vehicle");
-      return;
-    }
+    if (!validateCurrentStep()) return;
 
     setSaving(true);
     try {
@@ -196,18 +227,8 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
     }
   };
 
-  // Determine which tabs to show
-  const tabs = isRenault
-    ? ["vehicle", "customer", "insurance", "dates", "dealer"]
-    : ["vehicle", "customer", "insurance", "dates"];
-
-  const tabLabels = {
-    vehicle: "Vehicle",
-    customer: "Customer",
-    insurance: "Insurance",
-    dates: "Dates & Programs",
-    dealer: "Dealer"
-  };
+  const isLastStep = currentStep === steps.length - 1;
+  const isFirstStep = currentStep === 0;
 
   if (loading) {
     return (
@@ -234,43 +255,46 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
             </p>
           </div>
         </div>
-        <Button 
-          className="rounded-sm bg-black text-white hover:bg-gray-800" 
-          onClick={handleSave}
-          disabled={saving}
-          data-testid="save-btn"
-        >
-          <Save className="w-4 h-4 mr-2" strokeWidth={1.5} />
-          {saving ? "Saving..." : isEdit ? "Update Vehicle" : "Save Vehicle"}
-        </Button>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <div className="flex gap-1 overflow-x-auto pb-px">
-          {tabs.map((tab) => (
-            <Button
-              key={tab}
-              variant="ghost"
-              className={`px-4 py-2 rounded-none border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeTab === tab
-                  ? "border-black text-black"
-                  : "border-transparent text-gray-500 hover:text-black hover:border-gray-300"
-              }`}
-              onClick={() => setActiveTab(tab)}
-              data-testid={`tab-${tab}`}
-            >
-              {tabLabels[tab]}
-            </Button>
-          ))}
-        </div>
+      {/* Step Indicator */}
+      <div className="flex items-center justify-between px-4">
+        {steps.map((step, index) => (
+          <div key={step.id} className="flex items-center">
+            <div className="flex flex-col items-center">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
+                  index < currentStep
+                    ? "bg-green-500 text-white"
+                    : index === currentStep
+                    ? "bg-black text-white"
+                    : "bg-gray-200 text-gray-500"
+                }`}
+              >
+                {index < currentStep ? <Check className="w-5 h-5" /> : index + 1}
+              </div>
+              <span className={`text-xs mt-2 font-medium ${index === currentStep ? "text-black" : "text-gray-400"}`}>
+                {step.label}
+              </span>
+            </div>
+            {index < steps.length - 1 && (
+              <div className={`h-0.5 w-16 md:w-24 lg:w-32 mx-2 ${index < currentStep ? "bg-green-500" : "bg-gray-200"}`} />
+            )}
+          </div>
+        ))}
       </div>
 
-      {/* TAB 1 — Vehicle */}
-      {activeTab === "vehicle" && (
-        <div className="mt-6">
-          <Card className="border border-gray-200 rounded-sm shadow-none">
-            <CardContent className="p-6">
+      {/* Step Content */}
+      <Card className="border border-gray-200 rounded-sm shadow-none">
+        <CardContent className="p-6">
+          <div className="mb-6">
+            <h2 className="text-lg font-bold">{steps[currentStep].label}</h2>
+            <p className="text-sm text-gray-500">{steps[currentStep].description}</p>
+          </div>
+
+          {/* STEP 1 — Vehicle */}
+          {currentStep === 0 && (
+            <>
               <Section title="Vehicle Details">
                 {isRenault ? (
                   <div className="space-y-1">
@@ -380,16 +404,12 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
                   placeholder="e.g., 45000"
                 />
               </Section>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </>
+          )}
 
-      {/* TAB 2 — Customer */}
-      {activeTab === "customer" && (
-        <div className="mt-6">
-          <Card className="border border-gray-200 rounded-sm shadow-none">
-            <CardContent className="p-6">
+          {/* STEP 2 — Customer */}
+          {currentStep === 1 && (
+            <>
               <Section title="Contact Information">
                 <FormField 
                   label="Contact Name" 
@@ -451,16 +471,12 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
                   onChange={(v) => updateField("contact_zipcode", v)} 
                 />
               </Section>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </>
+          )}
 
-      {/* TAB 3 — Insurance */}
-      {activeTab === "insurance" && (
-        <div className="mt-6">
-          <Card className="border border-gray-200 rounded-sm shadow-none">
-            <CardContent className="p-6">
+          {/* STEP 3 — Insurance */}
+          {currentStep === 2 && (
+            <>
               <Section title="Own Damage (OD)">
                 <FormField 
                   label="OD Policy Start Date" 
@@ -512,16 +528,12 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
                   onChange={(v) => updateField("tp_policy_number", v)} 
                 />
               </Section>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </>
+          )}
 
-      {/* TAB 4 — Dates & Programs */}
-      {activeTab === "dates" && (
-        <div className="mt-6">
-          <Card className="border border-gray-200 rounded-sm shadow-none">
-            <CardContent className="p-6">
+          {/* STEP 4 — Dates & Programs */}
+          {currentStep === 3 && (
+            <>
               <Section title="Common Dates">
                 <FormField 
                   label="Invoiced Date" 
@@ -634,47 +646,78 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
                   </Section>
                 </>
               )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </>
+          )}
 
-      {/* TAB 5 — Dealer (Renault only) */}
-      {isRenault && activeTab === "dealer" && (
-        <div className="mt-6">
-          <Card className="border border-gray-200 rounded-sm shadow-none">
-            <CardContent className="p-6">
-              <Section title="Dealer Information">
-                <FormField 
-                  label="Dealer Code" 
-                  value={formData.dealer_code} 
-                  onChange={(v) => updateField("dealer_code", v)} 
-                />
-                <FormField 
-                  label="Dealer Name" 
-                  value={formData.dealer_name} 
-                  onChange={(v) => updateField("dealer_name", v)} 
-                />
-                <FormField 
-                  label="Dealer Group" 
-                  value={formData.dealer_group} 
-                  onChange={(v) => updateField("dealer_group", v)} 
-                />
-                <FormField 
-                  label="Last Servicing Dealer" 
-                  value={formData.last_servicing_dealer} 
-                  onChange={(v) => updateField("last_servicing_dealer", v)} 
-                />
-                <FormField 
-                  label="Penultimate Servicing Dealer" 
-                  value={formData.penultimate_servicing_dealer} 
-                  onChange={(v) => updateField("penultimate_servicing_dealer", v)} 
-                />
-              </Section>
-            </CardContent>
-          </Card>
+          {/* STEP 5 — Dealer (Renault only) */}
+          {isRenault && currentStep === 4 && (
+            <Section title="Dealer Information">
+              <FormField 
+                label="Dealer Code" 
+                value={formData.dealer_code} 
+                onChange={(v) => updateField("dealer_code", v)} 
+              />
+              <FormField 
+                label="Dealer Name" 
+                value={formData.dealer_name} 
+                onChange={(v) => updateField("dealer_name", v)} 
+              />
+              <FormField 
+                label="Dealer Group" 
+                value={formData.dealer_group} 
+                onChange={(v) => updateField("dealer_group", v)} 
+              />
+              <FormField 
+                label="Last Servicing Dealer" 
+                value={formData.last_servicing_dealer} 
+                onChange={(v) => updateField("last_servicing_dealer", v)} 
+              />
+              <FormField 
+                label="Penultimate Servicing Dealer" 
+                value={formData.penultimate_servicing_dealer} 
+                onChange={(v) => updateField("penultimate_servicing_dealer", v)} 
+              />
+            </Section>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Navigation Buttons */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          className="rounded-sm"
+          onClick={handlePrevious}
+          disabled={isFirstStep}
+          data-testid="prev-btn"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={1.5} />
+          Previous
+        </Button>
+
+        <div className="flex gap-2">
+          {!isLastStep ? (
+            <Button
+              className="rounded-sm bg-black text-white hover:bg-gray-800"
+              onClick={handleNext}
+              data-testid="next-btn"
+            >
+              Next
+              <ArrowRight className="w-4 h-4 ml-2" strokeWidth={1.5} />
+            </Button>
+          ) : (
+            <Button
+              className="rounded-sm bg-green-600 text-white hover:bg-green-700"
+              onClick={handleSave}
+              disabled={saving}
+              data-testid="save-btn"
+            >
+              <Save className="w-4 h-4 mr-2" strokeWidth={1.5} />
+              {saving ? "Saving..." : isEdit ? "Update Vehicle" : "Save Vehicle"}
+            </Button>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
