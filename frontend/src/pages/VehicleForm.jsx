@@ -379,11 +379,11 @@ const VehicleForm = ({ brand = "other", mode = "add" }) => {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="rounded-sm bg-red-600 hover:bg-red-700 text-white h-10 w-10" 
+          className="rounded-sm bg-red-600 hover:bg-red-700 text-white h-8 w-8" 
           onClick={handleBack} 
           data-testid="cancel-btn"
         >
-          <X className="w-5 h-5" strokeWidth={2.5} />
+          <X className="w-4 h-4" strokeWidth={2.5} />
         </Button>
       </div>
 
