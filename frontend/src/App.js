@@ -113,7 +113,9 @@ const AppRouter = () => {
         {/* Vehicles routes */}
         <Route path="vehicles" element={<Navigate to="/vehicles/renault" replace />} />
         <Route path="vehicles/renault" element={<Vehicles />} />
+        <Route path="vehicles/renault/:vehicleId" element={<VehicleProfile brand="renault" />} />
         <Route path="vehicles/other-brands" element={<VehiclesOtherBrands />} />
+        <Route path="vehicles/other-brands/:vehicleId" element={<VehicleProfile brand="other" />} />
         {/* Legacy vehicles route redirect */}
         <Route path="customer-relations/vehicles" element={<Navigate to="/vehicles/renault" replace />} />
         <Route path="new-appointment" element={<NewAppointment />} />
