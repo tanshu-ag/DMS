@@ -8,9 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
-import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
@@ -23,20 +20,6 @@ const VehiclesOtherBrands = () => {
   
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
-  
-  // Modal state
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingVehicle, setEditingVehicle] = useState(null);
-  const [formData, setFormData] = useState({
-    vehicle_reg_no: "",
-    vin: "",
-    engine_no: "",
-    make: "",
-    model: "",
-    customer_name: "",
-    customer_phone: "",
-  });
-  const [saving, setSaving] = useState(false);
 
   // Fetch vehicles (only "other" brand)
   const fetchVehicles = useCallback(async () => {
@@ -60,68 +43,14 @@ const VehiclesOtherBrands = () => {
     fetchVehicles();
   }, [fetchVehicles]);
 
-  // Open modal for adding
+  // Navigate to add vehicle page
   const handleAdd = () => {
-    setEditingVehicle(null);
-    setFormData({
-      vehicle_reg_no: "",
-      vin: "",
-      engine_no: "",
-      make: "",
-      model: "",
-      customer_name: "",
-      customer_phone: "",
-    });
-    setModalOpen(true);
+    navigate("/vehicles/other-brands/new");
   };
 
-  // Open modal for editing
+  // Navigate to edit vehicle page
   const handleEdit = (vehicle) => {
-    setEditingVehicle(vehicle);
-    setFormData({
-      vehicle_reg_no: vehicle.vehicle_reg_no || "",
-      vin: vehicle.vin || "",
-      engine_no: vehicle.engine_no || "",
-      make: vehicle.make || "",
-      model: vehicle.model || "",
-      customer_name: vehicle.customer_name || "",
-      customer_phone: vehicle.customer_phone || "",
-    });
-    setModalOpen(true);
-  };
-
-  // Save vehicle
-  const handleSave = async () => {
-    if (!formData.vehicle_reg_no) {
-      toast.error("Registration number is required");
-      return;
-    }
-    if (!formData.make) {
-      toast.error("Make (brand name) is required");
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const payload = {
-        ...formData,
-        brand: "other",
-      };
-      
-      if (editingVehicle) {
-        await axios.put(`${API}/vehicles/${editingVehicle.vehicle_id}`, payload, { withCredentials: true });
-        toast.success("Vehicle updated");
-      } else {
-        await axios.post(`${API}/vehicles`, payload, { withCredentials: true });
-        toast.success("Vehicle added");
-      }
-      setModalOpen(false);
-      fetchVehicles();
-    } catch (e) {
-      toast.error(e.response?.data?.detail || "Failed to save vehicle");
-    } finally {
-      setSaving(false);
-    }
+    navigate(`/vehicles/other-brands/${vehicle.vehicle_id}/edit`);
   };
 
   // Delete vehicle
@@ -192,7 +121,7 @@ const VehiclesOtherBrands = () => {
             <TableRow className="border-b border-gray-200 bg-gray-50/50">
               <TableHead className="text-xs font-bold uppercase tracking-wider">Reg No</TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider">VIN</TableHead>
-              <TableHead className="text-xs font-bold uppercase tracking-wider">Make</TableHead>
+              <TableHead className="text-xs font-bold uppercase tracking-wider">Brand</TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider">Model</TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider">Customer</TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider">Phone</TableHead>
@@ -244,113 +173,6 @@ const VehiclesOtherBrands = () => {
           </TableBody>
         </Table>
       </Card>
-
-      {/* Add/Edit Modal */}
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-lg" data-testid="vehicle-modal">
-          <DialogHeader>
-            <DialogTitle className="font-heading font-bold text-lg tracking-tight uppercase">
-              {editingVehicle ? "Edit Vehicle" : "Add Vehicle"}
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-xs">Registration No *</Label>
-                <Input 
-                  value={formData.vehicle_reg_no}
-                  onChange={e => setFormData({ ...formData, vehicle_reg_no: e.target.value.toUpperCase() })}
-                  className="rounded-sm uppercase"
-                  placeholder="MH01AB1234"
-                  data-testid="input-reg-no"
-                />
-              </div>
-              <div>
-                <Label className="text-xs">Make (Brand) *</Label>
-                <Input 
-                  value={formData.make}
-                  onChange={e => setFormData({ ...formData, make: e.target.value })}
-                  className="rounded-sm"
-                  placeholder="e.g., Toyota, Honda"
-                  data-testid="input-make"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-xs">Model</Label>
-                <Input 
-                  value={formData.model}
-                  onChange={e => setFormData({ ...formData, model: e.target.value })}
-                  className="rounded-sm"
-                  placeholder="e.g., Corolla, City"
-                  data-testid="input-model"
-                />
-              </div>
-              <div>
-                <Label className="text-xs">VIN</Label>
-                <Input 
-                  value={formData.vin}
-                  onChange={e => setFormData({ ...formData, vin: e.target.value.toUpperCase() })}
-                  className="rounded-sm uppercase"
-                  placeholder="Optional"
-                  data-testid="input-vin"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label className="text-xs">Engine No</Label>
-              <Input 
-                value={formData.engine_no}
-                onChange={e => setFormData({ ...formData, engine_no: e.target.value.toUpperCase() })}
-                className="rounded-sm uppercase"
-                placeholder="Optional"
-                data-testid="input-engine-no"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-xs">Customer Name</Label>
-                <Input 
-                  value={formData.customer_name}
-                  onChange={e => setFormData({ ...formData, customer_name: e.target.value })}
-                  className="rounded-sm"
-                  placeholder="Optional"
-                  data-testid="input-customer-name"
-                />
-              </div>
-              <div>
-                <Label className="text-xs">Customer Phone</Label>
-                <Input 
-                  value={formData.customer_phone}
-                  onChange={e => setFormData({ ...formData, customer_phone: e.target.value })}
-                  className="rounded-sm"
-                  placeholder="Optional"
-                  data-testid="input-customer-phone"
-                />
-              </div>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" className="rounded-sm" onClick={() => setModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              className="rounded-sm bg-gray-700 text-white hover:bg-gray-800" 
-              onClick={handleSave}
-              disabled={saving || !formData.vehicle_reg_no || !formData.make}
-              data-testid="save-vehicle-btn"
-            >
-              {saving ? "Saving..." : editingVehicle ? "Update" : "Add Vehicle"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

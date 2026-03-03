@@ -15,6 +15,7 @@ import History from "@/pages/History";
 import Vehicles from "@/pages/Vehicles";
 import VehiclesOtherBrands from "@/pages/VehiclesOtherBrands";
 import VehicleProfile from "@/pages/VehicleProfile";
+import VehicleForm from "@/pages/VehicleForm";
 import Upcoming from "@/pages/Upcoming";
 import NewAppointment from "@/pages/NewAppointment";
 import AppointmentDetail from "@/pages/AppointmentDetail";
@@ -113,9 +114,13 @@ const AppRouter = () => {
         {/* Vehicles routes */}
         <Route path="vehicles" element={<Navigate to="/vehicles/renault" replace />} />
         <Route path="vehicles/renault" element={<Vehicles />} />
+        <Route path="vehicles/renault/new" element={<VehicleForm brand="renault" mode="add" />} />
         <Route path="vehicles/renault/:vehicleId" element={<VehicleProfile brand="renault" />} />
+        <Route path="vehicles/renault/:vehicleId/edit" element={<VehicleForm brand="renault" mode="edit" />} />
         <Route path="vehicles/other-brands" element={<VehiclesOtherBrands />} />
+        <Route path="vehicles/other-brands/new" element={<VehicleForm brand="other" mode="add" />} />
         <Route path="vehicles/other-brands/:vehicleId" element={<VehicleProfile brand="other" />} />
+        <Route path="vehicles/other-brands/:vehicleId/edit" element={<VehicleForm brand="other" mode="edit" />} />
         {/* Legacy vehicles route redirect */}
         <Route path="customer-relations/vehicles" element={<Navigate to="/vehicles/renault" replace />} />
         <Route path="new-appointment" element={<NewAppointment />} />
